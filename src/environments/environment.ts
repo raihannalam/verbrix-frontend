@@ -1,7 +1,7 @@
 export const environment = {
-  production: true,
-  apiBaseUrl: 'https://verbrixwebdocker.onrender.com',
-  apiUrl: 'https://verbrixwebdocker.onrender.com/api/v1',
+  production: false,
+  apiBaseUrl: 'http://localhost:8080',
+  apiUrl: 'http://localhost:8080/api/v1',
   liveKitUrl: 'wss://verbrix-is1gv2zd.livekit.cloud',
   firebaseConfig : {
     apiKey: "AIzaSyBEYoBHF5NckxkR5v2ZprCkhFlXoFbtb8Y",
