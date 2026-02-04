@@ -1,0 +1,207 @@
+@import "tailwindcss";
+
+/* =========================================================
+   1. THEME CONFIG (Tailwind Interface)
+   ========================================================= */
+@theme {
+  /* Fonts */
+  --font-sans: 'Manrope', system-ui, -apple-system, sans-serif;
+
+  /* Brand */
+  --color-brand: #0070f3;
+  --color-brand-hover: #0060df;
+  --color-brand-light: #3291ff;
+
+  /* Semantic colors */
+  --color-text-main: var(--text-main);
+  --color-text-muted: var(--text-muted);
+  --color-text-dim: var(--text-dim);
+  --color-text-inverse: var(--text-inverse);
+
+  --color-bg-page: var(--bg-page);
+  --color-bg-surface: var(--bg-surface);
+  --color-bg-glass: var(--bg-glass);
+
+  --color-border: var(--border);
+  --color-border-hover: var(--border-hover);
+
+  /* Shadows */
+  --shadow-card: 0 4px 6px -1px var(--shadow-color);
+  --shadow-float: 0 20px 25px -5px var(--shadow-color);
+}
+
+/* =========================================================
+   2. CSS VARIABLES (Light Mode Default)
+   ========================================================= */
+:root {
+  /* Typography */
+  --text-main: #09090b;
+  --text-muted: #52525b;
+  --text-dim: #a1a1aa;
+  --text-inverse: #ffffff;
+
+  /* Surfaces */
+  --bg-page: #ffffff;
+  --bg-surface: #f4f4f5;
+  --bg-glass: rgba(255, 255, 255, 0.85);
+
+  /* Borders */
+  --border: #e4e4e7;
+  --border-hover: #d4d4d8;
+
+  /* Effects */
+  --shadow-color: rgba(0, 0, 0, 0.08);
+
+  /* Motion */
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-smooth: 300ms;
+}
+
+/* =========================================================
+   3. DARK MODE (System + Manual Override)
+   ========================================================= */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --text-main: #f4f4f5;
+    --text-muted: #a1a1aa;
+    --text-dim: #52525b;
+    --text-inverse: #ffffff;
+
+    --bg-page: #09090b;
+    --bg-surface: #18181b;
+    --bg-glass: rgba(9, 9, 11, 0.85);
+
+    --border: #27272a;
+    --border-hover: #3f3f46;
+
+    --shadow-color: rgba(0, 0, 0, 0.4);
+  }
+}
+
+:root[data-theme="dark"] {
+  --text-main: #f4f4f5;
+  --text-muted: #a1a1aa;
+  --text-dim: #52525b;
+  --text-inverse: #ffffff;
+
+  --bg-page: #09090b;
+  --bg-surface: #18181b;
+  --bg-glass: rgba(9, 9, 11, 0.85);
+
+  --border: #27272a;
+  --border-hover: #3f3f46;
+
+  --shadow-color: rgba(0, 0, 0, 0.4);
+}
+
+/* =========================================================
+   4. VIEWPORT & DENSITY CONTROL (CRITICAL)
+   ========================================================= */
+
+/* Desktop baseline */
+html {
+  font-size: 16px;
+}
+
+/* Tablet: slightly denser */
+@media (max-width: 1024px) {
+  html {
+    font-size: 15.5px;
+  }
+}
+
+/* Mobile: native-feeling density */
+@media (max-width: 640px) {
+  html {
+    font-size: 15px;
+  }
+}
+
+/* =========================================================
+   5. BASE STYLES
+   ========================================================= */
+@layer base {
+  body {
+    background-color: var(--bg-page);
+    color: var(--text-main);
+    border-color: var(--border);
+    font-family: var(--font-sans);
+
+    transition-property: background-color, color, border-color;
+    transition-timing-function: var(--ease-smooth);
+    transition-duration: var(--duration-smooth);
+  }
+
+  *, ::before, ::after {
+    border-color: var(--border);
+  }
+}
+
+/* =========================================================
+   6. COMPONENTS
+   ========================================================= */
+@layer components {
+  /* Glass surface */
+  .glass {
+    @apply border-b;
+    background-color: var(--bg-glass);
+    backdrop-filter: blur(12px);
+  }
+
+  /* Panel / Card */
+  .panel {
+    @apply bg-bg-surface border shadow-card transition-colors;
+    border-radius: 1.5rem;
+    padding: 2rem;
+  }
+
+  /* Primary button */
+  .btn-primary {
+    @apply inline-flex items-center justify-center
+           font-semibold text-white
+           bg-brand transition-all ease-out
+           active:scale-95;
+    border-radius: 0.875rem;
+    padding: 0.75rem 1.5rem;
+    box-shadow: 0 8px 20px rgba(0, 112, 243, 0.25);
+  }
+
+  .btn-primary:hover {
+    background-color: var(--color-brand-hover);
+  }
+}
+
+/* =========================================================
+   7. MOBILE-SPECIFIC NATIVE TUNING
+   ========================================================= */
+@media (max-width: 640px) {
+  /* Reduce perceived bulk */
+  .panel {
+    padding: 1.25rem;
+    border-radius: 1rem;
+  }
+
+  .btn-primary {
+    padding: 0.625rem 1.25rem;
+    border-radius: 0.75rem;
+  }
+
+  /* Glass should feel lighter on mobile */
+  .glass {
+    backdrop-filter: blur(8px);
+  }
+
+  /* Typography tightening */
+  body {
+    letter-spacing: -0.01em;
+  }
+}
+
+/* =========================================================
+   8. TABLET TRANSITION POLISH
+   ========================================================= */
+@media (max-width: 768px) {
+  body {
+    letter-spacing: -0.005em;
+  }
+}
