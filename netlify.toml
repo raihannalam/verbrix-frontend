@@ -1,6 +1,6 @@
 [build]
   command = "ng build --configuration production"
-  publish = "dist/verbrix-frontend"
+  publish = "dist/verbrix-frontend/browser"
 
 [[redirects]]
   from = "/*"
