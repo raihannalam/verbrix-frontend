@@ -78,18 +78,45 @@ import { Navbar } from "../layout/navbar";
           </div>
         </div>
       </section>
+<section class="py-10 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+    <p class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-6">Connecting patients to top facilities</p>
+    
+    <div class="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-75 grayscale transition-all duration-500">
+      
+      <img 
+        src="assets/hospitals-logo/apollo.svg" 
+        alt="Apollo Hospitals" 
+        class="h-10 md:h-14 w-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:invert dark:contrast-200"
+      >
 
-      <section class="py-10 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-6">Connecting patients to top facilities</p>
-          <div class="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-40 grayscale hover:grayscale-0 transition-all duration-500">
-             <span class="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2"><i class="ri-hospital-line"></i> MEDCLINIC</span>
-             <span class="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2"><i class="ri-pulse-line"></i> HEALTHPLUS</span>
-             <span class="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2"><i class="ri-heart-pulse-line"></i> CAREGLOBAL</span>
-             <span class="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2"><i class="ri-stethoscope-line"></i> DOCTORIA</span>
-          </div>
-        </div>
-      </section>
+      <img 
+        src="assets/hospitals-logo/fortis.png" 
+        alt="Fortis Healthcare" 
+        class="h-8 md:h-10 w-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:invert dark:contrast-200"
+      >
+
+<img 
+        src="assets/hospitals-logo/max.png" 
+        alt="Max Healthcare" 
+        class="h-8 md:h-10 w-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:invert dark:contrast-200"
+      >
+
+      <img 
+        src="assets/hospitals-logo/manipal.png" 
+        alt="Manipal Hospitals" 
+        class="h-10 md:h-12 w-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:invert dark:contrast-200"
+      >
+
+      <img 
+        src="assets/hospitals-logo/medanta.svg" 
+        alt="Medanta" 
+        class="h-8 md:h-10 w-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:invert dark:contrast-200"
+      >
+
+    </div>
+  </div>
+</section>
 
       <section id="how-it-works" class="py-24 bg-slate-50 dark:bg-slate-900 scroll-mt-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -466,14 +493,14 @@ export class Home implements AfterViewInit {
     }
 
     const user = this.auth.currentUser();
-    
+
     if (user) {
       const dashboardMap: Record<string, string> = {
         [UserRole.ADMIN]: '/dashboard/admin/home',
         [UserRole.INTERPRETER]: '/dashboard/interpreter/home',
         [UserRole.CLIENT]: '/dashboard/client/home'
       };
-      
+
       this.router.navigate([dashboardMap[user.role] || '/dashboard']);
     } else {
       this.router.navigate(['/auth/login']);
