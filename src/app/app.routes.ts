@@ -24,6 +24,19 @@ export const routes: Routes = [
     loadComponent: () => import('./features/about/about').then(m => m.AboutUsComponent)
   },
 
+  {
+    path: 'legal/privacy',
+    loadComponent: () => import('./features/legal/privacy-policy').then(m => m.PrivacyPolicyComponent)
+  },
+  {
+    path: 'legal/terms',
+    loadComponent: () => import('./features/legal/terms-of-service').then(m => m.TermsOfServiceComponent)
+  },
+  {
+    path: 'legal/deletion',
+    loadComponent: () => import('./features/legal/data-deletion').then(m => m.DataDeletionComponent)
+  },
+
   // 3. INTERPRETER APPLICATION FLOW (Top-level access)
   // Accessible via: /interpreters/apply or /interpreters/re-apply
   // These hit the 'apply' and 're-apply' endpoints in InterpreterController
