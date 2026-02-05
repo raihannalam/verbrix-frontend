@@ -55,8 +55,7 @@ const NAV_CONFIG: Record<string, NavLink[]> = {
   imports: [RouterLink, RouterLinkActive, CommonModule],
   template: `
 <header
-  class="fixed top-0 inset-x-0 z-[100] h-16
-         transition-colors duration-300"
+  class="fixed top-0 inset-x-0 z-[100] h-16 transition-colors duration-300"
   [class.bg-transparent]="!isScrolled() && !isMenuOpen()"
   [class.bg-[var(--bg-glass)]]="isScrolled() && !isMenuOpen()"
   [class.backdrop-blur-md]="isScrolled() && !isMenuOpen()"
@@ -66,185 +65,104 @@ const NAV_CONFIG: Record<string, NavLink[]> = {
        [class.opacity-0]="!isScrolled() && !isMenuOpen()">
   </div>
 
-  <div class="container mx-auto h-full px-4 sm:px-6
-              flex items-center justify-between relative z-10">
-
-    <!-- LOGO (unchanged) -->
-    <a
-      (click)="handleLogoClick()"
-      class="flex items-center select-none cursor-pointer"
-    >
-      <img
-        src="/assets/images/logo.png"
-        alt="Verbrix logo"
-        class="h-7 w-auto object-contain"
-      />
-      <span
-        class="ml-2.5 text-xl font-bold
-               tracking-[0.04em]
-               text-[var(--text-main)]"
-      >
+  <div class="container mx-auto h-full px-4 sm:px-6 flex items-center justify-between relative z-10">
+    <a (click)="handleLogoClick()" class="flex items-center select-none cursor-pointer">
+      <img src="/assets/images/logo.png" alt="Verbrix logo" class="h-7 w-auto object-contain" />
+      <span class="ml-2.5 text-xl font-bold tracking-[0.04em] text-[var(--text-main)]">
         VERBRIX
       </span>
     </a>
 
-    <!-- DESKTOP NAV (same content, calmer interactions) -->
     <nav class="hidden md:flex items-center gap-1">
       @for (link of currentNavLinks(); track link.label) {
         @if (link.isDisabled) {
-          <span class="px-4 py-2 text-sm font-medium
-                       text-[var(--text-muted)] opacity-50 select-none">
+          <span class="px-4 py-2 text-sm font-medium text-[var(--text-muted)] opacity-50 select-none">
             {{ link.label }}
           </span>
         } @else if (link.route) {
-          <a
-            [routerLink]="link.route"
-            routerLinkActive="text-blue-600 bg-blue-50 dark:bg-blue-900/20 font-semibold"
-            class="px-4 py-2 rounded-lg text-sm font-medium
-                   text-[var(--text-muted)]
-                   transition-colors
-                   hover:text-blue-600 hover:bg-[var(--bg-surface)]"
-          >
+          <a [routerLink]="link.route"
+             routerLinkActive="text-blue-600 bg-blue-50 dark:bg-blue-900/20 font-semibold"
+             class="px-4 py-2 rounded-lg text-sm font-medium text-[var(--text-muted)] transition-colors hover:text-blue-600 hover:bg-[var(--bg-surface)]">
             {{ link.label }}
           </a>
         } @else {
-          <button
-            (click)="scrollTo(link.fragment!)"
-            class="px-4 py-2 rounded-lg text-sm font-medium
-                   text-[var(--text-muted)]
-                   transition-colors
-                   hover:text-blue-600 hover:bg-[var(--bg-surface)]"
-          >
+          <button (click)="scrollTo(link.fragment!)"
+                  class="px-4 py-2 rounded-lg text-sm font-medium text-[var(--text-muted)] transition-colors hover:text-blue-600 hover:bg-[var(--bg-surface)]">
             {{ link.label }}
           </button>
         }
       }
     </nav>
 
-    <!-- RIGHT SIDE (fully preserved) -->
     <div class="flex items-center gap-3">
       @if (isLoggedIn()) {
         <div class="hidden md:flex items-center gap-4 pl-4 border-l border-[var(--border)]">
-          <a [routerLink]="dashboardRoute()"
-             class="flex items-center gap-3">
-            <div
-              class="h-9 w-9 rounded-full bg-blue-100 dark:bg-blue-900/30
-                     text-blue-600 dark:text-blue-400
-                     flex items-center justify-center
-                     font-bold text-xs"
-            >
+          <a [routerLink]="dashboardRoute()" class="flex items-center gap-3">
+            <div class="h-9 w-9 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-xs">
               {{ userInitials() }}
             </div>
             <div class="flex flex-col leading-none">
-              <span class="text-sm font-bold text-[var(--text-main)]">
-                {{ displayName() }}
-              </span>
-              <span class="text-[10px] uppercase tracking-wide font-bold
-                           text-[var(--text-muted)]">
-                {{ roleLabel() }}
-              </span>
+              <span class="text-sm font-bold text-[var(--text-main)]">{{ displayName() }}</span>
+              <span class="text-[10px] uppercase tracking-wide font-bold text-[var(--text-muted)]">{{ roleLabel() }}</span>
             </div>
           </a>
-
-          <button
-            (click)="logout()"
-            class="h-9 w-9 rounded-full
-                   flex items-center justify-center
-                   text-[var(--text-dim)]
-                   transition-colors
-                   hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10"
-            title="Sign Out"
-          >
+          <button (click)="logout()" class="h-9 w-9 rounded-full flex items-center justify-center text-[var(--text-dim)] transition-colors hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10" title="Sign Out">
             <i class="ri-logout-box-r-line"></i>
           </button>
         </div>
       } @else {
         <div class="hidden md:flex items-center gap-3">
-          <a routerLink="/auth/login"
-             class="px-5 py-2 text-sm font-semibold
-                    text-[var(--text-muted)]
-                    hover:text-[var(--text-main)] transition-colors">
-            Sign In
-          </a>
-          <a routerLink="/auth/register"
-             class="inline-flex items-center justify-center
-                    rounded-xl bg-blue-600 hover:bg-blue-700
-                    text-white px-5 py-2 text-sm font-semibold
-                    shadow-lg shadow-blue-600/25">
-            Get Started
-          </a>
+          <a routerLink="/auth/login" class="px-5 py-2 text-sm font-semibold text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors">Sign In</a>
+          <a routerLink="/auth/register" class="inline-flex items-center justify-center rounded-xl bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 text-sm font-semibold shadow-lg shadow-blue-600/25">Get Started</a>
         </div>
       }
 
-      <!-- MOBILE TOGGLE -->
-      <button
-        (click)="toggleMenu()"
-        class="md:hidden flex h-10 w-10 items-center justify-center
-               rounded-full text-[var(--text-main)]
-               hover:bg-[var(--bg-surface)]"
-      >
+      <button (click)="toggleMenu()" class="md:hidden flex h-10 w-10 items-center justify-center rounded-full text-[var(--text-main)] hover:bg-[var(--bg-surface)]">
         <i [class]="isMenuOpen() ? 'ri-close-line text-2xl' : 'ri-menu-4-line text-2xl'"></i>
       </button>
     </div>
   </div>
 </header>
 
-<!-- MOBILE OVERLAY -->
 <div
-  class="fixed inset-0 z-[90] bg-black/40 backdrop-blur-[2px]
-         transition-opacity duration-300"
+  class="md:hidden fixed inset-0 z-[90] bg-black/40 backdrop-blur-[2px] transition-opacity duration-300"
   [class.opacity-0]="!isMenuOpen()"
   [class.pointer-events-none]="!isMenuOpen()"
   (click)="closeMenu()">
 </div>
 
-<!-- MOBILE DRAWER (unchanged content, normalized spacing) -->
 <aside
-  class="fixed top-0 right-0 z-[95] h-[100dvh] w-[80%] max-w-[300px]
-         bg-[var(--bg-page)] shadow-2xl
-         pt-20 pb-6 px-6
-         transition-transform duration-300"
+  class="md:hidden fixed top-0 right-0 z-[95] h-[100dvh] w-[80%] max-w-[300px] bg-[var(--bg-page)] shadow-2xl pt-20 pb-6 px-6 transition-transform duration-300"
   [class.translate-x-full]="!isMenuOpen()"
+  [style.visibility]="isMenuOpen() ? 'visible' : 'hidden'" 
 >
   <nav class="flex-1 overflow-y-auto flex flex-col gap-2 no-scrollbar">
-
     @if (isLoggedIn()) {
-      <div class="mb-6 p-4 rounded-2xl bg-[var(--bg-surface)]
-                  border border-[var(--border)] flex items-center gap-4">
-        <div class="h-12 w-12 rounded-full bg-blue-600 text-white
-                    flex items-center justify-center font-bold text-sm">
+      <div class="mb-6 p-4 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border)] flex items-center gap-4">
+        <div class="h-12 w-12 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm">
           {{ userInitials() }}
         </div>
         <div class="overflow-hidden">
-          <span class="block text-sm font-bold text-[var(--text-main)] truncate">
-            {{ displayName() }}
-          </span>
-          <span class="block text-xs font-semibold text-blue-600 dark:text-blue-400">
-            {{ roleLabel() }}
-          </span>
+          <span class="block text-sm font-bold text-[var(--text-main)] truncate">{{ displayName() }}</span>
+          <span class="block text-xs font-semibold text-blue-600 dark:text-blue-400">{{ roleLabel() }}</span>
         </div>
       </div>
     }
 
     @for (link of currentNavLinks(); track link.label) {
       @if (link.isDisabled) {
-        <span class="flex items-center px-4 py-3 rounded-xl
-                     text-base font-medium text-[var(--text-dim)] opacity-50">
+        <span class="flex items-center px-4 py-3 rounded-xl text-base font-medium text-[var(--text-dim)] opacity-50">
           {{ link.label }}
         </span>
       } @else if (link.route) {
         <a [routerLink]="link.route" (click)="closeMenu()"
            routerLinkActive="bg-blue-50 dark:bg-blue-900/20 text-blue-600 font-bold"
-           class="flex items-center px-4 py-3 rounded-xl
-                  text-base font-semibold text-[var(--text-muted)]
-                  hover:bg-[var(--bg-surface)]">
+           class="flex items-center px-4 py-3 rounded-xl text-base font-semibold text-[var(--text-muted)] hover:bg-[var(--bg-surface)]">
           {{ link.label }}
         </a>
       } @else {
         <button (click)="scrollTo(link.fragment!); closeMenu()"
-                class="flex items-center px-4 py-3 rounded-xl
-                       text-base font-semibold text-[var(--text-muted)]
-                       hover:bg-[var(--bg-surface)] text-left">
+                class="flex items-center px-4 py-3 rounded-xl text-base font-semibold text-[var(--text-muted)] hover:bg-[var(--bg-surface)] text-left">
           {{ link.label }}
         </button>
       }
@@ -252,24 +170,12 @@ const NAV_CONFIG: Record<string, NavLink[]> = {
 
     <div class="mt-auto pt-6 border-t border-[var(--border)]">
       @if (isLoggedIn()) {
-        <button (click)="logout()"
-                class="w-full flex items-center justify-center gap-2
-                       px-4 py-3 rounded-xl text-red-600 font-semibold
-                       hover:bg-red-50 dark:hover:bg-red-900/10">
+        <button (click)="logout()" class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-red-600 font-semibold hover:bg-red-50 dark:hover:bg-red-900/10">
           <i class="ri-logout-box-line"></i> Log Out
         </button>
       } @else {
-        <a routerLink="/auth/login" (click)="closeMenu()"
-           class="block w-full px-4 py-3 rounded-xl font-semibold
-                  text-[var(--text-muted)]
-                  hover:bg-[var(--bg-surface)] mb-2">
-          Sign In
-        </a>
-        <a routerLink="/auth/register" (click)="closeMenu()"
-           class="block w-full text-center rounded-xl
-                  bg-blue-600 text-white py-3 font-bold">
-          Get Started
-        </a>
+        <a routerLink="/auth/login" (click)="closeMenu()" class="block w-full px-4 py-3 rounded-xl font-semibold text-[var(--text-muted)] hover:bg-[var(--bg-surface)] mb-2">Sign In</a>
+        <a routerLink="/auth/register" (click)="closeMenu()" class="block w-full text-center rounded-xl bg-blue-600 text-white py-3 font-bold">Get Started</a>
       }
     </div>
   </nav>
@@ -281,7 +187,6 @@ const NAV_CONFIG: Record<string, NavLink[]> = {
     .no-scrollbar { scrollbar-width: none; }
   `]
 })
-
 export class Navbar {
   private auth = inject(AuthService);
   private profile = inject(UserProfileService);
@@ -290,10 +195,11 @@ export class Navbar {
   private document = inject(DOCUMENT);
 
   isLoggedIn = this.auth.isLoggedIn;
-  isMenuOpen = signal(false);
+  
+  // Explicitly false and won't be changed until user interaction
+  isMenuOpen = signal(false); 
   isScrolled = signal(false);
 
-  // Computed Properties
   currentNavLinks = computed(() => {
     const role = this.auth.currentUser()?.role;
     return role ? NAV_CONFIG[role] : NAV_CONFIG['GUEST'];
@@ -323,11 +229,16 @@ export class Navbar {
   });
 
   dashboardRoute = computed(() => {
-    const links = this.currentNavLinks();
-    return links.find(l => l.route)?.route || '/';
+    const role = this.auth.currentUser()?.role;
+    if (!role) return '/';
+    if (role === UserRole.ADMIN) return '/dashboard/admin/home';
+    if (role === UserRole.INTERPRETER) return '/dashboard/interpreter/home';
+    if (role === UserRole.CLIENT) return '/dashboard/client/home';
+    return '/';
   });
 
   constructor() {
+    // Ensuring scroll checks only run on client side
     afterNextRender(() => {
       this.checkScroll();
       fromEvent(window, 'scroll', { passive: true })
@@ -340,42 +251,26 @@ export class Navbar {
     });
   }
 
-  // --- LOGIC ---
-
-  /**
-   * Determines the class for the header background.
-   * - Scrolled? -> Glass effect (blur + slight transparency)
-   * - Menu Open? -> Solid Page Color (To cover content cleanly on mobile)
-   * - Top & Closed? -> Transparent (For Hero section)
-   */
-  getNavbarBackgroundClass() {
-    if (this.isMenuOpen()) {
-      return 'bg-[var(--bg-page)]'; 
-    }
-    if (this.isScrolled()) {
-      return 'bg-[var(--bg-glass)] backdrop-blur-md';
-    }
-    return 'bg-transparent';
-  }
-
   private checkScroll() {
     this.isScrolled.set(window.scrollY > 10);
   }
 
   toggleMenu() {
-    this.isMenuOpen.update(v => !v);
-    this.updateBodyScroll();
+    const newState = !this.isMenuOpen();
+    this.isMenuOpen.set(newState);
+    this.updateBodyScroll(newState);
   }
 
   closeMenu() {
-    this.isMenuOpen.set(false);
-    this.updateBodyScroll();
+    if (this.isMenuOpen()) {
+      this.isMenuOpen.set(false);
+      this.updateBodyScroll(false);
+    }
   }
 
-  private updateBodyScroll() {
-    if (this.isMenuOpen()) {
+  private updateBodyScroll(disable: boolean) {
+    if (disable) {
       this.document.body.style.overflow = 'hidden';
-      // Basic lock to prevent background scrolling
     } else {
       this.document.body.style.overflow = '';
     }
