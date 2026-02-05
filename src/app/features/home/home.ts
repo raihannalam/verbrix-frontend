@@ -78,45 +78,19 @@ import { Navbar } from "../layout/navbar";
           </div>
         </div>
       </section>
-<section class="py-10 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-    <p class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-6">Connecting patients to top facilities</p>
-    
-    <div class="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-75 grayscale transition-all duration-500">
-      
-      <img 
-        src="assets/hospitals-logo/apollo.svg" 
-        alt="Apollo Hospitals" 
-        class="h-10 md:h-14 w-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:invert dark:contrast-200"
-      >
 
-      <img 
-        src="assets/hospitals-logo/fortis.png" 
-        alt="Fortis Healthcare" 
-        class="h-8 md:h-10 w-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:invert dark:contrast-200"
-      >
-
-<img 
-        src="assets/hospitals-logo/max.png" 
-        alt="Max Healthcare" 
-        class="h-8 md:h-10 w-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:invert dark:contrast-200"
-      >
-
-      <img 
-        src="assets/hospitals-logo/manipal.png" 
-        alt="Manipal Hospitals" 
-        class="h-10 md:h-12 w-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:invert dark:contrast-200"
-      >
-
-      <img 
-        src="assets/hospitals-logo/medanta.svg" 
-        alt="Medanta" 
-        class="h-8 md:h-10 w-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:invert dark:contrast-200"
-      >
-
-    </div>
-  </div>
-</section>
+      <section class="py-10 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <p class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-6">Connecting patients to top facilities</p>
+          <div class="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-75 grayscale transition-all duration-500">
+            <img src="assets/hospitals-logo/apollo.svg" alt="Apollo Hospitals" class="h-10 md:h-14 w-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:invert dark:contrast-200">
+            <img src="assets/hospitals-logo/fortis.png" alt="Fortis Healthcare" class="h-8 md:h-10 w-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:invert dark:contrast-200">
+            <img src="assets/hospitals-logo/max.png" alt="Max Healthcare" class="h-8 md:h-10 w-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:invert dark:contrast-200">
+            <img src="assets/hospitals-logo/manipal.png" alt="Manipal Hospitals" class="h-10 md:h-12 w-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:invert dark:contrast-200">
+            <img src="assets/hospitals-logo/medanta.svg" alt="Medanta" class="h-8 md:h-10 w-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:invert dark:contrast-200">
+          </div>
+        </div>
+      </section>
 
       <section id="how-it-works" class="py-24 bg-slate-50 dark:bg-slate-900 scroll-mt-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -260,50 +234,50 @@ import { Navbar } from "../layout/navbar";
       <section id="patients" class="py-24 bg-white dark:bg-slate-950 scroll-mt-16 border-t border-slate-100 dark:border-slate-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-              <div>
-                <div class="inline-flex items-center rounded-full bg-blue-50 dark:bg-blue-900/20 px-3 py-1 text-sm font-medium text-blue-700 dark:text-blue-300 mb-6">
-                   For Patients
-                </div>
-                <h2 class="text-3xl md:text-5xl font-bold text-slate-900 dark:text-white mb-6 leading-tight">
-                  Medical travel <br>without the fear.
-                </h2>
-                <p class="text-lg text-slate-500 dark:text-slate-400 mb-8 leading-relaxed">
-                   Traveling for treatment is stressful. Middlemen overcharge, language barriers isolate you, and uncertainty is high. Verbrix replaces that with trust.
-                </p>
-                
-                <div class="space-y-6">
-                   <div class="flex gap-4">
-                      <div class="flex-shrink-0 w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
-                         <i class="ri-shield-check-line text-xl"></i>
-                      </div>
-                      <div>
-                         <h4 class="text-lg font-bold text-slate-900 dark:text-white">No Exploitation</h4>
-                         <p class="text-slate-500 dark:text-slate-400 mt-1">
-                            Connect directly with verified professionals. No random agents or hidden commissions.
-                         </p>
-                      </div>
-                   </div>
-                   <div class="flex gap-4">
-                      <div class="flex-shrink-0 w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
-                         <i class="ri-map-pin-user-line text-xl"></i>
-                      </div>
-                      <div>
-                         <h4 class="text-lg font-bold text-slate-900 dark:text-white">End-to-End Support</h4>
-                         <p class="text-slate-500 dark:text-slate-400 mt-1">
-                            Your interpreter guides you from your home country, meets you at the airport, and stays until you return.
-                         </p>
-                      </div>
-                   </div>
-                </div>
+             <div>
+               <div class="inline-flex items-center rounded-full bg-blue-50 dark:bg-blue-900/20 px-3 py-1 text-sm font-medium text-blue-700 dark:text-blue-300 mb-6">
+                  For Patients
+               </div>
+               <h2 class="text-3xl md:text-5xl font-bold text-slate-900 dark:text-white mb-6 leading-tight">
+                 Medical travel <br>without the fear.
+               </h2>
+               <p class="text-lg text-slate-500 dark:text-slate-400 mb-8 leading-relaxed">
+                  Traveling for treatment is stressful. Middlemen overcharge, language barriers isolate you, and uncertainty is high. Verbrix replaces that with trust.
+               </p>
+               
+               <div class="space-y-6">
+                  <div class="flex gap-4">
+                     <div class="flex-shrink-0 w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                        <i class="ri-shield-check-line text-xl"></i>
+                     </div>
+                     <div>
+                        <h4 class="text-lg font-bold text-slate-900 dark:text-white">No Exploitation</h4>
+                        <p class="text-slate-500 dark:text-slate-400 mt-1">
+                           Connect directly with verified professionals. No random agents or hidden commissions.
+                        </p>
+                     </div>
+                  </div>
+                  <div class="flex gap-4">
+                     <div class="flex-shrink-0 w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                        <i class="ri-map-pin-user-line text-xl"></i>
+                     </div>
+                     <div>
+                        <h4 class="text-lg font-bold text-slate-900 dark:text-white">End-to-End Support</h4>
+                        <p class="text-slate-500 dark:text-slate-400 mt-1">
+                           Your interpreter guides you from your home country, meets you at the airport, and stays until you return.
+                        </p>
+                     </div>
+                  </div>
+               </div>
 
-                <div class="mt-10">
-                   <button (click)="handleGetStarted()" class="h-12 px-8 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-500 transition-colors">
-                      Start Your Journey
-                   </button>
-                </div>
-              </div>
+               <div class="mt-10">
+                  <button (click)="handleGetStarted()" class="h-12 px-8 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-500 transition-colors">
+                     Start Your Journey
+                  </button>
+               </div>
+             </div>
 
-              <div class="relative">
+             <div class="relative">
                  <div class="absolute -inset-4 bg-gradient-to-r from-blue-100 to-violet-100 dark:from-blue-900/20 dark:to-violet-900/20 rounded-3xl blur-2xl opacity-50"></div>
                  <div class="relative rounded-2xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800">
                     <img src="https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=800&q=80" alt="Comforting Medical Consultation" class="w-full h-auto object-cover">
@@ -314,14 +288,16 @@ import { Navbar } from "../layout/navbar";
                        <div class="mt-2 text-white/80 text-sm font-bold">- Ahmed, Cardiac Patient</div>
                     </div>
                  </div>
-              </div>
+             </div>
            </div>
         </div>
       </section>
 
-      <section id="interpreters" class="py-24 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white scroll-mt-16 relative overflow-hidden">
-         <div class="absolute top-0 right-0 -mt-20 -mr-20 w-[500px] h-[500px] bg-violet-600/10 dark:bg-violet-600/20 rounded-full blur-[100px]"></div>
-         <div class="absolute bottom-0 left-0 -mb-20 -ml-20 w-[500px] h-[500px] bg-indigo-600/10 dark:bg-indigo-600/20 rounded-full blur-[100px]"></div>
+      <section id="interpreters" class="py-24 relative overflow-hidden bg-white dark:bg-slate-950">
+         <div class="absolute inset-0 -z-10 h-full w-full bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] dark:bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:20px_20px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_60%,transparent_100%)] opacity-70"></div>
+         
+         <div class="absolute top-0 right-0 -mt-20 -mr-20 w-[500px] h-[500px] bg-violet-600/5 dark:bg-violet-600/10 rounded-full blur-[100px]"></div>
+         <div class="absolute bottom-0 left-0 -mb-20 -ml-20 w-[500px] h-[500px] bg-indigo-600/5 dark:bg-indigo-600/10 rounded-full blur-[100px]"></div>
 
          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div class="text-center max-w-3xl mx-auto mb-16">
@@ -335,126 +311,130 @@ import { Navbar } from "../layout/navbar";
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-               <div class="bg-white dark:bg-slate-900/50 backdrop-blur border border-slate-200 dark:border-slate-800 p-8 rounded-2xl hover:border-slate-300 dark:hover:bg-slate-900 transition-colors">
-                  <div class="w-12 h-12 bg-violet-100 dark:bg-violet-500/20 text-violet-600 dark:text-white rounded-lg flex items-center justify-center mb-6">
-                     <i class="ri-global-line text-2xl"></i>
+               
+               <div class="group relative bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm hover:shadow-xl hover:border-violet-300 dark:hover:border-violet-700 transition-all duration-300 overflow-hidden">
+                  <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                     <i class="ri-global-line text-8xl text-violet-600"></i>
+                  </div>
+                  
+                  <div class="w-12 h-12 bg-violet-50 dark:bg-violet-900/20 text-violet-600 dark:text-violet-400 rounded-lg flex items-center justify-center mb-6 border border-violet-100 dark:border-violet-800">
+                     <i class="ri-earth-line text-2xl"></i>
                   </div>
                   <h3 class="text-xl font-bold mb-3 text-slate-900 dark:text-white">Global Visibility</h3>
-                  <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
+                  <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-6">
                      Don't just work locally. Patients from the Middle East, CIS, and Africa are looking for you before they travel.
                   </p>
+                  
+                  <div class="mt-auto bg-slate-50 dark:bg-slate-950 rounded-lg border border-slate-100 dark:border-slate-800 p-3 flex items-center gap-3">
+                     <div class="flex -space-x-2 overflow-hidden">
+                        <img class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-slate-900 object-cover" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=facearea&facepad=2&w=100&h=100&q=80" alt=""/>
+                        <img class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-slate-900 object-cover" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=facearea&facepad=2&w=100&h=100&q=80" alt=""/>
+                        <div class="h-8 w-8 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-xs font-medium text-slate-500 ring-2 ring-white dark:ring-slate-900">+5</div>
+                     </div>
+                     <div class="text-xs font-medium text-slate-600 dark:text-slate-400">
+                        <span class="text-green-500">●</span> 12 New leads
+                     </div>
+                  </div>
                </div>
 
-               <div class="bg-white dark:bg-slate-900/50 backdrop-blur border border-slate-200 dark:border-slate-800 p-8 rounded-2xl hover:border-slate-300 dark:hover:bg-slate-900 transition-colors">
-                  <div class="w-12 h-12 bg-green-100 dark:bg-green-500/20 text-green-600 dark:text-white rounded-lg flex items-center justify-center mb-6">
-                     <i class="ri-secure-payment-line text-2xl"></i>
+               <div class="group relative bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm hover:shadow-xl hover:border-green-300 dark:hover:border-green-700 transition-all duration-300 overflow-hidden">
+                  <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                     <i class="ri-secure-payment-line text-8xl text-green-600"></i>
+                  </div>
+
+                  <div class="w-12 h-12 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-lg flex items-center justify-center mb-6 border border-green-100 dark:border-green-800">
+                     <i class="ri-wallet-3-line text-2xl"></i>
                   </div>
                   <h3 class="text-xl font-bold mb-3 text-slate-900 dark:text-white">Guaranteed Payment</h3>
-                  <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
-                     Earn an upfront Assignment Fee plus daily service commissions. Money is held in escrow, so you never chase payments.
+                  <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-6">
+                     Earn an upfront Assignment Fee plus daily service commissions. Money is held in escrow, never chase payments.
                   </p>
+
+                  <div class="mt-auto bg-slate-50 dark:bg-slate-950 rounded-lg border border-slate-100 dark:border-slate-800 p-3">
+                     <div class="flex items-center justify-between mb-2">
+                        <div class="text-xs text-slate-500">Payout Available</div>
+                        <div class="text-xs font-bold text-green-600">$450.00</div>
+                     </div>
+                     <div class="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-1.5">
+                        <div class="bg-green-500 h-1.5 rounded-full" style="width: 75%"></div>
+                     </div>
+                  </div>
                </div>
 
-               <div class="bg-white dark:bg-slate-900/50 backdrop-blur border border-slate-200 dark:border-slate-800 p-8 rounded-2xl hover:border-slate-300 dark:hover:bg-slate-900 transition-colors">
-                  <div class="w-12 h-12 bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-white rounded-lg flex items-center justify-center mb-6">
-                     <i class="ri-shake-hands-line text-2xl"></i>
+               <div class="group relative bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm hover:shadow-xl hover:border-indigo-300 dark:hover:border-indigo-700 transition-all duration-300 overflow-hidden">
+                  <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                     <i class="ri-shake-hands-line text-8xl text-indigo-600"></i>
                   </div>
-                  <h3 class="text-xl font-bold mb-3 text-slate-900 dark:text-white">Build Trust</h3>
-                  <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
+
+                  <div class="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-lg flex items-center justify-center mb-6 border border-indigo-100 dark:border-indigo-800">
+                     <i class="ri-star-line text-2xl"></i>
+                  </div>
+                  <h3 class="text-xl font-bold mb-3 text-slate-900 dark:text-white">Build Profile</h3>
+                  <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-6">
                      Establish your profile with reviews and certifications. High ratings lead to more direct bookings and higher fees.
                   </p>
+
+                  <div class="mt-auto bg-slate-50 dark:bg-slate-950 rounded-lg border border-slate-100 dark:border-slate-800 p-3 flex items-center justify-between">
+                     <div class="flex items-center gap-1">
+                        <i class="ri-star-fill text-yellow-400 text-sm"></i>
+                        <i class="ri-star-fill text-yellow-400 text-sm"></i>
+                        <i class="ri-star-fill text-yellow-400 text-sm"></i>
+                        <i class="ri-star-fill text-yellow-400 text-sm"></i>
+                        <i class="ri-star-fill text-yellow-400 text-sm"></i>
+                     </div>
+                     <div class="flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
+                        <i class="ri-verified-badge-fill text-blue-500"></i> Verified
+                     </div>
+                  </div>
                </div>
             </div>
 
             <div class="mt-16 text-center">
-               <button (click)="handleGetStarted()" class="h-14 px-10 rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-bold text-lg hover:shadow-lg hover:shadow-violet-600/25 transition-all transform hover:-translate-y-1">
+               <button (click)="handleGetStarted()" class="group relative inline-flex items-center justify-center px-8 py-3 text-base font-semibold text-white transition-all duration-200 bg-slate-900 dark:bg-white dark:text-slate-900 rounded-full hover:bg-slate-700 dark:hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900">
                   Join as an Interpreter
+                  <i class="ri-arrow-right-line ml-2 group-hover:translate-x-1 transition-transform"></i>
                </button>
             </div>
          </div>
       </section>
 
-      <section class="py-12 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-7xl mx-auto relative rounded-[2.5rem] 
-                      bg-gradient-to-br from-indigo-100 via-sky-100 to-blue-200
-                      dark:from-indigo-900/40 dark:via-sky-900/30 dark:to-blue-900/40
-                      overflow-hidden shadow-xl">
-          <div class="absolute inset-0 opacity-10 
-                      bg-[radial-gradient(circle_at_1px_1px,#64748b_1px,transparent_0)] 
-                      [background-size:18px_18px]"></div>
-
-          <div class="absolute top-0 right-0 -mt-24 -mr-24 w-96 h-96 
-                      bg-sky-300/30 rounded-full blur-[120px]"></div>
-          <div class="absolute bottom-0 left-0 -mb-24 -ml-24 w-96 h-96 
-                      bg-indigo-300/30 rounded-full blur-[120px]"></div>
-
-          <div class="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center 
-                      p-10 sm:p-16 lg:p-24">
-
-            <div>
-              <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold 
-                          text-slate-900 dark:text-white tracking-tight mb-6">
-                Ready to bridge the gap?
-              </h2>
-
-              <p class="text-slate-600 dark:text-slate-300 text-lg mb-8 max-w-md">
-                Join thousands of patients and providers accessing global healthcare
-                without the language barrier.
-              </p>
-
-              <div class="flex flex-col sm:flex-row gap-4">
-                <button
-                  (click)="handleGetStarted()"
-                  class="h-14 px-8 rounded-xl 
-                        bg-gradient-to-r from-indigo-500 to-sky-500
-                        text-white font-semibold text-lg
-                        hover:from-indigo-400 hover:to-sky-400
-                        transition-all shadow-md active:scale-95">
-                  Get Started Now
-                </button>
-
-                <button
-                  class="h-14 px-8 rounded-xl 
-                        bg-white/70 dark:bg-slate-900/60
-                        border border-slate-300 dark:border-slate-700
-                        text-slate-800 dark:text-slate-200
-                        font-semibold text-lg
-                        hover:bg-white dark:hover:bg-slate-900
-                        transition-all">
-                  Contact Sales
-                </button>
-              </div>
+      <section class="py-20 px-4 sm:px-6 lg:px-8 bg-slate-50 dark:bg-slate-950">
+        <div class="max-w-5xl mx-auto relative rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-2xl bg-white dark:bg-slate-900">
+          
+          <div class="absolute top-0 left-0 w-full h-full opacity-40 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-violet-100 via-transparent to-transparent dark:from-violet-900/40"></div>
+          <div class="absolute bottom-0 right-0 w-full h-full opacity-40 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-sky-100 via-transparent to-transparent dark:from-sky-900/40"></div>
+          
+          <div class="relative z-10 px-8 py-16 md:py-20 text-center">
+            <h2 class="text-3xl md:text-5xl font-bold tracking-tight text-slate-900 dark:text-white mb-6">
+              Ready to bridge the gap?
+            </h2>
+            <p class="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto mb-10">
+              Join thousands of patients and providers accessing global healthcare without the language barrier.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <button (click)="handleGetStarted()" class="h-14 px-8 rounded-xl bg-violet-600 text-white font-semibold text-lg hover:bg-violet-500 transition-all shadow-lg shadow-violet-600/20 active:scale-95">
+                Get Started Now
+              </button>
+              <button class="h-14 px-8 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-all">
+                Contact Sales
+              </button>
             </div>
 
-            <div class="hidden lg:grid grid-cols-2 gap-4">
-              <div class="bg-white/60 dark:bg-slate-900/60 backdrop-blur-sm
-                          p-6 rounded-2xl border border-slate-200 dark:border-slate-700">
-                <div class="text-3xl font-bold text-slate-900 dark:text-white mb-1">98%</div>
-                <div class="text-slate-600 dark:text-slate-400 text-sm">Satisfaction Rate</div>
-              </div>
-
-              <div class="bg-white/60 dark:bg-slate-900/60 backdrop-blur-sm
-                          p-6 rounded-2xl border border-slate-200 dark:border-slate-700">
-                <div class="text-3xl font-bold text-slate-900 dark:text-white mb-1">2 min</div>
-                <div class="text-slate-600 dark:text-slate-400 text-sm">Avg. Connect Time</div>
-              </div>
-
-              <div class="bg-white/60 dark:bg-slate-900/60 backdrop-blur-sm
-                          p-6 rounded-2xl border border-slate-200 dark:border-slate-700 col-span-2">
-                <div class="flex items-center gap-3 mb-2">
-                  <div class="flex -space-x-2">
-                    <div class="w-8 h-8 rounded-full bg-sky-400 border-2 border-white"></div>
-                    <div class="w-8 h-8 rounded-full bg-indigo-400 border-2 border-white"></div>
-                    <div class="w-8 h-8 rounded-full bg-teal-400 border-2 border-white"></div>
-                  </div>
-                  <div class="text-slate-900 dark:text-white font-semibold">10k+ Sessions</div>
-                </div>
-                <div class="text-slate-600 dark:text-slate-400 text-sm">
-                  Secured via escrow-based settlement
-                </div>
-              </div>
+            <div class="mt-12 pt-8 border-t border-slate-100 dark:border-slate-800 flex flex-wrap justify-center gap-x-12 gap-y-4">
+               <div class="flex flex-col items-center">
+                  <span class="text-2xl font-bold text-slate-900 dark:text-white">98%</span>
+                  <span class="text-xs text-slate-500 uppercase tracking-wide">Satisfaction</span>
+               </div>
+               <div class="flex flex-col items-center">
+                  <span class="text-2xl font-bold text-slate-900 dark:text-white">2 min</span>
+                  <span class="text-xs text-slate-500 uppercase tracking-wide">Avg Connect</span>
+               </div>
+               <div class="flex flex-col items-center">
+                  <span class="text-2xl font-bold text-slate-900 dark:text-white">10k+</span>
+                  <span class="text-xs text-slate-500 uppercase tracking-wide">Sessions</span>
+               </div>
             </div>
-
           </div>
         </div>
       </section>

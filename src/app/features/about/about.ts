@@ -137,7 +137,7 @@ interface TeamMember {
         <div class="relative z-10 max-w-4xl mx-auto px-4 text-center">
           <h2 class="text-3xl md:text-4xl font-bold mb-6 text-slate-900 dark:text-white">Join Our Journey</h2>
           <p class="text-lg text-slate-600 dark:text-slate-400 mb-10 max-w-2xl mx-auto">
-            We’re always looking for passionate minds — whether you’re a developer, designer, or healthcare innovator — to help us shape the future.
+            We’re always looking for passionate minds - whether you’re a developer, designer, or healthcare innovator - to help us shape the future.
           </p>
           
           <a href="mailto:contact@verbrix.com" class="inline-flex items-center justify-center h-14 px-8 rounded-full bg-violet-600 text-white font-bold text-lg hover:bg-violet-700 hover:shadow-lg hover:shadow-violet-600/25 transition-all transform hover:-translate-y-1">

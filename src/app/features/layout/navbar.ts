@@ -55,39 +55,43 @@ const NAV_CONFIG: Record<string, NavLink[]> = {
   imports: [RouterLink, RouterLinkActive, CommonModule],
   template: `
 <header
-  class="fixed top-0 inset-x-0 z-[100] h-16 transition-colors duration-300"
+  class="fixed z-[100] transition-all duration-300
+         top-0 inset-x-0 h-16
+         md:top-6 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:w-[95%] md:max-w-6xl md:h-16
+         md:rounded-full md:border md:border-[var(--border)] md:shadow-lg md:backdrop-blur-xl md:bg-[var(--bg-glass)]"
   [class.bg-transparent]="!isScrolled() && !isMenuOpen()"
   [class.bg-[var(--bg-glass)]]="isScrolled() && !isMenuOpen()"
   [class.backdrop-blur-md]="isScrolled() && !isMenuOpen()"
   [class.bg-[var(--bg-page)]]="isMenuOpen()"
 >
-  <div class="absolute bottom-0 inset-x-0 h-px bg-[var(--border)]"
+  <div class="absolute bottom-0 inset-x-0 h-px bg-[var(--border)] md:hidden"
        [class.opacity-0]="!isScrolled() && !isMenuOpen()">
   </div>
 
-  <div class="container mx-auto h-full px-4 sm:px-6 flex items-center justify-between relative z-10">
-    <a (click)="handleLogoClick()" class="flex items-center select-none cursor-pointer">
-      <img src="/assets/images/logo.png" alt="Verbrix logo" class="h-7 w-auto object-contain" />
-      <span class="ml-2.5 text-xl font-bold tracking-[0.04em] text-[var(--text-main)]">
-        VERBRIX
-      </span>
-    </a>
+  <div class="container mx-auto h-full px-4 sm:px-6 flex items-center justify-between relative z-10 whitespace-nowrap">
+   <a (click)="handleLogoClick()" class="flex items-center select-none cursor-pointer">
+  <img src="/assets/images/logo.png" alt="Verbrix logo" class="h-7 w-auto object-contain" />
+  
+  <span class="ml-3 text-lg font-['Outfit'] font-medium tracking-[0.15em] text-[var(--text-main)] uppercase">
+    Verbrix
+  </span>
+</a>
 
     <nav class="hidden md:flex items-center gap-1">
       @for (link of currentNavLinks(); track link.label) {
         @if (link.isDisabled) {
-          <span class="px-4 py-2 text-sm font-medium text-[var(--text-muted)] opacity-50 select-none">
+          <span class="px-4 py-2 text-sm font-medium text-[var(--text-muted)] opacity-50 select-none cursor-not-allowed">
             {{ link.label }}
           </span>
         } @else if (link.route) {
           <a [routerLink]="link.route"
              routerLinkActive="text-blue-600 bg-blue-50 dark:bg-blue-900/20 font-semibold"
-             class="px-4 py-2 rounded-lg text-sm font-medium text-[var(--text-muted)] transition-colors hover:text-blue-600 hover:bg-[var(--bg-surface)]">
+             class="px-4 py-2 rounded-full text-sm font-medium text-[var(--text-muted)] transition-colors hover:text-blue-600 hover:bg-[var(--bg-surface)] cursor-pointer">
             {{ link.label }}
           </a>
         } @else {
           <button (click)="scrollTo(link.fragment!)"
-                  class="px-4 py-2 rounded-lg text-sm font-medium text-[var(--text-muted)] transition-colors hover:text-blue-600 hover:bg-[var(--bg-surface)]">
+                  class="px-4 py-2 rounded-full text-sm font-medium text-[var(--text-muted)] transition-colors hover:text-blue-600 hover:bg-[var(--bg-surface)] cursor-pointer">
             {{ link.label }}
           </button>
         }
@@ -97,8 +101,8 @@ const NAV_CONFIG: Record<string, NavLink[]> = {
     <div class="flex items-center gap-3">
       @if (isLoggedIn()) {
         <div class="hidden md:flex items-center gap-4 pl-4 border-l border-[var(--border)]">
-          <a [routerLink]="dashboardRoute()" class="flex items-center gap-3">
-            <div class="h-9 w-9 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-xs">
+          <a [routerLink]="dashboardRoute()" class="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
+            <div class="h-8 w-8 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-xs">
               {{ userInitials() }}
             </div>
             <div class="flex flex-col leading-none">
@@ -106,18 +110,24 @@ const NAV_CONFIG: Record<string, NavLink[]> = {
               <span class="text-[10px] uppercase tracking-wide font-bold text-[var(--text-muted)]">{{ roleLabel() }}</span>
             </div>
           </a>
-          <button (click)="logout()" class="h-9 w-9 rounded-full flex items-center justify-center text-[var(--text-dim)] transition-colors hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10" title="Sign Out">
+          <button (click)="logout()" class="h-8 w-8 rounded-full flex items-center justify-center text-[var(--text-dim)] transition-colors hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 cursor-pointer" title="Sign Out">
             <i class="ri-logout-box-r-line"></i>
           </button>
         </div>
       } @else {
-        <div class="hidden md:flex items-center gap-3">
-          <a routerLink="/auth/login" class="px-5 py-2 text-sm font-semibold text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors">Sign In</a>
-          <a routerLink="/auth/register" class="inline-flex items-center justify-center rounded-xl bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 text-sm font-semibold shadow-lg shadow-blue-600/25">Get Started</a>
+        <div class="hidden md:flex items-center gap-2 flex-nowrap">
+          <a routerLink="/auth/login" 
+             class="px-5 py-2 text-sm font-semibold text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors cursor-pointer rounded-full hover:bg-[var(--bg-surface)]">
+             Sign In
+          </a>
+          <a routerLink="/auth/register" 
+             class="inline-flex items-center justify-center rounded-full bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 text-sm font-semibold shadow-lg shadow-blue-600/25 cursor-pointer whitespace-nowrap transition-colors">
+             Get Started
+          </a>
         </div>
       }
 
-      <button (click)="toggleMenu()" class="md:hidden flex h-10 w-10 items-center justify-center rounded-full text-[var(--text-main)] hover:bg-[var(--bg-surface)]">
+      <button (click)="toggleMenu()" class="md:hidden flex h-10 w-10 items-center justify-center rounded-full text-[var(--text-main)] hover:bg-[var(--bg-surface)] cursor-pointer">
         <i [class]="isMenuOpen() ? 'ri-close-line text-2xl' : 'ri-menu-4-line text-2xl'"></i>
       </button>
     </div>
@@ -151,18 +161,18 @@ const NAV_CONFIG: Record<string, NavLink[]> = {
 
     @for (link of currentNavLinks(); track link.label) {
       @if (link.isDisabled) {
-        <span class="flex items-center px-4 py-3 rounded-xl text-base font-medium text-[var(--text-dim)] opacity-50">
+        <span class="flex items-center px-4 py-3 rounded-xl text-base font-medium text-[var(--text-dim)] opacity-50 cursor-not-allowed">
           {{ link.label }}
         </span>
       } @else if (link.route) {
         <a [routerLink]="link.route" (click)="closeMenu()"
            routerLinkActive="bg-blue-50 dark:bg-blue-900/20 text-blue-600 font-bold"
-           class="flex items-center px-4 py-3 rounded-xl text-base font-semibold text-[var(--text-muted)] hover:bg-[var(--bg-surface)]">
+           class="flex items-center px-4 py-3 rounded-xl text-base font-semibold text-[var(--text-muted)] hover:bg-[var(--bg-surface)] cursor-pointer">
           {{ link.label }}
         </a>
       } @else {
         <button (click)="scrollTo(link.fragment!); closeMenu()"
-                class="flex items-center px-4 py-3 rounded-xl text-base font-semibold text-[var(--text-muted)] hover:bg-[var(--bg-surface)] text-left">
+                class="flex items-center px-4 py-3 rounded-xl text-base font-semibold text-[var(--text-muted)] hover:bg-[var(--bg-surface)] text-left cursor-pointer">
           {{ link.label }}
         </button>
       }
@@ -170,12 +180,12 @@ const NAV_CONFIG: Record<string, NavLink[]> = {
 
     <div class="mt-auto pt-6 border-t border-[var(--border)]">
       @if (isLoggedIn()) {
-        <button (click)="logout()" class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-red-600 font-semibold hover:bg-red-50 dark:hover:bg-red-900/10">
+        <button (click)="logout()" class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-red-600 font-semibold hover:bg-red-50 dark:hover:bg-red-900/10 cursor-pointer">
           <i class="ri-logout-box-line"></i> Log Out
         </button>
       } @else {
-        <a routerLink="/auth/login" (click)="closeMenu()" class="block w-full px-4 py-3 rounded-xl font-semibold text-[var(--text-muted)] hover:bg-[var(--bg-surface)] mb-2">Sign In</a>
-        <a routerLink="/auth/register" (click)="closeMenu()" class="block w-full text-center rounded-xl bg-blue-600 text-white py-3 font-bold">Get Started</a>
+        <a routerLink="/auth/login" (click)="closeMenu()" class="block w-full px-4 py-3 rounded-xl font-semibold text-[var(--text-muted)] hover:bg-[var(--bg-surface)] mb-2 cursor-pointer text-center">Sign In</a>
+        <a routerLink="/auth/register" (click)="closeMenu()" class="block w-full text-center rounded-xl bg-blue-600 text-white py-3 font-bold cursor-pointer">Get Started</a>
       }
     </div>
   </nav>
@@ -196,7 +206,6 @@ export class Navbar {
 
   isLoggedIn = this.auth.isLoggedIn;
   
-  // Explicitly false and won't be changed until user interaction
   isMenuOpen = signal(false); 
   isScrolled = signal(false);
 
@@ -238,7 +247,6 @@ export class Navbar {
   });
 
   constructor() {
-    // Ensuring scroll checks only run on client side
     afterNextRender(() => {
       this.checkScroll();
       fromEvent(window, 'scroll', { passive: true })
