@@ -74,7 +74,7 @@ import { RouterLink } from '@angular/router';
 
         <div class="pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4">
           <p class="text-xs md:text-sm text-text-dim text-center md:text-left">
-            &copy; {{ currentYear }} Verbrix Inc. All rights reserved.
+            &copy; {{ currentYear }} Verbrix | All rights reserved.
           </p>
           
           <div class="flex items-center gap-2 text-xs md:text-sm font-medium text-text-muted bg-bg-surface px-3 py-1.5 rounded-full border border-border">

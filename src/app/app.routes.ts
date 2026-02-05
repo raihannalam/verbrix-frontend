@@ -19,6 +19,11 @@ export const routes: Routes = [
     loadChildren: () => import('./features/auth/auth.routes').then(m => m.authRoutes)
   },
 
+  {
+    path: 'about',
+    loadComponent: () => import('./features/about/about').then(m => m.AboutUsComponent)
+  },
+
   // 3. INTERPRETER APPLICATION FLOW (Top-level access)
   // Accessible via: /interpreters/apply or /interpreters/re-apply
   // These hit the 'apply' and 're-apply' endpoints in InterpreterController
