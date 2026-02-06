@@ -240,7 +240,7 @@ interface Metadata {
 
                     <div class="flex-1 space-y-1">
                         <label class="text-[10px] font-bold uppercase text-gray-500 dark:text-gray-400 mb-1 block">Proficiency</label>
-                        <select formControlName="fluency" class="w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white p-3 rounded-xl text-sm outline-none focus:border-blue-500 appearance-none">
+                        <select formControlName="proficiency" class="w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white p-3 rounded-xl text-sm outline-none focus:border-blue-500 appearance-none">
                             <option value="">Level</option>
                             @for (p of proficiencyLevels(); track p.id) { <option [value]="p.id">{{ p.id }}</option> }
                         </select>
@@ -304,11 +304,11 @@ interface Metadata {
                       <label class="text-[10px] font-bold uppercase text-gray-500 dark:text-gray-400 mb-1 block">Document</label>
                       <input type="file" (change)="onCertFileUpload($event, i)" accept="application/pdf,image/*" class="hidden" #certFile>
                       <button type="button" (click)="certFile.click()" 
-                              [class]="cert.get('documentUrl')?.value 
+                              [class]="cert.get('fileUrl')?.value 
                                   ? 'border-green-500/30 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' 
                                   : 'border-blue-300/50 text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/10 hover:bg-blue-100'"
                               class="w-full text-xs font-bold border border-dashed rounded-xl flex items-center justify-center gap-2 transition-all h-[46px]">
-                        @if(cert.get('documentUrl')?.value) { <i class="ri-check-line"></i> Attached } 
+                        @if(cert.get('fileUrl')?.value) { <i class="ri-check-line"></i> Attached } 
                         @else { <i class="ri-upload-cloud-line"></i> Upload Proof }
                       </button>
                   </div>
@@ -384,13 +384,10 @@ export class InterpreterApplyComponent implements OnInit {
       profilePictureUrl: ['', Validators.required],
       governmentIdUrl: ['', Validators.required],
       introVideoUrl: ['', [Validators.required]],
-      // EXPERIENCE FIELDS
       experienceYears: [0, [Validators.required, Validators.min(0)]],
       experienceMonths: [0, [Validators.required, Validators.min(0), Validators.max(11)]],
-      // FINANCIAL FIELDS
       consultationFee: [null, [Validators.required, Validators.min(0)]],
       serviceAgreementFee: [null, [Validators.required, Validators.min(0)]],
-      
       specializations: [[], [Validators.required, Validators.minLength(1)]],
       languageAbilities: this.fb.array([this.createLanguageGroup()]),
       certifications: this.fb.array([])
@@ -406,7 +403,6 @@ export class InterpreterApplyComponent implements OnInit {
     return headers;
   }
 
-  // Generic File Upload for Profile & Gov ID
   onFileUpload(event: Event, field: string) {
     const input = event.target as HTMLInputElement;
     if (!input.files?.length) return;
@@ -428,7 +424,6 @@ export class InterpreterApplyComponent implements OnInit {
       });
   }
 
-  // Language Proof Upload
   onLanguageProofUpload(event: Event, index: number) {
     const input = event.target as HTMLInputElement;
     if (!input.files?.length) return;
@@ -441,7 +436,6 @@ export class InterpreterApplyComponent implements OnInit {
       });
   }
 
-  // Cert File Upload
   onCertFileUpload(event: Event, index: number) {
     const input = event.target as HTMLInputElement;
     if (!input.files?.length) return;
@@ -450,7 +444,8 @@ export class InterpreterApplyComponent implements OnInit {
     
     this.http.post<{ url: string }>(`${this.API_URL}/files/upload`, formData, { headers: this.getAuthHeaders() })
       .subscribe(res => {
-        this.certifications.at(index).patchValue({ documentUrl: res.url });
+        // CHANGED: patch 'fileUrl' instead of 'documentUrl'
+        this.certifications.at(index).patchValue({ fileUrl: res.url });
       });
   }
 
@@ -473,8 +468,9 @@ export class InterpreterApplyComponent implements OnInit {
   createLanguageGroup() {
     return this.fb.group({
       language: ['', Validators.required],
-      fluency: ['', Validators.required],
-      proofUrl: [''] // Nullable per your entity, but I added UI for it
+      // CHANGED: 'fluency' -> 'proficiency'
+      proficiency: ['', Validators.required],
+      proofUrl: ['']
     });
   }
   addLanguage() { this.languageAbilities.push(this.createLanguageGroup()); }
@@ -484,7 +480,8 @@ export class InterpreterApplyComponent implements OnInit {
     this.certifications.push(this.fb.group({
       name: ['', Validators.required],
       issuingOrganization: ['', Validators.required],
-      documentUrl: ['', Validators.required],
+      // CHANGED: 'documentUrl' -> 'fileUrl'
+      fileUrl: ['', Validators.required],
       issueDate: ['', Validators.required],
       expiryDate: ['']
     }));
@@ -495,10 +492,8 @@ export class InterpreterApplyComponent implements OnInit {
     if (this.applyForm.invalid) return;
     this.isSubmitting.set(true);
     
-    // Clone and sanitize
     const payload = { ...this.applyForm.value };
 
-    // Clean dates for backend
     if (payload.certifications) {
         payload.certifications = payload.certifications.map((cert: any) => ({
             ...cert,
