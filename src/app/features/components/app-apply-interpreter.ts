@@ -48,7 +48,7 @@ interface Metadata {
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
             <div class="lg:col-span-4 space-y-3">
-                <label class="label-tiny">Profile Photo</label>
+                <label class="text-[10px] font-bold uppercase text-gray-500 dark:text-gray-400 mb-1 block">Profile Photo</label>
                 <div [class]="'relative group aspect-square w-full rounded-2xl overflow-hidden border-2 border-dashed flex items-center justify-center transition-all cursor-pointer shadow-sm ' + 
                              (applyForm.get('profilePictureUrl')?.value 
                               ? 'border-green-500/50 dark:border-green-500/50 bg-gray-50 dark:bg-black/20' 
@@ -73,7 +73,7 @@ interface Metadata {
             </div>
 
             <div class="lg:col-span-8 space-y-3 flex flex-col">
-                <label class="label-tiny">
+                <label class="text-[10px] font-bold uppercase text-gray-500 dark:text-gray-400 mb-1 block">
                     Introduction Video <span class="text-[10px] normal-case opacity-70 ml-1">(YouTube/Vimeo URL)</span>
                 </label>
                 
@@ -83,7 +83,7 @@ interface Metadata {
                     </div>
                     <input formControlName="introVideoUrl" 
                            placeholder="https://youtube.com/..." 
-                           class="form-input-custom pl-10">
+                           class="w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white p-3 rounded-xl text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-gray-400 pl-10">
                 </div>
                 
                 <div class="flex-1 rounded-xl overflow-hidden bg-gray-100 dark:bg-black/40 border border-gray-200 dark:border-gray-800 relative min-h-[200px] flex items-center justify-center">
@@ -108,19 +108,19 @@ interface Metadata {
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div class="space-y-1">
-                <label class="label-tiny">First Name</label>
-                <input formControlName="firstName" class="form-input-custom">
+                <label class="text-[10px] font-bold uppercase text-gray-500 dark:text-gray-400 mb-1 block">First Name</label>
+                <input formControlName="firstName" class="w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white p-3 rounded-xl text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-gray-400">
               </div>
               <div class="space-y-1">
-                <label class="label-tiny">Last Name</label>
-                <input formControlName="lastName" class="form-input-custom">
+                <label class="text-[10px] font-bold uppercase text-gray-500 dark:text-gray-400 mb-1 block">Last Name</label>
+                <input formControlName="lastName" class="w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white p-3 rounded-xl text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-gray-400">
               </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="md:col-span-2 space-y-1">
-                    <label class="label-tiny">Professional Bio</label>
-                    <textarea formControlName="bio" rows="5" class="form-input-custom resize-none" placeholder="Describe your background..."></textarea>
+                    <label class="text-[10px] font-bold uppercase text-gray-500 dark:text-gray-400 mb-1 block">Professional Bio</label>
+                    <textarea formControlName="bio" rows="5" class="w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white p-3 rounded-xl text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-gray-400 resize-none" placeholder="Describe your background..."></textarea>
                     @if (applyForm.get('bio')?.hasError('minlength')) {
                        <p class="text-red-500 text-xs">Minimum 50 characters required.</p>
                     }
@@ -129,12 +129,12 @@ interface Metadata {
                 <div class="space-y-4">
                     <div class="grid grid-cols-2 gap-3">
                         <div class="space-y-1">
-                            <label class="label-tiny">Exp (Years)</label>
-                            <input type="number" formControlName="experienceYears" min="0" class="form-input-custom text-center">
+                            <label class="text-[10px] font-bold uppercase text-gray-500 dark:text-gray-400 mb-1 block">Exp (Years)</label>
+                            <input type="number" formControlName="experienceYears" min="0" class="w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white p-3 rounded-xl text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-gray-400 text-center">
                         </div>
                         <div class="space-y-1">
-                            <label class="label-tiny">Exp (Months)</label>
-                            <input type="number" formControlName="experienceMonths" min="0" max="11" class="form-input-custom text-center">
+                            <label class="text-[10px] font-bold uppercase text-gray-500 dark:text-gray-400 mb-1 block">Exp (Months)</label>
+                            <input type="number" formControlName="experienceMonths" min="0" max="11" class="w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white p-3 rounded-xl text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-gray-400 text-center">
                         </div>
                     </div>
 
@@ -144,8 +144,11 @@ interface Metadata {
                                     ? 'border-green-500/30 bg-green-50 dark:bg-green-900/10' 
                                     : 'border-dashed border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800')">
                         <div class="h-10 w-10 shrink-0 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg flex items-center justify-center">
-                            @if(isUploadingDoc()) { <div class="spinner-sm"></div> } 
-                            @else { <i class="ri-passport-line text-xl"></i> }
+                            @if(isUploadingDoc()) { 
+                                <div class="animate-spin h-5 w-5 border-2 border-current border-t-transparent rounded-full"></div> 
+                            } @else { 
+                                <i class="ri-passport-line text-xl"></i> 
+                            }
                         </div>
                         <div class="flex-1 min-w-0">
                             <p class="text-xs font-bold truncate">Gov. ID / Passport</p>
@@ -167,25 +170,25 @@ interface Metadata {
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="space-y-1">
-                    <label class="label-tiny">Consultation Fee</label>
+                    <label class="text-[10px] font-bold uppercase text-gray-500 dark:text-gray-400 mb-1 block">Consultation Fee</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">
                             <span class="text-sm font-bold">$</span>
                         </div>
                         <input type="number" formControlName="consultationFee" min="0" placeholder="0.00" 
-                               class="form-input-custom pl-8">
+                               class="w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white p-3 rounded-xl text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-gray-400 pl-8">
                     </div>
                     <p class="text-[10px] text-gray-500">Fee charged per consultation session.</p>
                 </div>
 
                 <div class="space-y-1">
-                    <label class="label-tiny">Service Agreement Fee</label>
+                    <label class="text-[10px] font-bold uppercase text-gray-500 dark:text-gray-400 mb-1 block">Service Agreement Fee</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">
                             <span class="text-sm font-bold">$</span>
                         </div>
                         <input type="number" formControlName="serviceAgreementFee" min="0" placeholder="0.00" 
-                               class="form-input-custom pl-8">
+                               class="w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white p-3 rounded-xl text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-gray-400 pl-8">
                     </div>
                     <p class="text-[10px] text-gray-500">Standard service agreement base fee.</p>
                 </div>
@@ -217,7 +220,7 @@ interface Metadata {
               <h3 class="font-bold text-lg flex items-center gap-2">
                 <i class="ri-translate text-blue-600 dark:text-blue-400"></i> Language Expertise
               </h3>
-              <button type="button" (click)="addLanguage()" class="btn-text-primary">
+              <button type="button" (click)="addLanguage()" class="text-blue-600 dark:text-blue-400 text-sm font-bold hover:underline flex items-center gap-1 transition-colors">
                 <i class="ri-add-line"></i> Add Language
               </button>
             </div>
@@ -228,30 +231,30 @@ interface Metadata {
                 
                 <div class="grid grid-cols-2 md:flex md:flex-1 gap-4 w-full">
                     <div class="flex-1 space-y-1 col-span-2 md:col-span-1">
-                        <label class="label-tiny">Language</label>
-                        <select formControlName="language" class="form-select-custom">
+                        <label class="text-[10px] font-bold uppercase text-gray-500 dark:text-gray-400 mb-1 block">Language</label>
+                        <select formControlName="language" class="w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white p-3 rounded-xl text-sm outline-none focus:border-blue-500 appearance-none">
                             <option value="">Select</option>
                             @for (l of availableLanguages(); track l.id) { <option [value]="l.id">{{ l.label }}</option> }
                         </select>
                     </div>
 
                     <div class="flex-1 space-y-1">
-                        <label class="label-tiny">Proficiency</label>
-                        <select formControlName="fluency" class="form-select-custom">
+                        <label class="text-[10px] font-bold uppercase text-gray-500 dark:text-gray-400 mb-1 block">Proficiency</label>
+                        <select formControlName="fluency" class="w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white p-3 rounded-xl text-sm outline-none focus:border-blue-500 appearance-none">
                             <option value="">Level</option>
                             @for (p of proficiencyLevels(); track p.id) { <option [value]="p.id">{{ p.id }}</option> }
                         </select>
                     </div>
 
                     <div class="flex-1 space-y-1">
-                        <label class="label-tiny">Proof (Cert/Degree)</label>
+                        <label class="text-[10px] font-bold uppercase text-gray-500 dark:text-gray-400 mb-1 block">Proof (Cert/Degree)</label>
                         <div class="relative">
                              <input type="file" (change)="onLanguageProofUpload($event, i)" accept="application/pdf,image/*" class="hidden" #langProof>
                              <button type="button" (click)="langProof.click()" 
                                 [class]="lang.get('proofUrl')?.value 
                                     ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800' 
                                     : 'bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-400 border-gray-300 dark:border-gray-600 hover:border-blue-400'"
-                                class="w-full h-[42px] border rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all">
+                                class="w-full h-[46px] border rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all">
                                 @if(lang.get('proofUrl')?.value) {
                                     <i class="ri-checkbox-circle-line text-lg"></i> Uploaded
                                 } @else {
@@ -274,7 +277,7 @@ interface Metadata {
               <h3 class="font-bold text-lg flex items-center gap-2">
                 <i class="ri-award-line text-blue-600 dark:text-blue-400"></i> Other Certifications
               </h3>
-              <button type="button" (click)="addCertification()" class="btn-text-primary">
+              <button type="button" (click)="addCertification()" class="text-blue-600 dark:text-blue-400 text-sm font-bold hover:underline flex items-center gap-1 transition-colors">
                 <i class="ri-add-line"></i> Add Cert
               </button>
             </div>
@@ -289,22 +292,22 @@ interface Metadata {
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
                   <div class="space-y-1">
-                      <label class="label-tiny">Certificate Name</label>
-                      <input formControlName="name" class="form-input-custom">
+                      <label class="text-[10px] font-bold uppercase text-gray-500 dark:text-gray-400 mb-1 block">Certificate Name</label>
+                      <input formControlName="name" class="w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white p-3 rounded-xl text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-gray-400">
                   </div>
                   <div class="space-y-1">
-                      <label class="label-tiny">Issuing Org</label>
-                      <input formControlName="issuingOrganization" class="form-input-custom">
+                      <label class="text-[10px] font-bold uppercase text-gray-500 dark:text-gray-400 mb-1 block">Issuing Org</label>
+                      <input formControlName="issuingOrganization" class="w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white p-3 rounded-xl text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-gray-400">
                   </div>
                   
                   <div class="space-y-1">
-                      <label class="label-tiny">Document</label>
+                      <label class="text-[10px] font-bold uppercase text-gray-500 dark:text-gray-400 mb-1 block">Document</label>
                       <input type="file" (change)="onCertFileUpload($event, i)" accept="application/pdf,image/*" class="hidden" #certFile>
                       <button type="button" (click)="certFile.click()" 
                               [class]="cert.get('documentUrl')?.value 
                                   ? 'border-green-500/30 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' 
                                   : 'border-blue-300/50 text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/10 hover:bg-blue-100'"
-                              class="w-full text-xs font-bold border border-dashed rounded-xl flex items-center justify-center gap-2 transition-all h-[42px]">
+                              class="w-full text-xs font-bold border border-dashed rounded-xl flex items-center justify-center gap-2 transition-all h-[46px]">
                         @if(cert.get('documentUrl')?.value) { <i class="ri-check-line"></i> Attached } 
                         @else { <i class="ri-upload-cloud-line"></i> Upload Proof }
                       </button>
@@ -312,12 +315,12 @@ interface Metadata {
 
                   <div class="grid grid-cols-2 gap-2">
                       <div class="space-y-1">
-                          <label class="label-tiny">Issued Date</label>
-                          <input type="date" formControlName="issueDate" class="form-input-custom">
+                          <label class="text-[10px] font-bold uppercase text-gray-500 dark:text-gray-400 mb-1 block">Issued Date</label>
+                          <input type="date" formControlName="issueDate" class="w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white p-3 rounded-xl text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-gray-400">
                       </div>
                       <div class="space-y-1">
-                          <label class="label-tiny">Expiry (Opt)</label>
-                          <input type="date" formControlName="expiryDate" class="form-input-custom">
+                          <label class="text-[10px] font-bold uppercase text-gray-500 dark:text-gray-400 mb-1 block">Expiry (Opt)</label>
+                          <input type="date" formControlName="expiryDate" class="w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white p-3 rounded-xl text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-gray-400">
                       </div>
                   </div>
                 </div>
@@ -339,24 +342,7 @@ interface Metadata {
         </form>
       </div>
     </div>
-  `,
-  styles: [`
-    .label-tiny {
-        @apply text-[10px] font-bold uppercase text-gray-500 dark:text-gray-400 mb-1 block;
-    }
-    .form-input-custom {
-        @apply w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white p-3 rounded-xl text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-gray-400;
-    }
-    .form-select-custom {
-        @apply w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white p-3 rounded-xl text-sm outline-none focus:border-blue-500 appearance-none;
-    }
-    .btn-text-primary {
-        @apply text-blue-600 dark:text-blue-400 text-sm font-bold hover:underline flex items-center gap-1 transition-colors;
-    }
-    .spinner-sm {
-        @apply animate-spin h-5 w-5 border-2 border-current border-t-transparent rounded-full;
-    }
-  `]
+  `
 })
 export class InterpreterApplyComponent implements OnInit {
   private fb = inject(FormBuilder);
