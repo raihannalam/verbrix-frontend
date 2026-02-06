@@ -138,22 +138,36 @@ interface Metadata {
                         </div>
                     </div>
 
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold uppercase text-gray-500 dark:text-gray-400 mb-1 block">Identity Verification</label>
+                        <select formControlName="governmentIdType" class="w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white p-2.5 rounded-xl text-xs outline-none focus:border-blue-500 transition-all appearance-none">
+                            <option value="">Select ID Type</option>
+                            <option value="PAN">PAN Card</option>
+                            <option value="AADHAAR">Aadhaar Card</option>
+                            <option value="DRIVING_LICENSE">Driving License</option>
+                            <option value="PASSPORT">Passport</option>
+                            <option value="VOTER_ID">Voter ID</option>
+                        </select>
+                    </div>
+
+                    <input formControlName="governmentIdDetails" placeholder="ID Number / Details" class="w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white p-2.5 rounded-xl text-xs outline-none focus:border-blue-500 transition-all">
+
                     <div (click)="govId.click()" 
-                         [class]="'flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-all h-[88px] ' + 
+                         [class]="'flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-all h-[70px] ' + 
                                   (applyForm.get('governmentIdUrl')?.value 
                                     ? 'border-green-500/30 bg-green-50 dark:bg-green-900/10' 
                                     : 'border-dashed border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800')">
-                        <div class="h-10 w-10 shrink-0 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg flex items-center justify-center">
+                        <div class="h-8 w-8 shrink-0 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg flex items-center justify-center">
                             @if(isUploadingDoc()) { 
-                                <div class="animate-spin h-5 w-5 border-2 border-current border-t-transparent rounded-full"></div> 
+                                <div class="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full"></div> 
                             } @else { 
-                                <i class="ri-passport-line text-xl"></i> 
+                                <i class="ri-passport-line text-lg"></i> 
                             }
                         </div>
                         <div class="flex-1 min-w-0">
-                            <p class="text-xs font-bold truncate">Gov. ID / Passport</p>
+                            <p class="text-[10px] font-bold uppercase tracking-tight">Upload ID Doc</p>
                             <p class="text-[10px] text-gray-500 dark:text-gray-400 truncate mt-0.5">
-                                 {{ applyForm.get('governmentIdUrl')?.value ? 'Attached' : 'Upload PDF/JPG' }}
+                                 {{ applyForm.get('governmentIdUrl')?.value ? 'File Attached' : 'PDF/JPG/PNG' }}
                             </p>
                         </div>
                         @if (applyForm.get('governmentIdUrl')?.value) { <i class="ri-check-fill text-green-500"></i> }
@@ -178,7 +192,6 @@ interface Metadata {
                         <input type="number" formControlName="consultationFee" min="0" placeholder="0.00" 
                                class="w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white p-3 rounded-xl text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-gray-400 pl-8">
                     </div>
-                    <p class="text-[10px] text-gray-500">Fee charged per consultation session.</p>
                 </div>
 
                 <div class="space-y-1">
@@ -190,7 +203,6 @@ interface Metadata {
                         <input type="number" formControlName="serviceAgreementFee" min="0" placeholder="0.00" 
                                class="w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white p-3 rounded-xl text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-gray-400 pl-8">
                     </div>
-                    <p class="text-[10px] text-gray-500">Standard service agreement base fee.</p>
                 </div>
             </div>
           </div>
@@ -299,6 +311,11 @@ interface Metadata {
                       <label class="text-[10px] font-bold uppercase text-gray-500 dark:text-gray-400 mb-1 block">Issuing Org</label>
                       <input formControlName="issuingOrganization" class="w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white p-3 rounded-xl text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-gray-400">
                   </div>
+
+                  <div class="md:col-span-2 space-y-1">
+                      <label class="text-[10px] font-bold uppercase text-gray-500 dark:text-gray-400 mb-1 block">Description</label>
+                      <textarea formControlName="description" rows="2" class="w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white p-3 rounded-xl text-sm outline-none focus:border-blue-500 transition-all resize-none"></textarea>
+                  </div>
                   
                   <div class="space-y-1">
                       <label class="text-[10px] font-bold uppercase text-gray-500 dark:text-gray-400 mb-1 block">Document</label>
@@ -331,7 +348,7 @@ interface Metadata {
           <div class="pt-8">
             <button type="submit" [disabled]="applyForm.invalid || isSubmitting() || isUploadingPic() || isUploadingDoc()"
               class="w-full py-4 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 text-white rounded-xl font-bold shadow-lg shadow-blue-600/20 
-                     disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98] flex items-center justify-center gap-2 text-lg">
+                      disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98] flex items-center justify-center gap-2 text-lg">
               @if (isSubmitting()) { 
                 <div class="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div> 
               }
@@ -382,7 +399,12 @@ export class InterpreterApplyComponent implements OnInit {
       lastName: ['', Validators.required],
       bio: ['', [Validators.required, Validators.minLength(50)]],
       profilePictureUrl: ['', Validators.required],
+      
+      // Added missing identity fields from Java Mapping Helper
       governmentIdUrl: ['', Validators.required],
+      governmentIdType: ['', Validators.required], // Enums: PAN, AADHAAR, etc.
+      governmentIdDetails: ['', Validators.required], 
+      
       introVideoUrl: ['', [Validators.required]],
       experienceYears: [0, [Validators.required, Validators.min(0)]],
       experienceMonths: [0, [Validators.required, Validators.min(0), Validators.max(11)]],
@@ -444,7 +466,6 @@ export class InterpreterApplyComponent implements OnInit {
     
     this.http.post<{ url: string }>(`${this.API_URL}/files/upload`, formData, { headers: this.getAuthHeaders() })
       .subscribe(res => {
-        // CHANGED: patch 'fileUrl' instead of 'documentUrl'
         this.certifications.at(index).patchValue({ fileUrl: res.url });
       });
   }
@@ -468,8 +489,7 @@ export class InterpreterApplyComponent implements OnInit {
   createLanguageGroup() {
     return this.fb.group({
       language: ['', Validators.required],
-      // CHANGED: 'fluency' -> 'proficiency'
-      proficiency: ['', Validators.required],
+      proficiency: ['', Validators.required], // Matches backend req.getProficiency()
       proofUrl: ['']
     });
   }
@@ -480,10 +500,10 @@ export class InterpreterApplyComponent implements OnInit {
     this.certifications.push(this.fb.group({
       name: ['', Validators.required],
       issuingOrganization: ['', Validators.required],
-      // CHANGED: 'documentUrl' -> 'fileUrl'
-      fileUrl: ['', Validators.required],
+      description: [''], // Added: matches backend req.getDescription()
+      fileUrl: ['', Validators.required], // Matches backend req.getFileUrl()
       issueDate: ['', Validators.required],
-      expiryDate: ['']
+      expiryDate: [null]
     }));
   }
   removeCertification(i: number) { this.certifications.removeAt(i); }
@@ -492,22 +512,24 @@ export class InterpreterApplyComponent implements OnInit {
     if (this.applyForm.invalid) return;
     this.isSubmitting.set(true);
     
-    const payload = { ...this.applyForm.value };
-
-    if (payload.certifications) {
-        payload.certifications = payload.certifications.map((cert: any) => ({
+    // Explicitly formatting payload to match Backend DTO expectations
+    const formValue = this.applyForm.value;
+    const payload = { 
+        ...formValue,
+        certifications: formValue.certifications.map((cert: any) => ({
             ...cert,
-            expiryDate: cert.expiryDate ? cert.expiryDate : null
-        }));
-    }
+            expiryDate: cert.expiryDate ? cert.expiryDate : null,
+            description: cert.description || ''
+        }))
+    };
 
     const url = this.isReapplying()
       ? `${this.API_URL}/interpreters/re-apply`
       : `${this.API_URL}/interpreters/apply`;
 
     const request$ = this.isReapplying() 
-      ? this.http.put(url, payload) 
-      : this.http.post(url, payload);
+      ? this.http.put(url, payload, { headers: this.getAuthHeaders() }) 
+      : this.http.post(url, payload, { headers: this.getAuthHeaders() });
 
     request$.subscribe({
       next: () => this.router.navigate(['/dashboard/interpreter/home']),

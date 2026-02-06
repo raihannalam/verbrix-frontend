@@ -4,26 +4,56 @@ import {
   OnInit,
   OnDestroy,
   signal,
-  effect
+  computed
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { catchError, finalize, of, Subscription } from 'rxjs';
+import { catchError, finalize, of, Subscription, forkJoin, map } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { Navbar } from '../layout/navbar';
-import { FindInterpreterComponent } from '../components/find-interpreter';
 import { ChatLayoutComponent } from '../components/chat-layout';
 import { RealtimeService } from '../../core/realtime/realtime.service';
+
+// --- Interfaces based on your Java DTOs ---
+
+interface Language {
+  name: string;
+  code?: string;
+}
+
+interface Interpreter {
+  id: number;
+  firstName: string;
+  lastName: string;
+  bio: string;
+  profilePictureUrl?: string;
+  experienceYears: number;
+  specializations: string[];
+  languages: Language[];
+  consultationFees: number;
+  rating: number;
+  ratingCount: number;
+  online: boolean;
+  available: boolean;
+}
 
 interface Relationship {
   id: number;
   clientName: string;
   interpreterName: string;
   status: 'REQUESTED' | 'REQUEST_ACCEPTED' | 'CONSULTATION_ACTIVE' | 'AGREEMENT_ACTIVE' | 'TERMINATED';
-  initialMessage?: string;
   createdAt: string;
+}
+
+// Helper for Spring Data Page response
+interface Page<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
 }
 
 @Component({
@@ -33,19 +63,19 @@ interface Relationship {
     Navbar,
     CommonModule,
     RouterLink,
-    FindInterpreterComponent,
     ChatLayoutComponent
+    // Removed FindInterpreterComponent as we render the list directly now
   ],
   template: `
     <app-navbar class="fixed top-0 left-0 h-[72px] w-full z-50"></app-navbar>
 
     <div class="min-h-screen bg-gray-50 dark:bg-gray-900 pt-[90px] px-4 md:px-8 pb-12 transition-colors duration-300">
-      <div class="max-w-6xl mx-auto space-y-8">
+      <div class="max-w-7xl mx-auto space-y-8">
 
         <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
           <div>
             <h1 class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Patient Dashboard</h1>
-            <p class="text-gray-500 dark:text-gray-400 mt-1">Manage your medical interpretation services</p>
+            <p class="text-gray-500 dark:text-gray-400 mt-1">Find interpreters and manage consultations</p>
           </div>
 
           <div class="bg-white dark:bg-gray-800 p-1 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 flex w-full md:w-auto">
@@ -75,134 +105,137 @@ interface Relationship {
         @if (loading()) {
           <div class="animate-pulse space-y-8">
             <div class="h-64 bg-gray-200 dark:bg-gray-800 rounded-3xl"></div>
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div class="lg:col-span-2 h-40 bg-gray-200 dark:bg-gray-800 rounded-2xl"></div>
-              <div class="h-40 bg-gray-200 dark:bg-gray-800 rounded-2xl"></div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div class="h-80 bg-gray-200 dark:bg-gray-800 rounded-2xl" *ngFor="let i of [1,2,3]"></div>
             </div>
           </div>
         } @else {
           
           @if (viewMode() === 'dashboard') {
-            <div class="animate-fade-in space-y-8">
+            <div class="animate-fade-in space-y-10">
 
               @if (activeRelationship(); as rel) {
-                <div class="bg-white dark:bg-gray-800 border border-blue-100 dark:border-blue-900/30 rounded-3xl p-8 shadow-sm relative overflow-hidden animate-slide-down transition-colors">
+                <div class="bg-white dark:bg-gray-800 border border-blue-100 dark:border-blue-900/30 rounded-3xl p-8 shadow-sm relative overflow-hidden animate-slide-down">
                   <div class="absolute top-0 right-0 w-64 h-64 bg-blue-50 dark:bg-blue-900/20 rounded-full blur-3xl -mr-16 -mt-16 opacity-50 pointer-events-none"></div>
                   
-                  <div class="relative z-10 flex flex-col md:flex-row justify-between items-center gap-6">
-                    <div class="flex items-center gap-5 w-full md:w-auto">
-                      <div class="w-16 h-16 shrink-0 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center text-blue-600 dark:text-blue-300 text-2xl font-bold border-2 border-white dark:border-gray-700 shadow-sm">
-                        {{ rel.interpreterName.charAt(0) || '?' }}
-                      </div>
-                      
-                      <div class="min-w-0">
-                        <div class="flex flex-wrap items-center gap-3 mb-1">
-                          <h2 class="text-xl font-bold text-gray-900 dark:text-white truncate">
-                            Your Interpreter: {{ rel.interpreterName }}
-                          </h2>
-                          <span [class]="getStatusColor(rel.status)" class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide border border-current/10 shrink-0">
-                            {{ rel.status.replace('_', ' ') }}
-                          </span>
+                  <div class="relative z-10">
+                    <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                      <div class="flex items-center gap-5 w-full md:w-auto">
+                        <div class="w-16 h-16 shrink-0 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center text-blue-600 dark:text-blue-300 text-2xl font-bold border-2 border-white dark:border-gray-700 shadow-sm">
+                          {{ rel.interpreterName.charAt(0) || '?' }}
                         </div>
-                        <p class="text-gray-500 dark:text-gray-400 text-sm flex items-center gap-2">
-                          <i class="ri-calendar-check-line"></i> Connected since {{ rel.createdAt | date:'mediumDate' }}
-                        </p>
+                        
+                        <div class="min-w-0">
+                          <div class="flex flex-wrap items-center gap-3 mb-1">
+                            <h2 class="text-xl font-bold text-gray-900 dark:text-white truncate">
+                              Active: {{ rel.interpreterName }}
+                            </h2>
+                            <span [class]="getStatusColor(rel.status)" class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide border border-current/10 shrink-0">
+                              {{ rel.status.replace('_', ' ') }}
+                            </span>
+                          </div>
+                          <p class="text-gray-500 dark:text-gray-400 text-sm flex items-center gap-2">
+                            <i class="ri-calendar-check-line"></i> Connected since {{ rel.createdAt | date:'mediumDate' }}
+                          </p>
+                        </div>
                       </div>
-                    </div>
 
-                    <div class="flex gap-3 w-full md:w-auto">
-                      <button (click)="viewMode.set('chat')" class="flex-1 md:flex-none px-8 py-3 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-600/20 active:scale-95 flex items-center justify-center gap-2">
-                        <i class="ri-chat-3-line"></i> Open Chat
-                      </button>
+                      <div class="flex gap-3 w-full md:w-auto">
+                        <button (click)="viewMode.set('chat')" class="flex-1 md:flex-none px-8 py-3 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-600/20 active:scale-95 flex items-center justify-center gap-2">
+                          <i class="ri-chat-3-line"></i> Continue Chat
+                        </button>
+                      </div>
                     </div>
                   </div>
+                </div>
+              }
 
-                  <div class="mt-6 p-4 bg-gray-50/80 dark:bg-gray-700/30 backdrop-blur rounded-xl border border-gray-100 dark:border-gray-700/50 text-sm text-gray-600 dark:text-gray-300 flex gap-3 items-start">
-                    <i class="ri-information-fill text-blue-500 text-lg mt-0.5 shrink-0"></i>
-                    <span class="font-medium leading-relaxed">
-                      @switch (rel.status) {
-                        @case ('REQUESTED') { Your request is pending. You will be notified once the interpreter accepts. }
-                        @case ('REQUEST_ACCEPTED') { Request accepted! Please proceed to payment in the Messages tab to start the consultation. }
-                        @case ('CONSULTATION_ACTIVE') { Consultation in progress. All messages and calls are secure and private. }
-                        @default { Your connection is active. }
-                      }
+              <div>
+                 <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
+                      {{ activeRelationship() ? 'Other Available Professionals' : 'Available Interpreters' }}
+                    </h2>
+                    <span class="text-sm font-medium text-gray-500 bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">
+                       {{ interpretersList().length }} Found
                     </span>
-                  </div>
-                </div>
-              }
+                 </div>
 
-              @else {
-                <div class="bg-gradient-to-br from-indigo-600 to-blue-700 dark:from-indigo-900 dark:to-blue-900 rounded-3xl p-8 md:p-12 text-white shadow-xl relative overflow-hidden animate-slide-up">
-                  <div class="absolute top-0 right-0 w-96 h-96 bg-white opacity-10 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
-                  <div class="absolute bottom-0 left-0 w-64 h-64 bg-purple-500 opacity-20 rounded-full blur-3xl -ml-10 -mb-10 pointer-events-none"></div>
-
-                  <div class="relative z-10 grid lg:grid-cols-2 gap-12 items-center">
-                    <div class="space-y-6">
-                      <div class="inline-block px-4 py-1.5 bg-white/20 backdrop-blur-md rounded-full text-xs font-bold uppercase tracking-wider border border-white/30">
-                        ✨ Connect with professionals
-                      </div>
-                      <h2 class="text-4xl md:text-5xl font-extrabold leading-tight tracking-tight">
-                        Find your medical <br/> interpreter today.
-                      </h2>
-                      <p class="text-blue-100 text-lg max-w-md font-medium leading-relaxed">
-                        Bridge the language gap. Search our network of certified interpreters to ensure you get the care you understand and deserve.
-                      </p>
-                      
-                      <div class="bg-white dark:bg-gray-800 rounded-2xl p-2 shadow-2xl max-w-lg transform transition-all duration-300">
-                         <app-find-interpreter></app-find-interpreter>
-                      </div>
+                 @if (interpretersList().length === 0) {
+                    <div class="text-center py-12 bg-white dark:bg-gray-800 rounded-2xl border border-dashed border-gray-300 dark:border-gray-700">
+                        <i class="ri-user-search-line text-4xl text-gray-400"></i>
+                        <p class="mt-2 text-gray-500">No interpreters found at the moment.</p>
                     </div>
+                 }
 
-                    <div class="hidden lg:block relative pointer-events-none select-none">
-                        <div class="grid grid-cols-2 gap-4">
-                           <div class="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/20">
-                              <div class="text-3xl font-bold">24/7</div>
-                              <div class="text-sm opacity-80 font-medium">Availability</div>
+                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    @for (interpreter of interpretersList(); track interpreter.id) {
+                      <div class="group bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-6 hover:shadow-xl hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-300 flex flex-col h-full relative overflow-hidden">
+                        
+                        <div class="flex justify-between items-start mb-4">
+                           <div class="relative">
+                              <img 
+                                [src]="interpreter.profilePictureUrl || 'assets/default-avatar.png'" 
+                                class="w-14 h-14 rounded-full object-cover border-2 border-gray-100 dark:border-gray-700 shadow-sm"
+                                alt="Profile">
+                              <span [class]="interpreter.online ? 'bg-green-500' : 'bg-gray-400'" 
+                                    class="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-white dark:border-gray-800">
+                              </span>
                            </div>
-                           <div class="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/20 translate-y-8">
-                              <div class="text-3xl font-bold">100%</div>
-                              <div class="text-sm opacity-80 font-medium">Verified Pros</div>
+                           <div class="text-right">
+                              <div class="text-lg font-bold text-gray-900 dark:text-white">
+                                {{ interpreter.consultationFees | currency }}
+                              </div>
+                              <div class="text-[10px] text-gray-500 uppercase font-bold tracking-wide">per session</div>
                            </div>
                         </div>
-                    </div>
-                  </div>
-                </div>
-              }
 
-              <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                
-                <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-6 rounded-2xl shadow-sm hover:shadow-md transition-all group cursor-default">
-                     <div class="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase tracking-wider mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Appointments</div>
-                     <div class="text-3xl font-extrabold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">0</div>
-                  </div>
-                  <div class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-6 rounded-2xl shadow-sm hover:shadow-md transition-all group cursor-default">
-                     <div class="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase tracking-wider mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Documents</div>
-                     <div class="text-3xl font-extrabold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">0</div>
-                  </div>
-                  <div class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-6 rounded-2xl shadow-sm hover:shadow-md transition-all group cursor-default">
-                     <div class="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase tracking-wider mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Invoices</div>
-                     <div class="text-3xl font-extrabold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">0</div>
-                  </div>
-                </div>
+                        <div class="mb-4">
+                           <h3 class="text-lg font-bold text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors">
+                              {{ interpreter.firstName }} {{ interpreter.lastName }}
+                           </h3>
+                           <div class="flex items-center gap-1 text-yellow-500 text-sm mt-1">
+                              <i class="ri-star-fill"></i>
+                              <span class="font-bold text-gray-700 dark:text-gray-300">{{ interpreter.rating }}</span>
+                              <span class="text-gray-400 text-xs">({{ interpreter.ratingCount }})</span>
+                           </div>
+                           
+                           <p class="text-gray-500 dark:text-gray-400 text-sm mt-3 line-clamp-2 min-h-[40px]">
+                              {{ interpreter.bio || 'No bio available.' }}
+                           </p>
+                        </div>
 
-                <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-6 flex flex-col justify-between hover:border-gray-300 dark:hover:border-gray-600 transition-colors shadow-sm">
-                  <div>
-                     <h3 class="font-bold text-gray-900 dark:text-white">Become an Interpreter</h3>
-                     <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium">Join our network of professionals.</p>
-                  </div>
-                  <div class="mt-4">
-                     @if (appStatus()) {
-                       <div class="px-4 py-3 bg-gray-100 dark:bg-gray-700 rounded-xl text-sm font-bold text-gray-700 dark:text-gray-200 text-center border border-gray-200 dark:border-gray-600">
-                         Status: <span class="uppercase text-blue-600 dark:text-blue-400">{{ appStatus()?.status }}</span>
-                       </div>
-                     } @else {
-                       <a routerLink="/interpreters/apply" class="block w-full py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-center rounded-xl text-sm font-bold hover:bg-black dark:hover:bg-gray-200 transition-all shadow-lg shadow-gray-900/20 dark:shadow-white/10 active:scale-95">
-                         Apply Now
-                       </a>
-                     }
-                  </div>
-                </div>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                           @for (spec of interpreter.specializations.slice(0, 2); track spec) {
+                              <span class="px-2 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-md text-[10px] font-bold uppercase tracking-wide border border-blue-100 dark:border-blue-800">
+                                 {{ spec }}
+                              </span>
+                           }
+                           @if (interpreter.specializations.length > 2) {
+                              <span class="px-2 py-1 bg-gray-50 dark:bg-gray-800 text-gray-500 rounded-md text-[10px] font-bold">
+                                 +{{ interpreter.specializations.length - 2 }}
+                              </span>
+                           }
+                        </div>
+                        
+                        <div class="text-sm text-gray-500 dark:text-gray-400 mb-6 flex items-center gap-2">
+                           <i class="ri-translate-2 text-gray-400"></i>
+                           <span class="truncate">
+                             {{ getLanguageString(interpreter.languages) }}
+                           </span>
+                        </div>
+
+                        <div class="mt-auto pt-4 border-t border-gray-100 dark:border-gray-700">
+                           <button 
+                             [disabled]="!interpreter.available"
+                             routerLink="/interpreters/{{interpreter.id}}"
+                             class="w-full py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg text-sm font-bold hover:bg-blue-600 dark:hover:bg-blue-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                             {{ interpreter.available ? 'View Profile' : 'Unavailable' }}
+                           </button>
+                        </div>
+
+                      </div>
+                    }
+                 </div>
               </div>
 
             </div>
@@ -219,11 +252,8 @@ interface Relationship {
   styles: [`
     .animate-fade-in { animation: fadeIn 0.4s ease-out; }
     .animate-slide-down { animation: slideDown 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
-    .animate-slide-up { animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
-    
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
   `]
 })
 export class ClientDashboard implements OnInit, OnDestroy {
@@ -234,10 +264,11 @@ export class ClientDashboard implements OnInit, OnDestroy {
 
   // Signals
   viewMode = signal<'dashboard' | 'chat'>('dashboard');
-  appStatus = signal<any>(null);
-  activeRelationship = signal<Relationship | null>(null);
   
-  // Start loading true, handled safely in fetchData
+  // Data Signals
+  activeRelationship = signal<Relationship | null>(null);
+  interpretersList = signal<Interpreter[]>([]);
+  
   loading = signal(true);
 
   ngOnInit(): void {
@@ -252,30 +283,49 @@ export class ClientDashboard implements OnInit, OnDestroy {
   fetchData(): void {
     this.loading.set(true);
     
-    // 1. Fetch Application Status (for sidebar widget)
-    this.http.get(`${this.API_URL}/interpreters/me/status`)
-      .pipe(catchError(() => of(null)))
-      .subscribe(status => this.appStatus.set(status));
-
-    // 2. Fetch Active Relationships
-    this.http.get<Relationship[]>(`${this.API_URL}/relationships/mine`)
-      .pipe(
-        // Handle errors gracefully and ensure stream continues
-        catchError((err) => {
-          console.error('Failed to fetch relationships:', err);
-          return of([]); // Return empty array to keep type safety
-        }),
-        // Ensure loading is turned off regardless of success or failure
-        finalize(() => this.loading.set(false))
+    // We execute both requests in parallel using forkJoin
+    forkJoin({
+      // 1. Get Relationship
+      relationships: this.http.get<Relationship[]>(`${this.API_URL}/relationships/mine`).pipe(
+        catchError(err => {
+          console.error('Rel Error:', err);
+          return of([]); 
+        })
+      ),
+      // 2. Get All Interpreters (New Endpoint)
+      interpretersPage: this.http.get<Page<Interpreter>>(`${this.API_URL}/clients/interpreters`).pipe(
+         catchError(err => {
+            console.error('Interpreter Fetch Error:', err);
+            // Return empty page structure on error
+            return of({ content: [], totalElements: 0 } as any);
+         })
       )
-      .subscribe(rels => {
-        // Safe check for array existence and length
-        if (rels && Array.isArray(rels) && rels.length > 0) {
-          this.activeRelationship.set(rels[0]);
-        } else {
-          this.activeRelationship.set(null);
-        }
-      });
+    })
+    .pipe(
+      finalize(() => this.loading.set(false))
+    )
+    .subscribe(({ relationships, interpretersPage }) => {
+       // Handle Relationship
+       if (relationships && relationships.length > 0) {
+         this.activeRelationship.set(relationships[0]);
+       } else {
+         this.activeRelationship.set(null);
+       }
+
+       // Handle Interpreters List
+       // The Spring controller returns Page<Response>, so we extract .content
+       if (interpretersPage && interpretersPage.content) {
+          this.interpretersList.set(interpretersPage.content);
+       } else {
+          this.interpretersList.set([]);
+       }
+    });
+  }
+
+  // Helper to format languages for display (e.g., "English, Spanish, French")
+  getLanguageString(langs: Language[]): string {
+    if (!langs || langs.length === 0) return 'No languages listed';
+    return langs.map(l => l.name).join(', ');
   }
 
   getStatusColor(status: string): string {
