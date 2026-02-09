@@ -1,278 +1,250 @@
-import {
-  Component,
-  inject,
-  OnInit,
-  OnDestroy,
-  signal,
-  computed
-} from '@angular/core';
-import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
-import { RouterLink } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-import { catchError, finalize, of, Subscription, forkJoin, map } from 'rxjs';
-
+import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Router, RouterLink } from '@angular/router';
+import { catchError, finalize, of, Subscription } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { Navbar } from '../layout/navbar';
-import { ChatLayoutComponent } from '../components/chat-layout';
-import { RealtimeService } from '../../core/realtime/realtime.service';
+import { Navbar } from '../../features/layout/navbar';
+// Assuming you have this service created, otherwise remove the realtime parts for now
+import { RealtimeService } from '../../core/realtime/realtime.service'; 
 
-// --- Interfaces based on your Java DTOs ---
+// --- Interfaces ---
 
-interface Language {
-  name: string;
-  code?: string;
-}
-
-interface Interpreter {
-  id: number;
-  firstName: string;
-  lastName: string;
-  bio: string;
-  profilePictureUrl?: string;
-  experienceYears: number;
-  specializations: string[];
-  languages: Language[];
-  consultationFees: number;
-  rating: number;
-  ratingCount: number;
-  online: boolean;
-  available: boolean;
+interface ApplicationStatusResponse {
+  applicationId: string;
+  status: 'PENDING' | 'UNDER_REVIEW' | 'APPROVED' | 'REJECTED';
+  submittedAt: string;
+  reviewedAt?: string;
+  rejectionReason?: string;
 }
 
 interface Relationship {
   id: number;
   clientName: string;
   interpreterName: string;
+  interpreterAvatar?: string;
   status: 'REQUESTED' | 'REQUEST_ACCEPTED' | 'CONSULTATION_ACTIVE' | 'AGREEMENT_ACTIVE' | 'TERMINATED';
+  lastActivity?: string;
   createdAt: string;
 }
 
-// Helper for Spring Data Page response
-interface Page<T> {
-  content: T[];
-  totalElements: number;
-  totalPages: number;
-  size: number;
-  number: number;
-}
-
 @Component({
-  selector: 'app-client-dashboard',
+  selector: 'app-client-home',
   standalone: true,
-  imports: [
-    Navbar,
-    CommonModule,
-    RouterLink,
-    ChatLayoutComponent
-    // Removed FindInterpreterComponent as we render the list directly now
-  ],
+  imports: [CommonModule, Navbar, RouterLink, DatePipe],
   template: `
-    <app-navbar class="fixed top-0 left-0 h-[72px] w-full z-50"></app-navbar>
+    <app-navbar></app-navbar>
 
-    <div class="min-h-screen bg-gray-50 dark:bg-gray-900 pt-[90px] px-4 md:px-8 pb-12 transition-colors duration-300">
-      <div class="max-w-7xl mx-auto space-y-8">
-
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
-          <div>
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Patient Dashboard</h1>
-            <p class="text-gray-500 dark:text-gray-400 mt-1">Find interpreters and manage consultations</p>
-          </div>
-
-          <div class="bg-white dark:bg-gray-800 p-1 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 flex w-full md:w-auto">
-            <button
-              (click)="viewMode.set('dashboard')"
-              [class]="viewMode() === 'dashboard'
-                ? 'bg-blue-50 text-blue-700 shadow-sm dark:bg-blue-900/40 dark:text-blue-300'
-                : 'text-gray-500 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-700/50'"
-              class="flex-1 md:flex-none px-6 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2">
-              <i class="ri-dashboard-line text-lg"></i> Overview
-            </button>
-
-            <button
-              (click)="viewMode.set('chat')"
-              [class]="viewMode() === 'chat'
-                ? 'bg-blue-50 text-blue-700 shadow-sm dark:bg-blue-900/40 dark:text-blue-300'
-                : 'text-gray-500 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-700/50'"
-              class="flex-1 md:flex-none px-6 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 relative">
-              <i class="ri-message-3-line text-lg"></i> Messages
-              @if (activeRelationship()) {
-                <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white dark:ring-gray-800"></span>
-              }
-            </button>
-          </div>
+    <div class="min-h-screen bg-gray-50 dark:bg-[#0f1115] pt-24 pb-12 px-4 sm:px-6 transition-colors duration-300">
+      <div class="max-w-6xl mx-auto space-y-10">
+        
+        <div class="animate-fade-in">
+          <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight mb-2">
+            Client Dashboard
+          </h1>
+          <p class="text-gray-500 dark:text-gray-400 text-lg">
+            Manage your medical team and professional profile.
+          </p>
         </div>
 
-        @if (loading()) {
-          <div class="animate-pulse space-y-8">
-            <div class="h-64 bg-gray-200 dark:bg-gray-800 rounded-3xl"></div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div class="h-80 bg-gray-200 dark:bg-gray-800 rounded-2xl" *ngFor="let i of [1,2,3]"></div>
-            </div>
-          </div>
-        } @else {
-          
-          @if (viewMode() === 'dashboard') {
-            <div class="animate-fade-in space-y-10">
-
-              @if (activeRelationship(); as rel) {
-                <div class="bg-white dark:bg-gray-800 border border-blue-100 dark:border-blue-900/30 rounded-3xl p-8 shadow-sm relative overflow-hidden animate-slide-down">
-                  <div class="absolute top-0 right-0 w-64 h-64 bg-blue-50 dark:bg-blue-900/20 rounded-full blur-3xl -mr-16 -mt-16 opacity-50 pointer-events-none"></div>
-                  
-                  <div class="relative z-10">
-                    <div class="flex flex-col md:flex-row justify-between items-center gap-6">
-                      <div class="flex items-center gap-5 w-full md:w-auto">
-                        <div class="w-16 h-16 shrink-0 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center text-blue-600 dark:text-blue-300 text-2xl font-bold border-2 border-white dark:border-gray-700 shadow-sm">
-                          {{ rel.interpreterName.charAt(0) || '?' }}
-                        </div>
-                        
-                        <div class="min-w-0">
-                          <div class="flex flex-wrap items-center gap-3 mb-1">
-                            <h2 class="text-xl font-bold text-gray-900 dark:text-white truncate">
-                              Active: {{ rel.interpreterName }}
-                            </h2>
-                            <span [class]="getStatusColor(rel.status)" class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide border border-current/10 shrink-0">
-                              {{ rel.status.replace('_', ' ') }}
-                            </span>
-                          </div>
-                          <p class="text-gray-500 dark:text-gray-400 text-sm flex items-center gap-2">
-                            <i class="ri-calendar-check-line"></i> Connected since {{ rel.createdAt | date:'mediumDate' }}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div class="flex gap-3 w-full md:w-auto">
-                        <button (click)="viewMode.set('chat')" class="flex-1 md:flex-none px-8 py-3 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-600/20 active:scale-95 flex items-center justify-center gap-2">
-                          <i class="ri-chat-3-line"></i> Continue Chat
-                        </button>
-                      </div>
+        <div class="animate-slide-up" [style.animation-delay]="'100ms'">
+            
+            @if (loadingApp()) {
+                <div class="h-40 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse"></div>
+            }
+            
+            @else if (application(); as app) {
+              <div class="bg-white dark:bg-[#181a1f] rounded-2xl border p-6 shadow-sm transition-all"
+                   [ngClass]="{
+                     'border-yellow-400/50 bg-yellow-50/10': app.status === 'PENDING',
+                     'border-blue-400/50 bg-blue-50/10': app.status === 'UNDER_REVIEW',
+                     'border-red-400/50 bg-red-50/10': app.status === 'REJECTED',
+                     'border-green-400/50 bg-green-50/10': app.status === 'APPROVED'
+                   }">
+                
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                  <div class="space-y-2">
+                    <div class="flex items-center gap-3">
+                      <h2 class="text-lg font-bold text-gray-900 dark:text-white">Interpreter Application</h2>
+                      <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border"
+                            [ngClass]="{
+                              'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400': app.status === 'PENDING',
+                              'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400': app.status === 'UNDER_REVIEW',
+                              'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400': app.status === 'REJECTED',
+                              'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400': app.status === 'APPROVED'
+                            }">
+                        {{ app.status.replace('_', ' ') }}
+                      </span>
                     </div>
-                  </div>
-                </div>
-              }
+                    
+                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                      Submitted on <span class="font-semibold">{{ app.submittedAt | date:'mediumDate' }}</span>
+                    </p>
 
-              <div>
-                 <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
-                      {{ activeRelationship() ? 'Other Available Professionals' : 'Available Interpreters' }}
-                    </h2>
-                    <span class="text-sm font-medium text-gray-500 bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">
-                       {{ interpretersList().length }} Found
-                    </span>
-                 </div>
-
-                 @if (interpretersList().length === 0) {
-                    <div class="text-center py-12 bg-white dark:bg-gray-800 rounded-2xl border border-dashed border-gray-300 dark:border-gray-700">
-                        <i class="ri-user-search-line text-4xl text-gray-400"></i>
-                        <p class="mt-2 text-gray-500">No interpreters found at the moment.</p>
-                    </div>
-                 }
-
-                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    @for (interpreter of interpretersList(); track interpreter.id) {
-                      <div class="group bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-6 hover:shadow-xl hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-300 flex flex-col h-full relative overflow-hidden">
-                        
-                        <div class="flex justify-between items-start mb-4">
-                           <div class="relative">
-                              <img 
-                                [src]="interpreter.profilePictureUrl || 'assets/default-avatar.png'" 
-                                class="w-14 h-14 rounded-full object-cover border-2 border-gray-100 dark:border-gray-700 shadow-sm"
-                                alt="Profile">
-                              <span [class]="interpreter.online ? 'bg-green-500' : 'bg-gray-400'" 
-                                    class="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-white dark:border-gray-800">
-                              </span>
-                           </div>
-                           <div class="text-right">
-                              <div class="text-lg font-bold text-gray-900 dark:text-white">
-                                {{ interpreter.consultationFees | currency }}
-                              </div>
-                              <div class="text-[10px] text-gray-500 uppercase font-bold tracking-wide">per session</div>
-                           </div>
+                    @if (app.status === 'REJECTED' && app.rejectionReason) {
+                      <div class="mt-2 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-100 dark:border-red-800/30 flex items-start gap-2 max-w-2xl">
+                        <i class="ri-error-warning-fill text-red-500 mt-0.5"></i>
+                        <div>
+                           <span class="block text-xs font-bold text-red-700 dark:text-red-400 uppercase">Action Required</span>
+                           <span class="text-sm text-gray-700 dark:text-gray-300">{{ app.rejectionReason }}</span>
                         </div>
-
-                        <div class="mb-4">
-                           <h3 class="text-lg font-bold text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors">
-                              {{ interpreter.firstName }} {{ interpreter.lastName }}
-                           </h3>
-                           <div class="flex items-center gap-1 text-yellow-500 text-sm mt-1">
-                              <i class="ri-star-fill"></i>
-                              <span class="font-bold text-gray-700 dark:text-gray-300">{{ interpreter.rating }}</span>
-                              <span class="text-gray-400 text-xs">({{ interpreter.ratingCount }})</span>
-                           </div>
-                           
-                           <p class="text-gray-500 dark:text-gray-400 text-sm mt-3 line-clamp-2 min-h-[40px]">
-                              {{ interpreter.bio || 'No bio available.' }}
-                           </p>
-                        </div>
-
-                        <div class="flex flex-wrap gap-2 mb-4">
-                           @for (spec of interpreter.specializations.slice(0, 2); track spec) {
-                              <span class="px-2 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-md text-[10px] font-bold uppercase tracking-wide border border-blue-100 dark:border-blue-800">
-                                 {{ spec }}
-                              </span>
-                           }
-                           @if (interpreter.specializations.length > 2) {
-                              <span class="px-2 py-1 bg-gray-50 dark:bg-gray-800 text-gray-500 rounded-md text-[10px] font-bold">
-                                 +{{ interpreter.specializations.length - 2 }}
-                              </span>
-                           }
-                        </div>
-                        
-                        <div class="text-sm text-gray-500 dark:text-gray-400 mb-6 flex items-center gap-2">
-                           <i class="ri-translate-2 text-gray-400"></i>
-                           <span class="truncate">
-                             {{ getLanguageString(interpreter.languages) }}
-                           </span>
-                        </div>
-
-                        <div class="mt-auto pt-4 border-t border-gray-100 dark:border-gray-700">
-                           <button 
-                             [disabled]="!interpreter.available"
-                             routerLink="/interpreters/{{interpreter.id}}"
-                             class="w-full py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg text-sm font-bold hover:bg-blue-600 dark:hover:bg-blue-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                             {{ interpreter.available ? 'View Profile' : 'Unavailable' }}
-                           </button>
-                        </div>
-
                       </div>
                     }
-                 </div>
+                  </div>
+
+                  <div class="flex items-center gap-3 self-end md:self-auto">
+                    @if (app.status === 'REJECTED') {
+                      <button [routerLink]="['/dashboard/client/apply']" 
+                              class="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold shadow-lg shadow-red-600/20 transition-all flex items-center gap-2">
+                        <i class="ri-edit-box-line"></i> Fix Application
+                      </button>
+                    } 
+                    @else if (app.status === 'APPROVED') {
+                      <button (click)="handleSwitchToInterpreter()" 
+                              class="px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold shadow-lg shadow-green-600/20 transition-all flex items-center gap-2">
+                        Switch Dashboard <i class="ri-arrow-right-line"></i>
+                      </button>
+                    }
+                  </div>
+                </div>
               </div>
+            } 
+            
+            @else {
+              <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 to-blue-700 text-white shadow-xl p-8 group">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 transition-transform group-hover:scale-110 duration-700"></div>
+                
+                <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                  <div>
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold uppercase tracking-wider mb-3 border border-white/10">
+                      <i class="ri-translate-2"></i> Join the Team
+                    </div>
+                    <h2 class="text-2xl font-bold mb-2">Become a Verbrix Interpreter</h2>
+                    <p class="text-blue-100 max-w-lg">
+                      Are you fluent in multiple languages? Apply now to start accepting consultation requests and earning on your own schedule.
+                    </p>
+                  </div>
+                  <button [routerLink]="['/interpreters/apply']" 
+                          class="px-6 py-3 bg-white text-blue-700 rounded-xl font-bold shadow-lg hover:bg-blue-50 hover:scale-105 transition-all flex items-center gap-2 whitespace-nowrap">
+                    Start Application <i class="ri-arrow-right-line"></i>
+                  </button>
+                </div>
+              </div>
+            }
+        </div>
 
-            </div>
-          } 
-          
-          @else {
-            <app-chat-layout class="block h-[calc(100vh-140px)] animate-fade-in border border-gray-200 dark:border-gray-700 rounded-2xl overflow-hidden"></app-chat-layout>
-          }
-        }
+        <div class="border-t border-gray-200 dark:border-gray-800"></div>
 
+        <div class="animate-slide-up" [style.animation-delay]="'200ms'">
+           <div class="flex items-center justify-between mb-6">
+              <h2 class="text-2xl font-bold text-gray-900 dark:text-white">My Interpreters</h2>
+              
+              <button routerLink="/interpreters/find" 
+                      class="text-sm font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
+                 Find New <i class="ri-arrow-right-line"></i>
+              </button>
+           </div>
+
+           @if (loadingRels()) {
+             <div class="space-y-4">
+               <div class="h-24 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse"></div>
+               <div class="h-24 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse"></div>
+             </div>
+           } @else {
+             <div class="space-y-4">
+                @for (rel of myRelationships(); track rel.id) {
+                  <div class="group bg-white dark:bg-[#181a1f] border border-gray-100 dark:border-gray-800 hover:border-blue-300 dark:hover:border-blue-700/50 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col md:flex-row items-center gap-5">
+                    
+                    <div class="relative shrink-0">
+                       <div class="w-14 h-14 rounded-full bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/40 dark:to-blue-800/20 flex items-center justify-center text-blue-600 dark:text-blue-300 text-xl font-bold border border-white dark:border-gray-700 shadow-sm">
+                         {{ rel.interpreterName.charAt(0) }}
+                       </div>
+                       <div class="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-white dark:border-[#181a1f]"
+                            [ngClass]="{
+                              'bg-green-500': rel.status === 'CONSULTATION_ACTIVE' || rel.status === 'AGREEMENT_ACTIVE',
+                              'bg-yellow-400': rel.status === 'REQUESTED',
+                              'bg-blue-500': rel.status === 'REQUEST_ACCEPTED',
+                              'bg-gray-400': rel.status === 'TERMINATED'
+                            }">
+                       </div>
+                    </div>
+
+                    <div class="flex-1 text-center md:text-left min-w-0">
+                      <div class="flex flex-col md:flex-row md:items-center gap-2 justify-center md:justify-start">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white truncate">
+                          {{ rel.interpreterName }}
+                        </h3>
+                        <span class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wide border w-fit mx-auto md:mx-0"
+                              [ngClass]="getStatusStyles(rel.status)">
+                          {{ rel.status.replace('_', ' ') }}
+                        </span>
+                      </div>
+                      <p class="text-gray-500 dark:text-gray-400 text-xs mt-1">
+                        Connected: {{ rel.createdAt | date:'mediumDate' }}
+                      </p>
+                    </div>
+
+                    <div class="flex items-center gap-2 w-full md:w-auto">
+                      <button routerLink="/messages" 
+                              [queryParams]="{ recipientId: rel.id }"
+                              class="flex-1 md:flex-none px-4 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-300 font-semibold rounded-lg text-sm hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors flex items-center justify-center gap-1.5">
+                        <i class="ri-message-3-line"></i> Chat
+                      </button>
+                      
+                      @if(rel.status === 'AGREEMENT_ACTIVE' || rel.status === 'CONSULTATION_ACTIVE') {
+                          <button class="flex-1 md:flex-none px-4 py-2 bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-semibold rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center justify-center gap-1.5">
+                            <i class="ri-calendar-event-line"></i> Book
+                          </button>
+                      }
+                    </div>
+                  </div>
+                }
+
+                @if (myRelationships().length === 0) {
+                  <div class="border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl p-8 text-center bg-gray-50/50 dark:bg-gray-900/50">
+                     <div class="w-12 h-12 mx-auto bg-white dark:bg-gray-800 rounded-full flex items-center justify-center text-gray-400 mb-3 shadow-sm">
+                       <i class="ri-user-search-line text-xl"></i>
+                     </div>
+                     <h3 class="text-base font-bold text-gray-900 dark:text-white">No active interpreters</h3>
+                     <p class="text-gray-500 dark:text-gray-400 text-sm mt-1 mb-4">
+                       Find a specialist to help with your medical consultations.
+                     </p>
+                     <button routerLink="/interpreters/find" class="px-5 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg text-sm font-bold hover:opacity-90 transition-opacity">
+                       Browse Interpreters
+                     </button>
+                  </div>
+                }
+             </div>
+           }
+        </div>
       </div>
     </div>
   `,
   styles: [`
-    .animate-fade-in { animation: fadeIn 0.4s ease-out; }
-    .animate-slide-down { animation: slideDown 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+    .animate-fade-in { animation: fadeIn 0.5s ease-out; }
+    .animate-slide-up { animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
+    
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
   `]
 })
 export class ClientDashboard implements OnInit, OnDestroy {
   private http = inject(HttpClient);
-  private realtime = inject(RealtimeService);
+  private realtime = inject(RealtimeService); // Optional: if you have realtime logic
   private readonly API_URL = environment.apiUrl;
   private realtimeSub?: Subscription;
 
-  // Signals
-  viewMode = signal<'dashboard' | 'chat'>('dashboard');
+  // Signals for state management
+  application = signal<ApplicationStatusResponse | null>(null);
+  myRelationships = signal<Relationship[]>([]);
   
-  // Data Signals
-  activeRelationship = signal<Relationship | null>(null);
-  interpretersList = signal<Interpreter[]>([]);
-  
-  loading = signal(true);
+  // Loading states
+  loadingApp = signal(true);
+  loadingRels = signal(true);
 
   ngOnInit(): void {
-    this.fetchData();
+    this.fetchApplicationStatus();
+    this.fetchRelationships();
     this.subscribeToRealtime();
   }
 
@@ -280,75 +252,83 @@ export class ClientDashboard implements OnInit, OnDestroy {
     this.realtimeSub?.unsubscribe();
   }
 
-  fetchData(): void {
-    this.loading.set(true);
-    
-    // We execute both requests in parallel using forkJoin
-    forkJoin({
-      // 1. Get Relationship
-      relationships: this.http.get<Relationship[]>(`${this.API_URL}/relationships/mine`).pipe(
-        catchError(err => {
-          console.error('Rel Error:', err);
-          return of([]); 
-        })
-      ),
-      // 2. Get All Interpreters (New Endpoint)
-      interpretersPage: this.http.get<Page<Interpreter>>(`${this.API_URL}/clients/interpreters`).pipe(
-         catchError(err => {
-            console.error('Interpreter Fetch Error:', err);
-            // Return empty page structure on error
-            return of({ content: [], totalElements: 0 } as any);
-         })
+  // --- 1. Fetch Application Status (For "Become Interpreter" Card) ---
+  fetchApplicationStatus() {
+    this.loadingApp.set(true);
+    this.http.get<ApplicationStatusResponse>(`${this.API_URL}/interpreters/me/status`, { headers: this.getAuthHeaders() })
+      .subscribe({
+        next: (data) => {
+          this.application.set(data);
+          this.loadingApp.set(false);
+        },
+        error: (err) => {
+          // 404 is expected if user hasn't applied
+          this.application.set(null);
+          this.loadingApp.set(false);
+        }
+      });
+  }
+
+  // --- 2. Fetch Relationships (For "My Interpreters" List) ---
+  fetchRelationships(): void {
+    this.loadingRels.set(true);
+    this.http.get<Relationship[]>(`${this.API_URL}/relationships/mine`, { headers: this.getAuthHeaders() })
+      .pipe(
+        catchError((err) => {
+          console.error('Error fetching relationships:', err);
+          return of([]);
+        }),
+        finalize(() => this.loadingRels.set(false))
       )
-    })
-    .pipe(
-      finalize(() => this.loading.set(false))
-    )
-    .subscribe(({ relationships, interpretersPage }) => {
-       // Handle Relationship
-       if (relationships && relationships.length > 0) {
-         this.activeRelationship.set(relationships[0]);
-       } else {
-         this.activeRelationship.set(null);
-       }
-
-       // Handle Interpreters List
-       // The Spring controller returns Page<Response>, so we extract .content
-       if (interpretersPage && interpretersPage.content) {
-          this.interpretersList.set(interpretersPage.content);
-       } else {
-          this.interpretersList.set([]);
-       }
-    });
+      .subscribe(rels => {
+        this.myRelationships.set(rels || []);
+      });
   }
 
-  // Helper to format languages for display (e.g., "English, Spanish, French")
-  getLanguageString(langs: Language[]): string {
-    if (!langs || langs.length === 0) return 'No languages listed';
-    return langs.map(l => l.name).join(', ');
-  }
-
-  getStatusColor(status: string): string {
+  // --- Helpers ---
+  getStatusStyles(status: string): string {
     switch (status) {
-      case 'REQUESTED': return 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-700';
-      case 'REQUEST_ACCEPTED': return 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700';
-      case 'CONSULTATION_ACTIVE': return 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700';
+      case 'REQUESTED': 
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-700';
+      case 'REQUEST_ACCEPTED': 
+        return 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700';
+      case 'CONSULTATION_ACTIVE': 
+      case 'AGREEMENT_ACTIVE':
+        return 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700';
+      default: 
+        return 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700';
     }
   }
 
+  handleSwitchToInterpreter() {
+    window.location.reload(); 
+  }
+
+  private getAuthHeaders(): HttpHeaders {
+    const token = localStorage.getItem('token');
+    let headers = new HttpHeaders();
+    if (token) headers = headers.set('Authorization', `Bearer ${token}`);
+    return headers;
+  }
+
   private subscribeToRealtime(): void {
+    // Listen for updates like 'RELATIONSHIP_ACCEPTED' or 'CONSULTATION_STARTED'
     this.realtimeSub = this.realtime.events$.subscribe(event => {
       if (!event) return;
       
       const refreshEvents = [
         'RELATIONSHIP_REQUEST_RESPONSE', 
         'CONSULTATION_STARTED', 
-        'AGREEMENT_ACTIVATED'
+        'AGREEMENT_ACTIVATED',
+        'RELATIONSHIP_TERMINATED',
+        'APPLICATION_STATUS_CHANGED' // Assuming admin approval triggers this
       ];
 
       if (refreshEvents.includes(event.type)) {
-        this.fetchData();
+        this.fetchRelationships();
+        if (event.type === 'APPLICATION_STATUS_CHANGED') {
+            this.fetchApplicationStatus();
+        }
       }
     });
   }

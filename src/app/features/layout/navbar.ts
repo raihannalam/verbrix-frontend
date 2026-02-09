@@ -33,13 +33,13 @@ const NAV_CONFIG: Record<string, NavLink[]> = {
     { label: 'Overview', route: '/dashboard/interpreter/home' },
     { label: 'Requests', isDisabled: true },
     { label: 'Schedule', isDisabled: true },
-    { label: 'Messages', route: '/dashboard/interpreter/chat' },
+    { label: 'Messages', route: '/messages' },
   ],
   [UserRole.CLIENT]: [
     { label: 'Overview', route: '/dashboard/client/home' },
     { label: 'Bookings', isDisabled: true },
     { label: 'Documents', isDisabled: true },
-    { label: 'Messages', route: '/dashboard/client/chat' },
+    { label: 'Messages', route: '/messages' },
   ],
   'GUEST': [
     { label: 'How It Works', fragment: 'how-it-works' },

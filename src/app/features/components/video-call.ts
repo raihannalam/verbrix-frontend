@@ -1,20 +1,14 @@
-import { 
-  Component, 
-  ElementRef, 
-  Input, 
-  OnDestroy, 
-  OnInit, 
-  ViewChild, 
-  signal 
-} from '@angular/core';
+import { Component, ElementRef, Input, OnDestroy, OnInit, Output, ViewChild, EventEmitter, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { 
   Room, 
   RoomEvent, 
   RemoteParticipant, 
-  ParticipantEvent,
-  VideoPresets,
-  Track
+  RemoteTrackPublication, 
+  RemoteTrack, 
+  Track,
+  LocalTrackPublication,
+  ConnectionState
 } from 'livekit-client';
 
 @Component({
@@ -22,255 +16,228 @@ import {
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="relative w-full h-full bg-black flex flex-col overflow-hidden font-sans">
+    <div class="fixed inset-0 z-[100] bg-[#0f1115] flex flex-col font-sans animate-fade-in overflow-hidden">
       
-      @if (showAudioBanner()) {
-        <div (click)="unlockAudio()" 
-             class="absolute top-0 left-0 right-0 p-4 bg-amber-500 text-black font-bold text-center z-50 cursor-pointer animate-bounce">
-          🔇 TAP HERE TO ENABLE AUDIO
+      <div class="absolute inset-0 w-full h-full bg-black/40 flex items-center justify-center">
+           
+           <video #remoteVideoElement 
+                  class="w-full h-full object-cover" 
+                  [class.hidden]="!hasRemoteVideo()"
+                  autoplay playsinline>
+           </video>
+
+           <div *ngIf="!hasRemoteVideo()" class="flex flex-col items-center gap-4 z-10 animate-pulse absolute">
+              <div class="w-24 h-24 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-sm border border-white/10">
+                 <span class="text-4xl font-bold text-white/70">{{ remoteIdentity.charAt(0) || '...' }}</span>
+              </div>
+              <p class="text-white/60 text-sm font-medium tracking-wide">Waiting for partner...</p>
+           </div>
+      </div>
+
+      <div class="absolute top-0 left-0 w-full p-6 flex justify-between items-start z-20 bg-gradient-to-b from-black/60 to-transparent">
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/30 backdrop-blur-md border border-white/10 w-fit">
+           <span class="w-2 h-2 rounded-full shadow-[0_0_8px_currentColor]" 
+              [ngClass]="{
+                 'bg-green-500 text-green-500': connectionState() === ConnectionState.Connected,
+                 'bg-yellow-500 text-yellow-500': connectionState() === ConnectionState.Connecting,
+                 'bg-red-500 text-red-500': connectionState() === ConnectionState.Disconnected
+              }"></span>
+           <span class="text-white/90 text-xs font-semibold">{{ statusMessage() }}</span>
         </div>
-      }
+      </div>
 
-      <div #gridContainer class="flex-1 grid gap-1 bg-black p-1 transition-all duration-300 relative">
-        @if (remoteCount() === 0) {
-          <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-400">
-            <div class="h-20 w-20 rounded-full bg-gray-800 flex items-center justify-center mb-4 animate-pulse">
-              <i class="ri-user-search-line text-4xl"></i>
+      <div class="absolute bottom-28 right-6 w-36 h-52 md:w-48 md:h-72 bg-gray-900 rounded-2xl overflow-hidden shadow-2xl border border-white/20 z-30 transition-transform hover:scale-105 group">
+         <video #localVideoElement class="w-full h-full object-cover -scale-x-100" autoplay playsinline muted></video>
+         
+         <div class="absolute bottom-0 left-0 w-full p-2 bg-gradient-to-t from-black/80 to-transparent flex justify-between items-end">
+            <span class="text-[10px] font-bold text-white/90 px-2 py-0.5 rounded bg-white/10 backdrop-blur-sm">YOU</span>
+            <div class="flex gap-1">
+               <i *ngIf="!isMicEnabled()" class="ri-mic-off-fill text-red-500 text-xs bg-black/50 p-1 rounded-full"></i>
             </div>
-            <p>Waiting for others to join...</p>
-          </div>
-        }
+         </div>
       </div>
 
-      <div class="absolute bottom-28 right-6 w-32 md:w-48 aspect-video bg-gray-900 rounded-xl border border-gray-700 shadow-2xl overflow-hidden z-20 transition-all"
-           [class.opacity-0]="!isCamOn()">
-        <video #localVideoElement autoplay muted playsinline class="w-full h-full object-cover -scale-x-100"></video>
-        <div class="absolute bottom-2 left-2 bg-black/60 px-2 py-0.5 rounded text-[10px] text-white">You</div>
+      <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-40">
+         <div class="flex items-center gap-4 px-6 py-3 rounded-full bg-black/60 backdrop-blur-xl border border-white/10 shadow-2xl transition-all hover:bg-black/70 hover:scale-105 hover:border-white/20">
+            
+            <button (click)="toggleMic()" 
+               class="w-12 h-12 rounded-full flex items-center justify-center text-xl transition-all duration-200"
+               [ngClass]="isMicEnabled() 
+                  ? 'bg-white/10 text-white hover:bg-white/20' 
+                  : 'bg-red-500 text-white hover:bg-red-600 shadow-[0_0_15px_rgba(239,68,68,0.5)]'">
+               <i [class]="isMicEnabled() ? 'ri-mic-fill' : 'ri-mic-off-fill'"></i>
+            </button>
+
+            <button (click)="toggleCamera()" 
+               class="w-12 h-12 rounded-full flex items-center justify-center text-xl transition-all duration-200"
+               [ngClass]="isCameraEnabled() 
+                  ? 'bg-white/10 text-white hover:bg-white/20' 
+                  : 'bg-red-500 text-white hover:bg-red-600 shadow-[0_0_15px_rgba(239,68,68,0.5)]'">
+               <i [class]="isCameraEnabled() ? 'ri-camera-fill' : 'ri-camera-off-fill'"></i>
+            </button>
+
+            <div class="w-px h-8 bg-white/20 mx-1"></div>
+
+            <button (click)="manualDisconnect()" 
+               class="w-14 h-14 rounded-full bg-red-600 flex items-center justify-center text-2xl text-white shadow-lg transition-all duration-200 hover:bg-red-700 hover:scale-110 active:scale-95">
+               <i class="ri-phone-end-fill"></i>
+            </button>
+         </div>
       </div>
 
-      <div class="h-24 bg-gray-900/90 backdrop-blur border-t border-gray-800 flex items-center justify-center gap-6 z-30 pb-4">
-        
-        <button (click)="toggleMic()" 
-                [class]="isMicOn() ? 'bg-gray-700 hover:bg-gray-600 text-white' : 'bg-red-500 hover:bg-red-600 text-white'"
-                class="h-14 w-14 rounded-full flex items-center justify-center text-2xl transition-all shadow-lg active:scale-95">
-          <i [class]="isMicOn() ? 'ri-mic-line' : 'ri-mic-off-line'"></i>
-        </button>
-
-        <button (click)="leave()" 
-                class="h-14 px-8 bg-red-600 hover:bg-red-700 text-white rounded-full font-bold text-lg shadow-lg shadow-red-900/30 flex items-center gap-2 active:scale-95 transition-all">
-          <i class="ri-phone-end-line"></i> End
-        </button>
-
-        <button (click)="toggleCam()" 
-                [class]="isCamOn() ? 'bg-gray-700 hover:bg-gray-600 text-white' : 'bg-red-500 hover:bg-red-600 text-white'"
-                class="h-14 w-14 rounded-full flex items-center justify-center text-2xl transition-all shadow-lg active:scale-95">
-          <i [class]="isCamOn() ? 'ri-camera-line' : 'ri-camera-off-line'"></i>
-        </button>
-
-      </div>
     </div>
   `,
-  styles: [`:host { display: block; height: 100%; width: 100%; }`]
+  styles: [`
+    .animate-fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+    @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+    .hidden { display: none !important; }
+  `]
 })
 export class VideoCallComponent implements OnInit, OnDestroy {
   @Input({ required: true }) token!: string;
-  @Input() startWithVideo = true; 
-  @Input() onLeave!: () => void;
+  @Input() wsUrl: string = 'wss://verbrix-is1gv2zd.livekit.cloud'; 
+  @Output() close = new EventEmitter<void>();
 
-  @ViewChild('gridContainer') gridContainer!: ElementRef<HTMLDivElement>;
-  @ViewChild('localVideoElement') localVideo!: ElementRef<HTMLVideoElement>;
+  // 🟢 FIX: Reference the VIDEO element, not the div
+  @ViewChild('remoteVideoElement') remoteVideo!: ElementRef;
+  @ViewChild('localVideoElement') localVideo!: ElementRef;
 
-  room?: Room;
-  
-  remoteCount = signal(0);
-  isMicOn = signal(false);
-  isCamOn = signal(false);
-  showAudioBanner = signal(false);
+  room: Room | undefined;
+  ConnectionState = ConnectionState; 
 
-  private audioCtx?: AudioContext;
+  connectionState = signal<ConnectionState>(ConnectionState.Disconnected);
+  statusMessage = signal('Initializing...');
+  isMicEnabled = signal(true);
+  isCameraEnabled = signal(true);
+  hasRemoteVideo = signal(false);
+  remoteIdentity: string = '';
+
+  private isInitiating = false;
 
   async ngOnInit() {
-    this.initAudioContext();
-    this.unlockAudio();
-    await this.connectToRoom();
+    if (!this.token) {
+        this.statusMessage.set('Error: Missing Token');
+        return;
+    }
+    await this.initRoom();
   }
 
-  private initAudioContext() {
-    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-    if (AudioContextClass) {
-      this.audioCtx = new AudioContextClass();
+  async ngOnDestroy() {
+    if (this.room) {
+      this.room.localParticipant.trackPublications.forEach((pub: LocalTrackPublication) => {
+        pub.track?.stop();
+      });
+      await this.room.disconnect();
     }
   }
 
-  async connectToRoom() {
+  async initRoom() {
+    if (this.isInitiating || (this.room && this.room.state !== ConnectionState.Disconnected)) return;
+    
+    this.isInitiating = true;
+    this.statusMessage.set('Connecting...');
+    this.connectionState.set(ConnectionState.Connecting);
+
     try {
       this.room = new Room({
         adaptiveStream: true,
         dynacast: true,
-        videoCaptureDefaults: { resolution: VideoPresets.h720.resolution },
-        publishDefaults: { videoCodec: 'vp8' }
-      });
-
-      // 🔴 LIVEKIT CLOUD URL
-      const LIVEKIT_URL = 'wss://verbrix-is1gv2zd.livekit.cloud';
-
-      console.log('Connecting to LiveKit...', LIVEKIT_URL);
-      await this.room.connect(LIVEKIT_URL, this.token);
-      console.log('Connected!');
-
-      // Set initial state
-      await this.room.localParticipant.setMicrophoneEnabled(true);
-      if (this.startWithVideo) {
-        await this.room.localParticipant.setCameraEnabled(true);
-      }
-
-      this.attachLocalVideo();
-
-      // Listeners
-      this.room
-        .on(RoomEvent.TrackSubscribed, (track, pub, participant) => this.handleTrackSubscribed(track, pub, participant))
-        .on(RoomEvent.TrackUnsubscribed, (track, pub, participant) => this.handleTrackUnsubscribed(track, pub, participant))
-        .on(RoomEvent.ParticipantDisconnected, () => this.updateLayout());
-
-      this.room.localParticipant
-        .on(ParticipantEvent.TrackMuted, () => this.syncUI())
-        .on(ParticipantEvent.TrackUnmuted, () => this.syncUI());
-
-      this.syncUI();
-
-      // Handle Existing Participants
-      this.room.remoteParticipants.forEach(p => {
-        p.trackPublications.forEach(pub => {
-          if (pub.isSubscribed && pub.track) {
-            this.handleTrackSubscribed(pub.track, pub, p);
-          }
-        });
-      });
-
-    } catch (error) {
-      console.error('Room Connection Failed:', error);
-      alert('Failed to connect to video server. Please check your network.');
-      this.leave();
-    }
-  }
-
-  attachLocalVideo() {
-    // Wait slightly for track to be ready
-    setTimeout(() => {
-      const tracks = this.room?.localParticipant.videoTrackPublications;
-      if (!tracks) return;
-
-      // Iterate map values safely
-      for (const pub of tracks.values()) {
-        if (pub.track) {
-          pub.track.attach(this.localVideo.nativeElement);
-          return; // Attach first available video track
+        videoCaptureDefaults: {
+            resolution: { width: 1280, height: 720 },
+            facingMode: 'user'
         }
-      }
-    }, 500);
-  }
-
-  handleTrackSubscribed(track: any, publication: any, participant: RemoteParticipant) {
-    if (track.kind === 'video') {
-      const elementId = `remote-${participant.identity}`;
-      if (document.getElementById(elementId)) return;
-
-      const container = document.createElement('div');
-      container.id = elementId;
-      container.className = 'relative w-full h-full bg-neutral-800 rounded-xl overflow-hidden border border-neutral-700 shadow-md animate-fade-in';
-      
-      const videoElement = track.attach();
-      videoElement.className = 'w-full h-full object-cover';
-      
-      const label = document.createElement('div');
-      label.className = 'absolute bottom-3 left-3 bg-black/60 text-white text-xs px-2 py-1 rounded backdrop-blur-sm';
-      label.innerText = participant.identity || 'User';
-
-      container.appendChild(videoElement);
-      container.appendChild(label);
-      
-      this.gridContainer.nativeElement.appendChild(container);
-      this.updateRemoteCount();
-      this.updateLayout();
-    }
-
-    if (track.kind === 'audio') {
-      const audioElement = track.attach();
-      document.body.appendChild(audioElement);
-      audioElement.play().catch(() => {
-        console.warn('Audio autoplay blocked');
-        this.showAudioBanner.set(true);
       });
+
+      this.room.on(RoomEvent.Connected, () => {
+          this.connectionState.set(ConnectionState.Connected);
+          this.statusMessage.set('Connected');
+          this.isInitiating = false;
+          this.publishLocalTracks();
+      });
+
+      this.room.on(RoomEvent.Disconnected, (reason) => {
+           this.connectionState.set(ConnectionState.Disconnected);
+           this.statusMessage.set('Call Ended');
+      });
+
+      this.room.on(RoomEvent.ParticipantConnected, (p: RemoteParticipant) => {
+          this.statusMessage.set(`${p.identity} joined`);
+          this.remoteIdentity = p.identity || '';
+      });
+
+      this.room.on(RoomEvent.TrackSubscribed, (track: RemoteTrack, pub: RemoteTrackPublication, p: RemoteParticipant) => {
+         this.handleTrackSubscribed(track, p);
+      });
+
+      this.room.on(RoomEvent.TrackUnsubscribed, (track: RemoteTrack) => {
+         track.detach();
+         if (track.kind === Track.Kind.Video) this.hasRemoteVideo.set(false);
+      });
+
+      await this.room.connect(this.wsUrl, this.token);
+      
+    } catch (error: any) {
+      console.error('Connection Failed:', error);
+      this.connectionState.set(ConnectionState.Disconnected);
+      this.statusMessage.set('Connection Failed');
+      this.isInitiating = false;
     }
   }
 
-  handleTrackUnsubscribed(track: any, publication: any, participant: RemoteParticipant) {
-    if (track.kind === 'video') {
-      const element = document.getElementById(`remote-${participant.identity}`);
-      if (element) {
-        element.remove();
-        this.updateRemoteCount();
-        this.updateLayout();
-      }
-    }
-  }
-
-  updateRemoteCount() {
-    const count = this.gridContainer.nativeElement.childElementCount;
-    this.remoteCount.set(count);
-  }
-
-  updateLayout() {
-    const count = this.remoteCount();
-    const grid = this.gridContainer.nativeElement;
-    
-    if (count <= 1) {
-      grid.style.gridTemplateColumns = '1fr';
-    } else if (count === 2) {
-      grid.style.gridTemplateColumns = '1fr 1fr';
+  handleTrackSubscribed(track: RemoteTrack, participant: RemoteParticipant) {
+    if (track.kind === Track.Kind.Video) {
+       // 🟢 CRITICAL FIX: Attach to the <video> element, NOT the <div>
+       track.attach(this.remoteVideo.nativeElement);
+       this.hasRemoteVideo.set(true);
+       this.remoteIdentity = participant.identity || '';
     } else {
-      grid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(300px, 1fr))';
+       // Audio tracks attach to the document (invisible audio element)
+       track.attach(); 
     }
   }
 
-  syncUI() {
+  async publishLocalTracks() {
     if (!this.room) return;
-    this.isMicOn.set(this.room.localParticipant.isMicrophoneEnabled);
-    this.isCamOn.set(this.room.localParticipant.isCameraEnabled);
+    try {
+        await this.room.localParticipant.setCameraEnabled(true);
+        await this.room.localParticipant.setMicrophoneEnabled(true);
+
+        const videoPub = Array.from(this.room.localParticipant.videoTrackPublications.values())
+            .find((pub: LocalTrackPublication) => pub.kind === Track.Kind.Video);
+
+        if (videoPub?.track) {
+            videoPub.track.attach(this.localVideo.nativeElement);
+        }
+
+        this.isCameraEnabled.set(true);
+        this.isMicEnabled.set(true);
+    } catch (e) {
+        console.error('Device Error', e);
+        this.statusMessage.set('Mic/Camera Error');
+    }
   }
 
-  async unlockAudio() {
-    if (this.audioCtx?.state === 'suspended') {
-      await this.audioCtx.resume();
-    }
-    if (this.audioCtx) {
-      const buffer = this.audioCtx.createBuffer(1, 1, 22050);
-      const source = this.audioCtx.createBufferSource();
-      source.buffer = buffer;
-      source.connect(this.audioCtx.destination);
-      source.start(0);
-    }
-    this.showAudioBanner.set(false);
-  }
-
-  async toggleMic() {
-    if (!this.room) return;
+  toggleMic() {
+    if (!this.room?.localParticipant) return;
     const current = this.room.localParticipant.isMicrophoneEnabled;
-    await this.room.localParticipant.setMicrophoneEnabled(!current);
+    this.room.localParticipant.setMicrophoneEnabled(!current);
+    this.isMicEnabled.set(!current);
   }
 
-  async toggleCam() {
-    if (!this.room) return;
+  toggleCamera() {
+    if (!this.room?.localParticipant) return;
     const current = this.room.localParticipant.isCameraEnabled;
-    await this.room.localParticipant.setCameraEnabled(!current);
+    this.room.localParticipant.setCameraEnabled(!current);
+    this.isCameraEnabled.set(!current);
   }
 
-  leave() {
+  manualDisconnect() {
+    if (this.room?.localParticipant) {
+        this.room.localParticipant.trackPublications.forEach((pub: LocalTrackPublication) => {
+            pub.track?.stop();
+        });
+    }
     this.room?.disconnect();
-    if (this.onLeave) this.onLeave();
-  }
-
-  ngOnDestroy() {
-    this.room?.disconnect();
+    this.close.emit();
   }
 }

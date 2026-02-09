@@ -527,15 +527,20 @@ export class InterpreterApplyComponent implements OnInit {
       ? `${this.API_URL}/interpreters/re-apply`
       : `${this.API_URL}/interpreters/apply`;
 
+    // Handle both Create (POST) and Update (PUT) scenarios
     const request$ = this.isReapplying() 
       ? this.http.put(url, payload, { headers: this.getAuthHeaders() }) 
       : this.http.post(url, payload, { headers: this.getAuthHeaders() });
 
     request$.subscribe({
-      next: () => this.router.navigate(['/dashboard/interpreter/home']),
+      next: () => {
+        // Updated redirection to Client Dashboard
+        this.router.navigate(['/dashboard/client/home']);
+      },
       error: (err) => {
         this.isSubmitting.set(false);
         console.error('Application failed', err);
+        // Optional: Add toast/snackbar error notification here
       }
     });
   }

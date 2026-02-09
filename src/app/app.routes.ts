@@ -13,17 +13,15 @@ export const routes: Routes = [
     title: 'Verbrix - Healthcare Translation' 
   },
 
-  // 2. AUTHENTICATION (Login, Register, OTP, Password Reset)
+  // 2. AUTHENTICATION
   {
     path: 'auth',
     loadChildren: () => import('./features/auth/auth.routes').then(m => m.authRoutes)
   },
-
   {
     path: 'about',
     loadComponent: () => import('./features/about/about').then(m => m.AboutUsComponent)
   },
-
   {
     path: 'legal/privacy',
     loadComponent: () => import('./features/legal/privacy-policy').then(m => m.PrivacyPolicyComponent)
@@ -37,9 +35,7 @@ export const routes: Routes = [
     loadComponent: () => import('./features/legal/data-deletion').then(m => m.DataDeletionComponent)
   },
 
-  // 3. INTERPRETER APPLICATION FLOW (Top-level access)
-  // Accessible via: /interpreters/apply or /interpreters/re-apply
-  // These hit the 'apply' and 're-apply' endpoints in InterpreterController
+  // 3. INTERPRETER APPLICATION FLOW
   { 
     path: 'interpreters/apply', 
     component: InterpreterApplyComponent,
@@ -53,13 +49,43 @@ export const routes: Routes = [
     title: 'Update Application | Verbrix'
   },
 
-  // 4. SECURE DASHBOARD ZONES
+  // -----------------------------------------------------------
+  // 4. NEW: DISCOVERY & PROFILES (Accessible by Clients)
+  // -----------------------------------------------------------
+  {
+    path: 'interpreters/find',
+    loadComponent: () => import('./features/interpreters/find-interpreter')
+      .then(m => m.FindInterpreterComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'interpreters/:id',
+    loadComponent: () => import('./features/interpreters/interpreters-details')
+      .then(m => m.InterpreterDetailsComponent),
+    canActivate: [authGuard]
+  },
+
+  // -----------------------------------------------------------
+  // 5. NEW: MESSAGING (Standalone Page)
+  // -----------------------------------------------------------
+  {
+    path: 'messages',
+    // 🔴 Point this to the new ChatLayoutComponent (Full Page)
+    loadComponent: () => import('../app/features/chat/chat-page').
+      then(m => m.ChatPageComponent),
+    canActivate: [authGuard],
+    title: 'Messages | Verbrix'
+  },
+
+  // -----------------------------------------------------------
+  // 6. SECURE DASHBOARD ZONES
+  // -----------------------------------------------------------
   {
     path: 'dashboard',
     canActivate: [authGuard], 
     children: [
       
-      // 🟦 CLIENT ZONE (Role: CLIENT)
+      // 🟦 CLIENT ZONE
       {
         path: 'client',
         canActivate: [roleGuard],
@@ -67,6 +93,7 @@ export const routes: Routes = [
         children: [
           { 
             path: 'home', 
+            // 🔴 Ensure this points to the updated ClientDashboard
             loadComponent: () => import('./features/dashboards/client-dashboard').then(m => m.ClientDashboard),
             title: 'My Dashboard | Verbrix'
           },
@@ -74,8 +101,7 @@ export const routes: Routes = [
         ]
       },
 
-      // 🟧 INTERPRETER ZONE (Role: INTERPRETER)
-      // Finalized once Admin calls approveInterpreter in AdminInterpreterServiceImpl
+      // 🟧 INTERPRETER ZONE
       {
         path: 'interpreter',
         canActivate: [roleGuard],
@@ -90,8 +116,7 @@ export const routes: Routes = [
         ]
       },
 
-      // 🟥 ADMIN ZONE (Role: ADMIN)
-      // Manages verification using AdminInterpreterService
+      // 🟥 ADMIN ZONE
       {
         path: 'admin',
         canActivate: [roleGuard],
@@ -108,21 +133,6 @@ export const routes: Routes = [
     ]
   },
 
-  {
-    path: 'messages',
-    loadComponent: () => import('./features/components/chat-room')
-      .then(m => m.ChatRoomComponent),
-    canActivate: [authGuard] // Ensure user is logged in
-  },
-
-  // 5. SHARED & SECURITY ROUTES
-  // {
-  //   path: 'settings/security',
-  //   canActivate: [authGuard],
-  //   // loadComponent: () => import('./features/settings/security-settings').then(m => m.SecuritySettings),
-  //   title: 'Security & Devices | Verbrix'
-  // },
-
-  // 6. GLOBAL CATCH-ALL
+  // 7. GLOBAL CATCH-ALL
   { path: '**', redirectTo: '' }
 ];

@@ -1,15 +1,15 @@
-import { Injectable, signal, computed, inject } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
-import { tap } from 'rxjs';
+import { tap, finalize } from 'rxjs';
 
 export interface CurrentUserProfile {
   id: number;
   email: string;
   firstName: string;
   lastName: string;
-  // Ensure these match exactly what your backend sends (e.g., 'CLIENT' vs 'ROLE_CLIENT')
   role: 'CLIENT' | 'INTERPRETER' | 'ADMIN'; 
+  // Add other fields you might need (profilePic, balance, etc.)
 }
 
 @Injectable({
@@ -21,35 +21,42 @@ export class UserProfileService {
 
   // Signal to hold the profile data
   private profileSignal = signal<CurrentUserProfile | null>(null);
+  private loadingSignal = signal<boolean>(false);
 
-  // Read-only signal for components
+  // Read-only signals for components
   profile = this.profileSignal.asReadonly();
+  isLoading = this.loadingSignal.asReadonly();
 
-  // Helper: easy access to current value without subscription
+  // Helper: easy access to current value
   get snapshot() {
     return this.profileSignal();
   }
 
   loadProfile() {
-    // Prevent duplicate loading if we already have data
-    if (this.profileSignal()) return;
+    // Avoid reloading if already loading
+    if (this.loadingSignal()) return;
 
+    this.loadingSignal.set(true);
+
+    // Note: Ensure your backend has this endpoint:
+    // @GetMapping("/api/v1/user/security/me")
     this.http.get<CurrentUserProfile>(`${this.API_URL}/user/security/me`)
       .pipe(
         tap(data => {
-          // Normalize role if backend sends 'ROLE_CLIENT' but front-end expects 'CLIENT'
-          if (data.role && data.role.startsWith('ROLE_')) {
-            // @ts-ignore
-            data.role = data.role.replace('ROLE_', '');
+          // Normalize role strings just in case
+          if (data.role && String(data.role).startsWith('ROLE_')) {
+             // @ts-ignore
+             data.role = data.role.replace('ROLE_', '');
           }
-          console.log('Profile Loaded:', data); // Debugging
-        })
+        }),
+        finalize(() => this.loadingSignal.set(false))
       )
       .subscribe({
         next: (profile) => this.profileSignal.set(profile),
         error: (err) => {
           console.error('Failed to load user profile', err);
-          this.profileSignal.set(null);
+          // Don't set null immediately if transient error, logic depends on needs
+          // this.profileSignal.set(null); 
         }
       });
   }
