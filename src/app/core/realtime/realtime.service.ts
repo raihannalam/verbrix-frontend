@@ -18,43 +18,33 @@ export class RealtimeService implements OnDestroy {
   private client: Client | null = null;
   private subscription: StompSubscription | null = null;
   
+  // Connection State
   public connected$ = new BehaviorSubject<boolean>(false);
+  
+  // Global Notification Stream (Deduplicated)
   private eventsSubject = new Subject<RealtimeEvent | null>();
-
-  // 🟢 FIX 1: DEDUPLICATION LOGIC
-  // This pipe filters out duplicate messages based on ID before they reach your components
   public events$ = this.eventsSubject.asObservable().pipe(
-    filter((event): event is RealtimeEvent => event !== null), // Ignore nulls
+    filter((e): e is RealtimeEvent => e !== null),
     scan((acc, curr) => {
-      // ⚠️ IMPORTANT: Change 'curr.data?.id' to whatever unique ID your backend sends (e.g., messageId, uuid)
       const currentId = curr.data?.id || JSON.stringify(curr.data); 
-      const isDuplicate = acc.lastId === currentId;
-
-      return { 
-        lastId: currentId, 
-        payload: isDuplicate ? null : curr 
-      };
+      return { lastId: currentId, payload: acc.lastId === currentId ? null : curr };
     }, { lastId: null, payload: null } as { lastId: any, payload: RealtimeEvent | null }),
-    map(acc => acc.payload), // Extract the message
-    filter((event): event is RealtimeEvent => event !== null) // Final filter to drop duplicates
+    map(acc => acc.payload),
+    filter((e): e is RealtimeEvent => e !== null)
   );
 
   constructor() {
-    // 🟢 FIX 2: AUTOMATIC RECONNECT via SIGNALS
+    // Automatic Connection Management via Signals
     effect((onCleanup) => {
       const user = this.authService.currentUser();
       const token = this.authService.accessToken(); 
       
-      // If we have a user and a valid token...
       if (user && token && !this.authService.isTokenExpired(token)) {
-         // ... connect using THAT SPECIFIC token
          this.connect(token);
       } else {
          this.disconnect();
       }
 
-      // Cleanup: When token changes (signal updates), this runs FIRST
-      // This ensures the old connection is killed before the new one starts
       onCleanup(() => {
         this.disconnect();
       });
@@ -62,7 +52,6 @@ export class RealtimeService implements OnDestroy {
   }
 
   private connect(token: string): void {
-    // Safety check: Don't connect if already active
     if (this.client?.active) return;
 
     const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
@@ -75,60 +64,39 @@ export class RealtimeService implements OnDestroy {
       reconnectDelay: 5000,
       heartbeatIncoming: 20000, 
       heartbeatOutgoing: 20000,
+      // Debug only critical issues
       debug: (str) => {
-        // Only log critical errors to reduce console noise
         if(str.includes('Error') || str.includes('Connect')) console.debug('[STOMP]:', str);
       }
     });
 
     this.client.onConnect = () => {
-      console.log('RealtimeService: Connected Successfully');
+      console.log('RealtimeService: Connected');
       this.connected$.next(true);
 
-      // Subscribe to global notifications
+      // Global User Notifications
       this.subscription = this.client!.subscribe('/user/queue/notifications', (message: IMessage) => {
-          try {
-            if (message.body) {
-              const parsedBody = JSON.parse(message.body);
-              this.eventsSubject.next(parsedBody);
-            }
-          } catch (e) { 
-            console.error('JSON Parse error', e); 
-          }
+          this.safeParseAndEmit(message, (body) => this.eventsSubject.next(body));
       });
     };
 
     this.client.onStompError = (frame) => {
-      console.error('Broker reported error:', frame.headers['message']);
-      // If session is invalid, disconnect so the Effect can trigger a retry/refresh logic
-      if (frame.headers['message']?.includes('Session closed')) {
-         this.disconnect(); 
-      }
-    };
-    
-    this.client.onWebSocketError = (evt) => {
-        console.error('WebSocket Error - Connection dropped');
+      console.error('Broker error:', frame.headers['message']);
+      if (frame.headers['message']?.includes('Session closed')) this.disconnect(); 
     };
 
-    this.client.onDisconnect = () => {
-        this.connected$.next(false);
-    }
-
+    this.client.onDisconnect = () => this.connected$.next(false);
     this.client.activate();
   }
 
-  // 🟢 FIX 3: ROBUST DISCONNECT
-  // Ensures we completely kill the client and subscription to prevent ghost listeners
   private disconnect(): void {
     this.connected$.next(false);
-    
     if (this.subscription) {
       this.subscription.unsubscribe();
       this.subscription = null;
     }
-    
     if (this.client) {
-      this.client.deactivate(); // Async, but we nullify immediately below
+      this.client.deactivate();
       this.client = null;
     }
   }
@@ -139,31 +107,29 @@ export class RealtimeService implements OnDestroy {
     }
   }
 
-  // Helper for component-specific subscriptions
+  // Used by Chat Component
   public subscribeToTopic(topic: string, callback: (payload: any) => void): StompSubscription {
+    // 1. If connected, subscribe immediately
     if (this.connected$.value && this.client?.connected) {
-        return this.client.subscribe(topic, (msg) => {
-          try {
-            callback(JSON.parse(msg.body));
-          } catch (e) { console.error(e); }
-        });
+        return this.client.subscribe(topic, (msg) => this.safeParseAndEmit(msg, callback));
     }
 
-    // Queue subscription if not yet connected
+    // 2. If not connected, wait for connection then subscribe
     const autoSub = this.connected$.pipe(
         filter(c => c), take(1)
     ).subscribe(() => {
         if(this.client?.connected) {
-           this.client.subscribe(topic, (msg) => {
-             try {
-               callback(JSON.parse(msg.body));
-             } catch(e) { console.error(e); }
-           });
+           this.client.subscribe(topic, (msg) => this.safeParseAndEmit(msg, callback));
         }
     });
 
-    // Return a dummy subscription object that handles the pending logic cleanup
     return { id: 'pending', unsubscribe: () => autoSub.unsubscribe() } as StompSubscription;
+  }
+
+  private safeParseAndEmit(msg: IMessage, callback: (body: any) => void) {
+    try {
+      if (msg.body) callback(JSON.parse(msg.body));
+    } catch (e) { console.error('JSON Parse Error', e); }
   }
 
   ngOnDestroy(): void {

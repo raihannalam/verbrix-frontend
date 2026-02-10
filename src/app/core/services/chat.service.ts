@@ -4,25 +4,22 @@ import { environment } from '../../../environments/environment';
 import { map } from 'rxjs';
 
 export interface ChatMessage {
-  id: string;
+  id: string; // Ensure this is unique from backend
   senderId: number;
   senderEmail: string;
   recipientId: number;
   content: string;
   timestamp: string;
-  type: 'TEXT' | 'IMAGE' | 'FILE' | 'SYSTEM' | 'PAYMENT_REQUEST'; // Updated types
-  fileUrl?: string; // Optional URL for attachments
+  type: 'TEXT' | 'IMAGE' | 'FILE' | 'SYSTEM' | 'PAYMENT_REQUEST';
+  fileUrl?: string;
   isRead: boolean;
   relationshipId: number;
-
   paymentDetails?: {
     amount: number;
     description: string;
     status: 'PENDING' | 'PAID';
-    };
+  };
 }
-
-
 
 @Injectable({ providedIn: 'root' })
 export class ChatService {
@@ -35,7 +32,7 @@ export class ChatService {
 
   getChatHistory(relationshipId: number, page = 0) {
     return this.http.get<any>(`${this.apiUrl}/chat/${relationshipId}/history?page=${page}`).pipe(
-      map(response => response.content.reverse())
+      map(response => response.content.reverse()) // Reverse so oldest is top
     );
   }
 
@@ -43,11 +40,9 @@ export class ChatService {
     return this.http.post(`${this.apiUrl}/video/${relationshipId}/join`, {}, { responseType: 'text' });
   }
 
-  // 🟢 NEW: Upload File
   uploadAttachment(file: File) {
     const formData = new FormData();
     formData.append('file', file);
-    // Assuming you have a FileController at /api/v1/files/upload
     return this.http.post<{ url: string }>(`${this.apiUrl}/files/upload`, formData);
   }
 }

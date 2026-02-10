@@ -1,31 +1,28 @@
 import { Component, inject, OnInit, OnDestroy, AfterViewInit, signal, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { StompSubscription } from '@stomp/stompjs';
 
-// Services
 import { ChatService, ChatMessage } from '../../core/services/chat.service';
 import { RealtimeService } from '../../core/realtime/realtime.service';
 import { AuthService } from '../../core/auth/auth.service';
 import { PaymentService } from '../../core/services/payment.service';
-
-// Components
 import { Navbar } from '../layout/navbar';
-import { VideoCallComponent } from '../components/video-call'; // 🟢 1. Import Video Component
+import { VideoCallComponent } from '../components/video-call';
 
 @Component({
   selector: 'app-chat-page',
   standalone: true,
-  imports: [CommonModule, Navbar, FormsModule, DatePipe, VideoCallComponent], // 🟢 2. Add to imports
+  imports: [CommonModule, Navbar, FormsModule, DatePipe, VideoCallComponent],
   template: `
     <app-navbar></app-navbar>
 
     @if (videoCallToken()) {
       <app-video-call 
-         [token]="videoCallToken()!" 
-         wsUrl="wss://verbrix-is1gv2zd.livekit.cloud" 
-         (close)="onCallEnded()">
+          [token]="videoCallToken()!" 
+          wsUrl="wss://verbrix-is1gv2zd.livekit.cloud" 
+          (close)="onCallEnded()">
       </app-video-call>
     }
 
@@ -75,7 +72,6 @@ import { VideoCallComponent } from '../components/video-call'; // 🟢 1. Import
       <div class="flex-1 flex flex-col bg-[#f0f2f5] dark:bg-[#0b0c0f] relative">
         
         @if (selectedRel(); as rel) {
-          
           <div class="h-[72px] bg-white dark:bg-[#181a1f] border-b border-gray-200 dark:border-gray-800 px-6 flex items-center justify-between shadow-sm z-10">
             <div class="flex items-center gap-4">
                <img [src]="getOtherAvatar(rel) || 'assets/default-avatar.png'" class="w-10 h-10 rounded-full object-cover">
@@ -96,11 +92,8 @@ import { VideoCallComponent } from '../components/video-call'; // 🟢 1. Import
           </div>
 
           <div #scrollContainer class="flex-1 overflow-y-auto p-4 space-y-4 scroll-smooth">
-            
             @if (messagesLoading()) {
-              <div class="flex justify-center py-10">
-                 <div class="loader"></div>
-              </div>
+              <div class="flex justify-center py-10"><div class="loader"></div></div>
             }
 
             @for (msg of messages(); track msg.id) {
@@ -114,9 +107,7 @@ import { VideoCallComponent } from '../components/video-call'; // 🟢 1. Import
                   <div class="flex w-full flex-col" [class.items-end]="isMyMessage(msg)" [class.items-start]="!isMyMessage(msg)">
                     <div class="max-w-[70%] relative group">
                       <div class="px-4 py-2 text-sm shadow-sm break-words"
-                           [ngClass]="isMyMessage(msg) 
-                             ? 'bg-blue-600 text-white rounded-2xl rounded-tr-sm' 
-                             : 'bg-white dark:bg-[#1f2229] text-gray-900 dark:text-gray-100 rounded-2xl rounded-tl-sm'">
+                           [ngClass]="isMyMessage(msg) ? 'bg-blue-600 text-white rounded-2xl rounded-tr-sm' : 'bg-white dark:bg-[#1f2229] text-gray-900 dark:text-gray-100 rounded-2xl rounded-tl-sm'">
                         
                         @if (msg.type === 'IMAGE' && msg.fileUrl) {
                            <div class="mb-2 overflow-hidden rounded-lg">
@@ -126,8 +117,7 @@ import { VideoCallComponent } from '../components/video-call'; // 🟢 1. Import
                         <span class="whitespace-pre-wrap leading-relaxed">{{ msg.content }}</span>
                       </div>
                       <span class="text-[10px] text-gray-400 mt-1 px-1 block" 
-                            [class.text-right]="isMyMessage(msg)"
-                            [class.text-left]="!isMyMessage(msg)">
+                            [class.text-right]="isMyMessage(msg)" [class.text-left]="!isMyMessage(msg)">
                         {{ msg.timestamp | date:'shortTime' }}
                       </span>
                     </div>
@@ -137,22 +127,19 @@ import { VideoCallComponent } from '../components/video-call'; // 🟢 1. Import
           </div>
 
           <div class="bg-white dark:bg-[#181a1f] border-t border-gray-200 dark:border-gray-800 p-3 sticky bottom-0 z-20">
-            
             @if (rel.status === 'REQUESTED') {
-              <div class="text-center p-3 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 text-sm rounded-lg">
+              <div class="text-center p-3 bg-yellow-50 text-yellow-700 text-sm rounded-lg">
                  <i class="ri-lock-line mr-1"></i> Request pending acceptance.
               </div>
-            } 
-            
-            @else if (rel.status === 'REQUEST_ACCEPTED' && isClient()) {
-               <div class="flex items-center justify-between p-3 bg-indigo-50 dark:bg-indigo-900/10 rounded-xl border border-indigo-100 dark:border-indigo-800 mb-3">
+            } @else if (rel.status === 'REQUEST_ACCEPTED' && isClient()) {
+               <div class="flex items-center justify-between p-3 bg-indigo-50 rounded-xl border border-indigo-100 mb-3">
                     <div class="text-sm">
-                        <span class="block font-bold text-indigo-900 dark:text-indigo-300">Consultation Fee</span>
-                        <span class="text-xs text-indigo-600 dark:text-indigo-400">Pay to enable calls. Chat is open.</span>
+                        <span class="block font-bold text-indigo-900">Consultation Fee</span>
+                        <span class="text-xs text-indigo-600">Pay to enable calls. Chat is open.</span>
                     </div>
                     <button (click)="payConsultation(rel)" 
                             [disabled]="isProcessingPayment()"
-                            class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg shadow-md transition-all flex items-center gap-2">
+                            class="px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg flex items-center gap-2">
                       <i *ngIf="isProcessingPayment()" class="ri-loader-4-line animate-spin"></i>
                       {{ isProcessingPayment() ? 'Processing...' : 'Pay Now' }}
                     </button>
@@ -165,29 +152,22 @@ import { VideoCallComponent } from '../components/video-call'; // 🟢 1. Import
             <ng-template #inputBox>
                 <div class="flex items-end gap-2 max-w-5xl mx-auto">
                     <input type="file" #fileInput hidden (change)="handleFileUpload($event)" accept="image/*">
-                    <button (click)="fileInput.click()" 
-                            [disabled]="isUploading()"
-                            class="p-3 mb-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">
+                    <button (click)="fileInput.click()" [disabled]="isUploading()" class="p-3 mb-1 text-gray-400 hover:bg-gray-100 rounded-full">
                         <i *ngIf="!isUploading()" class="ri-attachment-2 text-xl"></i>
                         <i *ngIf="isUploading()" class="ri-loader-4-line animate-spin text-xl"></i>
                     </button>
 
-                    <div class="flex-1 bg-gray-100 dark:bg-[#252830] rounded-[24px] flex items-center px-4 py-2 transition-all focus-within:ring-2 focus-within:ring-blue-500/50">
-                        <textarea [(ngModel)]="newMessage" 
-                                  (keydown.enter)="$event.preventDefault(); sendMessage()"
-                                  placeholder="Message..." 
-                                  rows="1"
-                                  class="w-full bg-transparent border-none focus:ring-0 focus:outline-none text-sm text-gray-900 dark:text-white placeholder-gray-500 resize-none max-h-32 py-2 shadow-none outline-none ring-0"></textarea>
+                    <div class="flex-1 bg-gray-100 dark:bg-[#252830] rounded-[24px] flex items-center px-4 py-2">
+                        <textarea [(ngModel)]="newMessage" (keydown.enter)="$event.preventDefault(); sendMessage()"
+                                  placeholder="Message..." rows="1"
+                                  class="w-full bg-transparent border-none focus:ring-0 text-sm text-gray-900 dark:text-white resize-none max-h-32 py-2"></textarea>
                     </div>
                         
-                    <button (click)="sendMessage()" 
-                            [disabled]="!newMessage.trim()"
-                            class="p-3 mb-1 bg-blue-600 text-white rounded-full hover:bg-blue-700 disabled:opacity-50 transition-colors shadow-md flex items-center justify-center">
+                    <button (click)="sendMessage()" [disabled]="!newMessage.trim()" class="p-3 mb-1 bg-blue-600 text-white rounded-full hover:bg-blue-700">
                       <i class="ri-send-plane-fill text-lg"></i>
                     </button>
                 </div>
             </ng-template>
-
           </div>
 
         } @else {
@@ -201,17 +181,7 @@ import { VideoCallComponent } from '../components/video-call'; // 🟢 1. Import
   `,
   styles: [`
     .custom-scrollbar { scrollbar-width: thin; }
-    
-    textarea {
-        border: none !important;
-        outline: none !important;
-        box-shadow: none !important;
-        background-color: transparent !important;
-    }
-    textarea:focus {
-        outline: none !important;
-        box-shadow: none !important;
-    }
+    textarea { border: none !important; outline: none !important; box-shadow: none !important; }
   `]
 })
 export class ChatPageComponent implements OnInit, OnDestroy, AfterViewInit {
@@ -227,12 +197,9 @@ export class ChatPageComponent implements OnInit, OnDestroy, AfterViewInit {
   messagesLoading = signal(false);
   isUploading = signal(false);
   isProcessingPayment = signal(false);
-  
-  // 🟢 4. State for the Video Call
   videoCallToken = signal<string | null>(null);
 
   newMessage = '';
-  
   private chatSubscription: StompSubscription | null = null;
   private mutationObserver: MutationObserver | null = null;
 
@@ -243,24 +210,19 @@ export class ChatPageComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    this.mutationObserver = new MutationObserver(() => {
-      this.scrollToBottom();
-    });
+    this.mutationObserver = new MutationObserver(() => this.scrollToBottom());
   }
 
   private attachScrollObserver() {
-    if (this.scrollContainer && !this.mutationObserver) {
-       this.mutationObserver = new MutationObserver(() => this.scrollToBottom());
-       this.mutationObserver.observe(this.scrollContainer.nativeElement, { childList: true, subtree: true });
-    } else if (this.scrollContainer && this.mutationObserver) {
-       this.mutationObserver.disconnect();
-       this.mutationObserver.observe(this.scrollContainer.nativeElement, { childList: true, subtree: true });
+    if (this.scrollContainer) {
+       this.mutationObserver?.disconnect();
+       this.mutationObserver?.observe(this.scrollContainer.nativeElement, { childList: true, subtree: true });
     }
   }
 
   ngOnDestroy() {
     this.unsubscribeFromChat();
-    if (this.mutationObserver) this.mutationObserver.disconnect();
+    this.mutationObserver?.disconnect();
   }
 
   loadRelationships() {
@@ -284,8 +246,10 @@ export class ChatPageComponent implements OnInit, OnDestroy, AfterViewInit {
     this.messages.set([]); 
     this.unsubscribeFromChat();
 
+    // 1. Load History (HTTP)
     this.chatService.getChatHistory(rel.relationshipId).subscribe({
       next: (msgs) => {
+        // We set directly here because it's the initial load
         this.messages.set(msgs);
         this.messagesLoading.set(false);
         setTimeout(() => {
@@ -295,13 +259,26 @@ export class ChatPageComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     });
 
+    // 2. Subscribe to Realtime Updates (WebSocket)
     this.chatSubscription = this.realtime.subscribeToTopic(
       `/topic/chat/${rel.relationshipId}`, 
       (msg) => {
-        this.messages.update(prev => [...prev, msg]);
-        this.scrollToBottom();
+        // 🟢 FIX: Use the specific Append method with Deduplication
+        this.appendMessage(msg); 
       }
     );
+  }
+
+  // 🟢🟢 CORE FIX: Message Deduplication 🟢🟢
+  private appendMessage(msg: ChatMessage) {
+    this.messages.update(current => {
+      // If we already have a message with this ID, ignore it.
+      if (current.some(m => m.id === msg.id)) {
+        return current;
+      }
+      return [...current, msg];
+    });
+    this.scrollToBottom();
   }
 
   sendMessage(type: 'TEXT' | 'IMAGE' = 'TEXT', fileUrl?: string) {
@@ -314,10 +291,12 @@ export class ChatPageComponent implements OnInit, OnDestroy, AfterViewInit {
       fileUrl: fileUrl || null
     };
 
+    // Note: We do NOT append the message locally here.
+    // We wait for the server to echo it back via WebSocket.
+    // This ensures we have the correct server-generated ID for deduplication.
     this.realtime.sendMessage('/app/chat.sendMessage', payload);
-    if (type === 'TEXT') this.newMessage = '';
     
-    this.scrollToBottom();
+    if (type === 'TEXT') this.newMessage = '';
   }
 
   handleFileUpload(event: any) {
@@ -348,77 +327,58 @@ export class ChatPageComponent implements OnInit, OnDestroy, AfterViewInit {
                 order,
                 this.auth.currentUser()?.email || '',
                 (successRes) => {
-                    alert('Payment Successful! Video calls unlocked.');
+                    alert('Payment Successful!');
                     this.loadRelationships();
                     this.isProcessingPayment.set(false);
                 },
                 (error) => {
-                    alert('Payment Failed: ' + (error.description || error));
+                    alert('Payment Failed');
                     this.isProcessingPayment.set(false);
                 }
             );
         },
-        error: (err) => {
-            alert('Could not initiate payment. Please try again.');
+        error: () => {
+            alert('Could not initiate payment.');
             this.isProcessingPayment.set(false);
         }
     });
   }
 
-  // 🟢 5. LOGIC TO START CALL
   startVideoCall() {
     const rel = this.selectedRel();
     if (!rel) return;
-
     this.chatService.joinVideoCall(rel.relationshipId).subscribe({
-        next: (token) => {
-            // Set the token, which triggers the @if block in the HTML
-            this.videoCallToken.set(token);
-        },
-        error: (err) => {
-            console.error('Call failed', err);
-            alert('Could not start call. Ensure payment is complete.');
-        }
+        next: (token) => this.videoCallToken.set(token),
+        error: () => alert('Could not start call.')
     });
   }
 
-  // 🟢 6. LOGIC TO END CALL
   onCallEnded() {
-    this.videoCallToken.set(null); // This removes the component from the DOM
+    this.videoCallToken.set(null);
   }
 
+  // Helpers
   isClient() { return this.auth.isClient(); }
-  
   isMyMessage(msg: ChatMessage): boolean {
     const myEmail = this.auth.currentUser()?.email;
     return !!myEmail && msg.senderEmail === myEmail;
   }
-
   getOtherName(rel: any): string {
     return this.isClient() ? rel.interpreterName : rel.clientName;
   }
-
   getOtherAvatar(rel: any): string | null {
     return this.isClient() ? rel.interpreterProfilePicture : rel.clientProfilePicture;
   }
-
-  openImage(url: string) {
-    window.open(url, '_blank');
-  }
-
+  openImage(url: string) { window.open(url, '_blank'); }
   isVideoAllowed(status: string): boolean {
     return ['CONSULTATION_ACTIVE', 'AGREEMENT_ACTIVE', 'WORK_ACTIVE'].includes(status);
   }
-
-  getStatusColor(status: string) { return 'bg-gray-100 text-gray-600'; }
-
   unsubscribeFromChat() {
     if (this.chatSubscription) {
       this.chatSubscription.unsubscribe();
       this.chatSubscription = null;
     }
   }
-
   scrollToBottom() {
     if (!this.scrollContainer) return;
     requestAnimationFrame(() => {
