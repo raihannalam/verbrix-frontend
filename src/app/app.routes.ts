@@ -34,6 +34,12 @@ export const routes: Routes = [
     path: 'legal/deletion',
     loadComponent: () => import('./features/legal/data-deletion').then(m => m.DataDeletionComponent)
   },
+  {
+    path: 'interpreters/browse', 
+    loadComponent: () => import('./features/public/public-interpreters')
+      .then(m => m.FindInterpreterComponent),
+    title: 'Browse Interpreters | Verbrix'
+  },
 
   // 3. INTERPRETER APPLICATION FLOW
   { 

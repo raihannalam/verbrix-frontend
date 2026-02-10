@@ -38,7 +38,7 @@ import { Navbar } from "../layout/navbar";
               </p>
               
               <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <button (click)="handleGetStarted()" class="h-12 px-8 rounded-lg bg-violet-600 text-white font-semibold text-base shadow-sm hover:bg-violet-500 transition-all">
+                <button (click)="handlePublicFindInterpreter()" class="h-12 px-8 rounded-lg bg-violet-600 text-white font-semibold text-base shadow-sm hover:bg-violet-500 transition-all">
                   Find an Interpreter
                 </button>
                 <button class="h-12 px-8 rounded-lg bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 font-semibold text-base shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center justify-center gap-2 transition-all">
@@ -465,6 +465,10 @@ export class Home implements AfterViewInit {
       this.cdr.markForCheck();
     }, 0);
   }
+
+  handlePublicFindInterpreter() {
+  this.router.navigate(['/interpreters/browse']);
+}
 
   handleGetStarted() {
     if (!this.auth.isLoggedIn()) {
