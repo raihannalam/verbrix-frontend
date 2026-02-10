@@ -1,17 +1,16 @@
-import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal, effect } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
 import { catchError, finalize, of, Subscription } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Navbar } from '../../features/layout/navbar';
 import { RealtimeService } from '../../core/realtime/realtime.service'; 
+import { AuthService } from '../../core/auth/auth.service';
 
 // --- Interfaces ---
-
 interface ApplicationStatusResponse {
   applicationId: string;
-  // FIXED: Added CHANGES_REQUESTED to match backend
   status: 'PENDING' | 'UNDER_REVIEW' | 'APPROVED' | 'REJECTED' | 'CHANGES_REQUESTED';
   submittedAt: string;
   reviewedAt?: string;
@@ -48,11 +47,9 @@ interface Relationship {
         </div>
 
         <div class="animate-slide-up" [style.animation-delay]="'100ms'">
-            
             @if (loadingApp()) {
                 <div class="h-40 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse"></div>
             }
-            
             @else if (application(); as app) {
               <div class="bg-white dark:bg-[#181a1f] rounded-2xl border p-6 shadow-sm transition-all"
                    [ngClass]="{
@@ -165,11 +162,11 @@ interface Relationship {
 
         <div class="animate-slide-up" [style.animation-delay]="'200ms'">
            <div class="flex items-center justify-between mb-6">
-              <h2 class="text-2xl font-bold text-gray-900 dark:text-white">My Interpreters</h2>
-              <button routerLink="/interpreters/find" 
-                      class="text-sm font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
+             <h2 class="text-2xl font-bold text-gray-900 dark:text-white">My Interpreters</h2>
+             <button routerLink="/interpreters/find" 
+                     class="text-sm font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
                  Find New <i class="ri-arrow-right-line"></i>
-              </button>
+             </button>
            </div>
 
            @if (loadingRels()) {
@@ -258,7 +255,8 @@ interface Relationship {
 export class ClientDashboard implements OnInit, OnDestroy {
   private http = inject(HttpClient);
   private realtime = inject(RealtimeService); 
-  private readonly API_URL = environment.apiUrl;
+  private authService = inject(AuthService); // Inject Auth Service
+  private readonly API_URL = environment.apiBaseUrl; // Fix: Use apiBaseUrl to match other files
   private realtimeSub?: Subscription;
 
   application = signal<ApplicationStatusResponse | null>(null);
@@ -268,7 +266,14 @@ export class ClientDashboard implements OnInit, OnDestroy {
   loadingRels = signal(true);
 
   ngOnInit(): void {
-    this.fetchApplicationStatus();
+    // 🟢 FIX: Only fetch application status if the user is an Interpreter
+    if (this.authService.isInterpreter()) {
+      this.fetchApplicationStatus();
+    } else {
+      // If client, we don't have an interpreter application, so stop loading
+      this.loadingApp.set(false);
+    }
+
     this.fetchRelationships();
     this.subscribeToRealtime();
   }
@@ -279,7 +284,8 @@ export class ClientDashboard implements OnInit, OnDestroy {
 
   fetchApplicationStatus() {
     this.loadingApp.set(true);
-    this.http.get<ApplicationStatusResponse>(`${this.API_URL}/interpreters/me/status`, { headers: this.getAuthHeaders() })
+    // 🟢 FIX: Removed manual headers. The AuthInterceptor handles it.
+    this.http.get<ApplicationStatusResponse>(`${this.API_URL}/api/v1/interpreters/me/status`)
       .subscribe({
         next: (data) => {
           this.application.set(data);
@@ -294,7 +300,8 @@ export class ClientDashboard implements OnInit, OnDestroy {
 
   fetchRelationships(): void {
     this.loadingRels.set(true);
-    this.http.get<Relationship[]>(`${this.API_URL}/relationships/mine`, { headers: this.getAuthHeaders() })
+    // 🟢 FIX: Removed manual headers.
+    this.http.get<Relationship[]>(`${this.API_URL}/api/v1/relationships/mine`)
       .pipe(
         catchError((err) => {
           console.error('Error fetching relationships:', err);
@@ -325,13 +332,6 @@ export class ClientDashboard implements OnInit, OnDestroy {
     window.location.reload(); 
   }
 
-  private getAuthHeaders(): HttpHeaders {
-    const token = localStorage.getItem('token');
-    let headers = new HttpHeaders();
-    if (token) headers = headers.set('Authorization', `Bearer ${token}`);
-    return headers;
-  }
-
   private subscribeToRealtime(): void {
     this.realtimeSub = this.realtime.events$.subscribe(event => {
       if (!event) return;
@@ -346,7 +346,7 @@ export class ClientDashboard implements OnInit, OnDestroy {
 
       if (refreshEvents.includes(event.type)) {
         this.fetchRelationships();
-        if (event.type === 'APPLICATION_STATUS_CHANGED') {
+        if (event.type === 'APPLICATION_STATUS_CHANGED' && this.authService.isInterpreter()) {
             this.fetchApplicationStatus();
         }
       }

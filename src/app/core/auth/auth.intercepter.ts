@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {
   HttpRequest,
   HttpHandler,
@@ -8,26 +8,36 @@ import {
 } from '@angular/common/http';
 import { Observable, throwError, BehaviorSubject } from 'rxjs';
 import { catchError, filter, switchMap, take } from 'rxjs/operators';
-import { AuthService } from './auth.service';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
+  private authService = inject(AuthService);
+  
   private isRefreshing = false;
   private refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
 
-  constructor(private authService: AuthService) {}
-
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     const token = this.authService.getAccessToken();
+    
+    // 1. Identify Auth Endpoints (No token needed usually)
+    const isAuthEndpoint = request.url.includes('/auth/login') || 
+                           request.url.includes('/auth/refresh-token') ||
+                           request.url.includes('/auth/register') ||
+                           request.url.includes('/auth/social-login');
 
-    if (token) {
+    // 🔴 FIX: Validate token existence AND length to prevent "Invalid compact JWT" backend error
+    // "null" string or empty string will fail this check.
+    const isValidToken = token && token.length > 20;
+
+    if (isValidToken && !isAuthEndpoint) {
       request = this.addToken(request, token);
     }
 
     return next.handle(request).pipe(
       catchError(error => {
-        // Handle 401 Unauthorized (but ignore login endpoint failures)
-        if (error instanceof HttpErrorResponse && error.status === 401 && !request.url.includes('auth/login')) {
+        // 2. Handle 401s ONLY if it's not a login/auth attempt
+        if (error instanceof HttpErrorResponse && error.status === 401 && !isAuthEndpoint) {
           return this.handle401Error(request, next);
         }
         return throwError(() => error);
@@ -37,9 +47,7 @@ export class AuthInterceptor implements HttpInterceptor {
 
   private addToken(request: HttpRequest<unknown>, token: string) {
     return request.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`
-      }
+      setHeaders: { Authorization: `Bearer ${token}` }
     });
   }
 
@@ -55,17 +63,14 @@ export class AuthInterceptor implements HttpInterceptor {
           return next.handle(this.addToken(request, tokenResponse.accessToken));
         }),
         catchError((err) => {
-  this.isRefreshing = false;
-  
-  // Only logout if the refresh token itself is expired/invalid
-  if (request.url.includes('auth/refresh')) {
-     this.authService.logout(); 
-  }
-  return throwError(() => err);
-})
+          this.isRefreshing = false;
+          // 🔴 Only logout if the REFRESH itself fails. 
+          // If a random API call fails (e.g. wrong role), do NOT logout, just throw error.
+          this.authService.logout(); 
+          return throwError(() => err);
+        })
       );
     } else {
-      // Queue other requests while token refreshes
       return this.refreshTokenSubject.pipe(
         filter(token => token != null),
         take(1),

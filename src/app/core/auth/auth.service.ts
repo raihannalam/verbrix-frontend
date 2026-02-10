@@ -1,28 +1,18 @@
-import { Injectable, computed, signal, inject, effect } from '@angular/core';
+import { Injectable, computed, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, throwError, tap, catchError, of } from 'rxjs';
+import { Observable, throwError, tap, catchError, of, finalize } from 'rxjs';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment'; 
 import { 
-  LoginRequest, 
-  LoginResponse, 
-  User, 
-  UserRole, 
-  RefreshTokenResponse, 
-  EmailRequest, 
-  MessageResponse, 
-  OtpVerificationRequest, 
-  OtpVerificationResponse, 
-  RegistrationRequest, 
-  PasswordResetRequest, 
-  SocialLoginRequest 
+  LoginRequest, LoginResponse, User, UserRole, RefreshTokenResponse, 
+  EmailRequest, MessageResponse, OtpVerificationRequest, OtpVerificationResponse, 
+  RegistrationRequest, PasswordResetRequest, SocialLoginRequest 
 } from '../models/auth.models';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  // 1. Dependencies (Modern 'inject' style)
   private http = inject(HttpClient);
   private router = inject(Router);
 
@@ -31,29 +21,41 @@ export class AuthService {
   private readonly REFRESH_TOKEN_KEY = 'vx_refresh_token';
   private readonly USER_KEY = 'vx_user';
 
-  // ----------------------------------------------------
-  // 2. STATE MANAGEMENT (SIGNALS)
-  // ----------------------------------------------------
-  
-  // The core state container
   private currentUserSignal = signal<User | null>(null);
-
-  // Public read-only signal for components to consume
   public readonly currentUser = this.currentUserSignal.asReadonly();
 
-  // Computed Signals (Derived state - efficient & automatic)
+  // Computed Signals
   public readonly isLoggedIn = computed(() => !!this.currentUser());
   public readonly isClient = computed(() => this.currentUser()?.role === UserRole.CLIENT);
   public readonly isInterpreter = computed(() => this.currentUser()?.role === UserRole.INTERPRETER);
   public readonly isAdmin = computed(() => this.currentUser()?.role === UserRole.ADMIN);
 
   constructor() {
-    this.loadUserFromStorage();
+    this.initializeUser();
   }
 
-  // ----------------------------------------------------
-  // 3. API METHODS
-  // ----------------------------------------------------
+  // 🟢 FIX: Check token validity BEFORE setting the user state
+  private initializeUser(): void {
+    const userJson = localStorage.getItem(this.USER_KEY);
+    const token = this.getAccessToken();
+
+    if (userJson && token) {
+      if (this.isTokenExpired(token)) {
+        // Token is expired; try to refresh immediately before enabling the app
+        this.refreshToken().subscribe({
+            error: () => this.logout() // If refresh fails, clear everything
+        });
+      } else {
+        // Token is valid, restore session
+        try {
+            const user = JSON.parse(userJson);
+            this.currentUserSignal.set(user);
+        } catch { this.logout(); }
+      }
+    }
+  }
+
+  // --- API METHODS ---
 
   requestRegistrationOtp(data: EmailRequest): Observable<MessageResponse> {
     return this.http.post<MessageResponse>(`${this.API_URL}/register/request-otp`, data);
@@ -88,15 +90,11 @@ export class AuthService {
 
   logout(): void {
     const refreshToken = this.getRefreshToken();
-    
-    // 1. Attempt backend invalidation (fire & forget style)
     if (refreshToken) {
       this.http.post(`${this.API_URL}/logout`, { refreshToken })
-        .pipe(catchError(() => of(null))) // Ignore errors on logout
+        .pipe(catchError(() => of(null)))
         .subscribe();
     }
-
-    // 2. Clear local state
     this.clearSession();
     this.router.navigate(['/auth/login']);
   }
@@ -104,8 +102,8 @@ export class AuthService {
   refreshToken(): Observable<RefreshTokenResponse> {
     const refreshToken = this.getRefreshToken();
     if (!refreshToken) {
-      this.logout(); // Force logout if no token exists
-      return throwError(() => new Error('No refresh token available'));
+      this.logout();
+      return throwError(() => new Error('No refresh token'));
     }
 
     return this.http.post<RefreshTokenResponse>(`${this.API_URL}/refresh-token`, { refreshToken })
@@ -113,18 +111,21 @@ export class AuthService {
         tap(response => {
           this.setAccessToken(response.accessToken);
           this.setRefreshToken(response.refreshToken);
+          
+          // Restore user state if it was cleared during refresh
+          const userJson = localStorage.getItem(this.USER_KEY);
+          if (userJson && !this.currentUser()) {
+             this.currentUserSignal.set(JSON.parse(userJson));
+          }
         }),
         catchError(err => {
-          // Critical: If refresh fails (expired/invalid), wipe session immediately
           this.logout();
           return throwError(() => err);
         })
       );
   }
 
-  // ----------------------------------------------------
-  // 4. HELPERS & STORAGE
-  // ----------------------------------------------------
+  // --- HELPERS ---
 
   getAccessToken(): string | null {
     return localStorage.getItem(this.ACCESS_TOKEN_KEY);
@@ -135,20 +136,15 @@ export class AuthService {
   }
 
   private handleLoginSuccess(response: LoginResponse): void {
-    // 1. Strict Role Extraction
     const role = this.extractStrictRole(response.roles);
-    
-    const user: User = {
-      email: response.email,
-      role: role
-    };
+    const user: User = { email: response.email, role: role };
 
-    // 2. Persist Data
+    // 🟢 FIX: Set LocalStorage BEFORE updating signal to prevent Race Conditions
     this.setAccessToken(response.accessToken);
     this.setRefreshToken(response.refreshToken);
     localStorage.setItem(this.USER_KEY, JSON.stringify(user));
-
-    // 3. Update Signal State
+    
+    // Update Signal last
     this.currentUserSignal.set(user);
   }
 
@@ -156,7 +152,6 @@ export class AuthService {
     if (roles.includes(UserRole.ADMIN)) return UserRole.ADMIN;
     if (roles.includes(UserRole.INTERPRETER)) return UserRole.INTERPRETER;
     if (roles.includes(UserRole.CLIENT)) return UserRole.CLIENT;
-    
     throw new Error('Security Error: User has no recognized role.');
   }
 
@@ -172,26 +167,15 @@ export class AuthService {
     localStorage.removeItem(this.ACCESS_TOKEN_KEY);
     localStorage.removeItem(this.REFRESH_TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
-    
-    // Clear Signal State
     this.currentUserSignal.set(null);
   }
 
-  private loadUserFromStorage(): void {
-    const userJson = localStorage.getItem(this.USER_KEY);
-    if (userJson) {
-      try {
-        const user = JSON.parse(userJson);
-        // Validate integrity of stored user data
-        if (user && user.role && Object.values(UserRole).includes(user.role)) {
-          this.currentUserSignal.set(user);
-        } else {
-          this.clearSession(); // Data corrupted/tampered
-        }
-      } catch (e) {
-        console.error('Storage parse error', e);
-        this.clearSession();
-      }
-    }
+  // Helper to check expiry without external dependencies
+  public isTokenExpired(token: string): boolean {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      // Check if expired, adding a 10-second buffer
+      return payload.exp * 1000 < (Date.now() + 10000); 
+    } catch (e) { return true; }
   }
 }
