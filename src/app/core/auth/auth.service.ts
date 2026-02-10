@@ -1,6 +1,6 @@
 import { Injectable, computed, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, throwError, tap, catchError, of, finalize } from 'rxjs';
+import { Observable, throwError, tap, catchError, of } from 'rxjs';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment'; 
 import { 
@@ -21,6 +21,11 @@ export class AuthService {
   private readonly REFRESH_TOKEN_KEY = 'vx_refresh_token';
   private readonly USER_KEY = 'vx_user';
 
+  // 🟢 FIX 1: Create a Signal for the Access Token
+  // This allows RealtimeService to "react" when the token changes
+  private accessTokenSignal = signal<string | null>(this.getAccessToken());
+  public readonly accessToken = this.accessTokenSignal.asReadonly();
+
   private currentUserSignal = signal<User | null>(null);
   public readonly currentUser = this.currentUserSignal.asReadonly();
 
@@ -34,22 +39,21 @@ export class AuthService {
     this.initializeUser();
   }
 
-  // 🟢 FIX: Check token validity BEFORE setting the user state
   private initializeUser(): void {
     const userJson = localStorage.getItem(this.USER_KEY);
     const token = this.getAccessToken();
 
     if (userJson && token) {
       if (this.isTokenExpired(token)) {
-        // Token is expired; try to refresh immediately before enabling the app
         this.refreshToken().subscribe({
-            error: () => this.logout() // If refresh fails, clear everything
+            error: () => this.logout() 
         });
       } else {
-        // Token is valid, restore session
         try {
             const user = JSON.parse(userJson);
             this.currentUserSignal.set(user);
+            // Ensure signal is in sync
+            this.accessTokenSignal.set(token); 
         } catch { this.logout(); }
       }
     }
@@ -112,7 +116,6 @@ export class AuthService {
           this.setAccessToken(response.accessToken);
           this.setRefreshToken(response.refreshToken);
           
-          // Restore user state if it was cleared during refresh
           const userJson = localStorage.getItem(this.USER_KEY);
           if (userJson && !this.currentUser()) {
              this.currentUserSignal.set(JSON.parse(userJson));
@@ -139,12 +142,10 @@ export class AuthService {
     const role = this.extractStrictRole(response.roles);
     const user: User = { email: response.email, role: role };
 
-    // 🟢 FIX: Set LocalStorage BEFORE updating signal to prevent Race Conditions
     this.setAccessToken(response.accessToken);
     this.setRefreshToken(response.refreshToken);
     localStorage.setItem(this.USER_KEY, JSON.stringify(user));
     
-    // Update Signal last
     this.currentUserSignal.set(user);
   }
 
@@ -155,26 +156,28 @@ export class AuthService {
     throw new Error('Security Error: User has no recognized role.');
   }
 
+  // 🟢 FIX 2: Update the Signal whenever token changes
   private setAccessToken(token: string): void {
     localStorage.setItem(this.ACCESS_TOKEN_KEY, token);
+    this.accessTokenSignal.set(token); 
   }
 
   private setRefreshToken(token: string): void {
     localStorage.setItem(this.REFRESH_TOKEN_KEY, token);
   }
 
+  // 🟢 FIX 3: Clear the Signal on logout
   private clearSession(): void {
     localStorage.removeItem(this.ACCESS_TOKEN_KEY);
     localStorage.removeItem(this.REFRESH_TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
     this.currentUserSignal.set(null);
+    this.accessTokenSignal.set(null);
   }
 
-  // Helper to check expiry without external dependencies
   public isTokenExpired(token: string): boolean {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
-      // Check if expired, adding a 10-second buffer
       return payload.exp * 1000 < (Date.now() + 10000); 
     } catch (e) { return true; }
   }

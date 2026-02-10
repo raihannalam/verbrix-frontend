@@ -22,61 +22,45 @@ export class RealtimeService implements OnDestroy {
   private eventsSubject = new Subject<RealtimeEvent | null>();
   public events$ = this.eventsSubject.asObservable();
 
-  private isRefreshing = false;
-  private retryCount = 0;
-
   constructor() {
+    // 🟢 FIX: Effect now listens to the accessToken SIGNAL
+    // This creates the "Automatic Reconnect" behavior
     effect((onCleanup) => {
-      // Only connect if we have a user AND a valid token
       const user = this.authService.currentUser();
-      const token = this.authService.getAccessToken();
+      const token = this.authService.accessToken(); 
       
+      // If we have a user and a token...
       if (user && token && !this.authService.isTokenExpired(token)) {
-         this.connect();
+         // ... connect using THAT SPECIFIC token
+         this.connect(token);
       } else {
          this.disconnect();
       }
 
+      // 🟢 FIX: Explicit Cleanup
+      // When the token changes (signal updates), this function runs FIRST
+      // This kills the old connection before the new one starts
       onCleanup(() => {
-        if (!this.authService.getAccessToken()) this.disconnect();
+        this.disconnect();
       });
     });
   }
 
-  private connect(): void {
-    if (this.client?.active || this.isRefreshing) return;
+  private connect(token: string): void {
+    // Safety check: Don't connect if already active (though cleanup handles this)
+    if (this.client?.active) return;
 
-    const token = this.authService.getAccessToken();
-    if (!token) return;
-
-    // 1. Pre-check: If token is expired, refresh FIRST, then connect
-    if (this.authService.isTokenExpired(token)) {
-      this.isRefreshing = true;
-      this.authService.refreshToken().subscribe({
-        next: () => {
-          this.isRefreshing = false;
-          this.connect(); // Retry connection with new token
-        },
-        error: () => this.isRefreshing = false
-      });
-      return; 
-    }
-
-    // 2. Build URL with Query Param (Crucial for Spring Security)
     const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
     const host = environment.apiBaseUrl.replace(/^http(s)?:\/\//, ''); 
-    // 🟢 FIX: Pass token in URL to bypass Handshake Interceptors issues
     const brokerURL = `${protocol}://${host}/ws?access_token=${token}`;
 
     this.client = new Client({
       brokerURL: brokerURL,
-      // We still send headers for STOMP, but URL handles the Handshake
       connectHeaders: { Authorization: `Bearer ${token}` },
       reconnectDelay: 5000,
-      heartbeatIncoming: 20000, // Increase heartbeat tolerance
+      heartbeatIncoming: 20000, 
       heartbeatOutgoing: 20000,
       debug: (str) => {
-        // Only log errors or specific connection events to reduce noise
         if(str.includes('Error') || str.includes('Connect')) console.debug('[STOMP]:', str);
       }
     });
@@ -84,7 +68,6 @@ export class RealtimeService implements OnDestroy {
     this.client.onConnect = () => {
       console.log('RealtimeService: Connected Successfully');
       this.connected$.next(true);
-      this.retryCount = 0; // Reset retry counter on success
 
       this.subscription = this.client!.subscribe('/user/queue/notifications', (message) => {
           try {
@@ -95,8 +78,6 @@ export class RealtimeService implements OnDestroy {
 
     this.client.onStompError = (frame) => {
       console.error('Broker reported error:', frame.headers['message']);
-      console.error('Details:', frame.body);
-      // If session is closed, force a disconnect so we can cleanly retry
       if (frame.headers['message']?.includes('Session closed')) {
          this.disconnect(); 
       }
@@ -113,13 +94,18 @@ export class RealtimeService implements OnDestroy {
     this.client.activate();
   }
 
+  // 🟢 FIX: Robust Disconnect
+  // Ensures we completely kill the client and subscription
   private disconnect(): void {
     this.connected$.next(false);
+    
     if (this.subscription) {
       this.subscription.unsubscribe();
       this.subscription = null;
     }
+    
     if (this.client) {
+      // Force deactivate
       this.client.deactivate();
       this.client = null;
     }
@@ -131,11 +117,13 @@ export class RealtimeService implements OnDestroy {
     }
   }
 
+  // NOTE: This helper handles subscriptions for specific components
   public subscribeToTopic(topic: string, callback: (payload: any) => void): StompSubscription {
     if (this.connected$.value && this.client?.connected) {
         return this.client.subscribe(topic, (msg) => callback(JSON.parse(msg.body)));
     }
 
+    // Queue subscription if not yet connected
     const autoSub = this.connected$.pipe(
         filter(c => c), take(1)
     ).subscribe(() => {
