@@ -26,12 +26,18 @@ export class AuthInterceptor implements HttpInterceptor {
 
     return next.handle(request).pipe(
       catchError(error => {
-        // 🟢 FIX: Ignore 401s from Login OR Refresh endpoints to prevent loops
+        // 🟢 FIX 1: Ignore Auth endpoints
         const isAuthRequest = request.url.includes('auth/login') || request.url.includes('auth/refresh-token');
+        
+        // 🟢 FIX 2: Ignore the Status endpoint. 
+        // If this returns 401 (e.g. slight delay in token), we don't want to log the user out.
+        // We just want the dashboard to treat it as "Not Applied Yet" (null).
+        const isStatusRequest = request.url.includes('/interpreters/me/status');
 
-        if (error instanceof HttpErrorResponse && error.status === 401 && !isAuthRequest) {
+        if (error instanceof HttpErrorResponse && error.status === 401 && !isAuthRequest && !isStatusRequest) {
           return this.handle401Error(request, next);
         }
+        
         return throwError(() => error);
       })
     );
@@ -58,7 +64,12 @@ export class AuthInterceptor implements HttpInterceptor {
         }),
         catchError((err) => {
           this.isRefreshing = false;
-          // If refresh fails, we must logout to clear state
+          
+          // Debugging Log
+          console.error('Auto-Logout triggered by 401 from URL:', request.url); 
+          console.error('Full Error:', err);
+
+          // Logout only if refresh fails
           this.authService.logout();
           return throwError(() => err);
         })

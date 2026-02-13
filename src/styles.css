@@ -101,6 +101,8 @@
 /* Desktop baseline */
 html {
   font-size: 16px;
+  scroll-behavior: smooth;
+  scroll-padding-top: 6rem; /* Ensures anchor links clear the floating navbar */
 }
 
 /* Tablet: slightly denser */
@@ -114,6 +116,7 @@ html {
 @media (max-width: 640px) {
   html {
     font-size: 15px;
+    scroll-padding-top: 5rem; /* Slightly smaller offset for mobile */
   }
 }
 
@@ -141,26 +144,20 @@ html {
    6. COMPONENTS
    ========================================================= */
 @layer components {
-  /* Glass surface */
   .glass {
     @apply border-b;
     background-color: var(--bg-glass);
     backdrop-filter: blur(12px);
   }
 
-  /* Panel / Card */
   .panel {
     @apply bg-bg-surface border shadow-card transition-colors;
     border-radius: 1.5rem;
     padding: 2rem;
   }
 
-  /* Primary button */
   .btn-primary {
-    @apply inline-flex items-center justify-center
-           font-semibold text-white
-           bg-brand transition-all ease-out
-           active:scale-95;
+    @apply inline-flex items-center justify-center font-semibold text-white bg-brand transition-all ease-out active:scale-95 cursor-pointer;
     border-radius: 0.875rem;
     padding: 0.75rem 1.5rem;
     box-shadow: 0 8px 20px rgba(0, 112, 243, 0.25);
@@ -175,7 +172,6 @@ html {
    7. MOBILE-SPECIFIC NATIVE TUNING
    ========================================================= */
 @media (max-width: 640px) {
-  /* Reduce perceived bulk */
   .panel {
     padding: 1.25rem;
     border-radius: 1rem;
@@ -186,12 +182,10 @@ html {
     border-radius: 0.75rem;
   }
 
-  /* Glass should feel lighter on mobile */
   .glass {
     backdrop-filter: blur(8px);
   }
 
-  /* Typography tightening */
   body {
     letter-spacing: -0.01em;
   }

@@ -70,29 +70,29 @@ import {
             </div>
           }
 
-          <form [formGroup]="form" class="space-y-5">
+          <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-5">
             
             @if (step() === 'enterEmail') {
               <div class="grid grid-cols-2 gap-4">
                 <div class="space-y-1">
                   <label class="text-xs font-bold uppercase tracking-wider text-text-muted">First Name</label>
-                  <input type="text" formControlName="firstName" class="w-full h-12 px-4 rounded-xl bg-bg-surface border border-transparent text-text-main focus:bg-bg-page focus:ring-2 focus:ring-brand/20 focus:border-brand outline-none transition-all placeholder:text-text-dim" placeholder="Jane" />
+                  <input type="text" formControlName="firstName" class="w-full h-12 px-4 rounded-xl bg-bg-surface border border-transparent text-text-main focus:bg-bg-page focus:ring-2 focus:ring-brand/20 focus:border-brand outline-none transition-all placeholder:text-text-dim" placeholder="Enter first name" />
                 </div>
                 <div class="space-y-1">
                   <label class="text-xs font-bold uppercase tracking-wider text-text-muted">Last Name</label>
-                  <input type="text" formControlName="lastName" class="w-full h-12 px-4 rounded-xl bg-bg-surface border border-transparent text-text-main focus:bg-bg-page focus:ring-2 focus:ring-brand/20 focus:border-brand outline-none transition-all placeholder:text-text-dim" placeholder="Doe" />
+                  <input type="text" formControlName="lastName" class="w-full h-12 px-4 rounded-xl bg-bg-surface border border-transparent text-text-main focus:bg-bg-page focus:ring-2 focus:ring-brand/20 focus:border-brand outline-none transition-all placeholder:text-text-dim" placeholder="Enter last name" />
                 </div>
               </div>
 
               <div class="space-y-1">
                 <label class="text-xs font-bold uppercase tracking-wider text-text-muted">Email Address</label>
                 <div class="relative">
-                  <input type="email" formControlName="email" class="w-full h-12 px-4 pl-10 rounded-xl bg-bg-surface border border-transparent text-text-main focus:bg-bg-page focus:ring-2 focus:ring-brand/20 focus:border-brand outline-none transition-all placeholder:text-text-dim" placeholder="jane@example.com" />
+                  <input type="email" formControlName="email" class="w-full h-12 px-4 pl-10 rounded-xl bg-bg-surface border border-transparent text-text-main focus:bg-bg-page focus:ring-2 focus:ring-brand/20 focus:border-brand outline-none transition-all placeholder:text-text-dim" placeholder="name@email.com" />
                   <i class="ri-mail-line absolute left-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none"></i>
                 </div>
               </div>
 
-              <button type="button" (click)="requestOtp()" [disabled]="loading() || invalidStep1()" class="w-full h-12 rounded-xl bg-brand text-white font-bold text-base shadow-lg hover:bg-brand-hover active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center mt-4">
+              <button type="submit" [disabled]="loading() || invalidStep1()" class="w-full h-12 rounded-xl bg-brand text-white font-bold text-base shadow-lg hover:bg-brand-hover active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center mt-4">
                 {{ loading() ? 'Sending Code...' : 'Send Verification Code' }}
               </button>
             }
@@ -109,7 +109,7 @@ import {
 
                 <div class="space-y-1">
                   <label class="text-xs font-bold uppercase tracking-wider text-text-muted">Verification Code</label>
-                  <input type="text" formControlName="otp" maxlength="6" class="w-full h-12 px-4 rounded-xl bg-bg-surface border border-transparent text-text-main focus:bg-bg-page focus:ring-2 focus:ring-brand/20 focus:border-brand outline-none transition-all placeholder:text-text-dim text-center text-2xl tracking-[0.5em] font-mono" placeholder="000000" />
+                  <input type="text" formControlName="otp" maxlength="6" class="w-full h-12 px-4 rounded-xl bg-bg-surface border border-transparent text-text-main focus:bg-bg-page focus:ring-2 focus:ring-brand/20 focus:border-brand outline-none transition-all placeholder:text-text-dim text-center text-2xl tracking-[0.5em] font-mono" placeholder="••••••" />
                 </div>
 
                 <div class="flex items-center justify-between text-sm">
@@ -120,7 +120,7 @@ import {
                   }
                 </div>
 
-                <button type="button" (click)="continueAfterOtp()" [disabled]="loading() || form.controls['otp'].invalid" class="w-full h-12 rounded-xl bg-brand text-white font-bold text-base shadow-lg hover:bg-brand-hover active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center mt-2">
+                <button type="submit" [disabled]="loading() || form.controls['otp'].invalid" class="w-full h-12 rounded-xl bg-brand text-white font-bold text-base shadow-lg hover:bg-brand-hover active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center mt-2">
                   {{ loading() ? 'Verifying...' : 'Verify & Continue' }}
                 </button>
                 
@@ -146,25 +146,34 @@ import {
                   </div>
                 </div>
 
-                <div class="space-y-3 pt-2">
-                  <label class="flex items-start gap-3 cursor-pointer group">
-                    <div class="relative flex items-center">
+                <div class="space-y-4 pt-2">
+                  <div class="flex items-start gap-3 group">
+                    <label class="relative flex items-center cursor-pointer mt-0.5">
                       <input type="checkbox" formControlName="isAdult" class="peer h-5 w-5 appearance-none rounded border border-border bg-bg-surface checked:bg-brand checked:border-brand transition-all" />
                       <i class="ri-check-line absolute inset-0 m-auto text-white opacity-0 peer-checked:opacity-100 text-sm pointer-events-none"></i>
-                    </div>
-                    <span class="text-sm text-text-secondary group-hover:text-text-main transition-colors select-none">I confirm I am 18 years or older.</span>
-                  </label>
+                    </label>
+                    <span class="text-sm text-text-secondary group-hover:text-text-main transition-colors select-none" (click)="form.get('isAdult')?.setValue(!form.get('isAdult')?.value)">
+                      I confirm I am 18 years or older.
+                    </span>
+                  </div>
 
-                  <label class="flex items-start gap-3 cursor-pointer group">
-                    <div class="relative flex items-center">
+                  <div class="flex items-start gap-3 group">
+                    <label class="relative flex items-center cursor-pointer mt-0.5">
                       <input type="checkbox" formControlName="acceptedPolicies" class="peer h-5 w-5 appearance-none rounded border border-border bg-bg-surface checked:bg-brand checked:border-brand transition-all" />
                       <i class="ri-check-line absolute inset-0 m-auto text-white opacity-0 peer-checked:opacity-100 text-sm pointer-events-none"></i>
+                    </label>
+                    <div class="text-sm text-text-secondary transition-colors">
+                      <span class="cursor-pointer group-hover:text-text-main select-none" (click)="form.get('acceptedPolicies')?.setValue(!form.get('acceptedPolicies')?.value)">
+                        I agree to the
+                      </span>
+                      <a href="https://verbrix.com/legal/terms" target="_blank" class="text-brand hover:underline mx-1">Terms of Service</a> 
+                      and 
+                      <a href="https://verbrix.com/legal/privacy" target="_blank" class="text-brand hover:underline ml-1">Privacy Policy</a>.
                     </div>
-                    <span class="text-sm text-text-secondary group-hover:text-text-main transition-colors select-none">I agree to the Terms of Service.</span>
-                  </label>
+                  </div>
                 </div>
 
-                <button type="button" (click)="register()" [disabled]="loading() || form.invalid" class="w-full h-12 rounded-xl bg-brand text-white font-bold text-base shadow-lg hover:bg-brand-hover active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center mt-4">
+                <button type="submit" [disabled]="loading() || form.invalid" class="w-full h-12 rounded-xl bg-brand text-white font-bold text-base shadow-lg hover:bg-brand-hover active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center mt-4">
                   {{ loading() ? 'Creating Account...' : 'Complete Registration' }}
                 </button>
               </div>
@@ -191,7 +200,7 @@ import {
     @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
   `]
 })
-export class RegisterComponent implements OnDestroy { // Renamed to Standard Convention
+export class RegisterComponent implements OnDestroy {
   private fb = inject(FormBuilder);
   private auth = inject(AuthService);
   private router = inject(Router);
@@ -219,6 +228,23 @@ export class RegisterComponent implements OnDestroy { // Renamed to Standard Con
     if (!getApps().length) initializeApp(environment.firebaseConfig);
   }
 
+  // --- NEW: Handle Enter Key / Form Submission Native Routing ---
+  onSubmit() {
+    if (this.step() === 'enterEmail') {
+      if (!this.invalidStep1() && !this.loading()) {
+        this.requestOtp();
+      }
+    } else if (this.step() === 'enteredOtp') {
+      if (this.form.controls['otp'].valid && !this.loading()) {
+        this.continueAfterOtp();
+      }
+    } else if (this.step() === 'setPassword') {
+      if (this.form.valid && !this.loading()) {
+        this.register();
+      }
+    }
+  }
+
   invalidStep1() {
     const { firstName, lastName, email } = this.form.controls;
     return firstName.invalid || lastName.invalid || email.invalid;
@@ -231,7 +257,6 @@ export class RegisterComponent implements OnDestroy { // Renamed to Standard Con
 
     this.loading.set(true);
     
-    // CORRECTION 1: Method name matches AuthService (requestRegistrationOtp)
     this.auth.requestRegistrationOtp({ email }).pipe(take(1)).subscribe({
       next: (res) => {
         this.loading.set(false);
@@ -304,7 +329,6 @@ export class RegisterComponent implements OnDestroy { // Renamed to Standard Con
     this.auth.completeRegistration(req).pipe(take(1)).subscribe({
       next: (res) => {
         this.loading.set(false);
-        // CORRECTION 3: Explicit internal navigation logic
         this.navigateBasedOnRole(res.roles);
       },
       error: (err) => {
@@ -323,7 +347,6 @@ export class RegisterComponent implements OnDestroy { // Renamed to Standard Con
       const result = await signInWithPopup(authInstance, provider);
       const idToken = await result.user.getIdToken();
 
-      // CORRECTION 2: STRICT SocialLoginRequest (added provider)
       const req: SocialLoginRequest = {
         idToken: idToken,
         provider: 'google'
@@ -332,7 +355,6 @@ export class RegisterComponent implements OnDestroy { // Renamed to Standard Con
       this.auth.socialLogin(req).subscribe({
         next: (res) => {
           this.loading.set(false);
-          // CORRECTION 3: Explicit internal navigation logic
           this.navigateBasedOnRole(res.roles);
         },
         error: (err) => {
@@ -346,9 +368,7 @@ export class RegisterComponent implements OnDestroy { // Renamed to Standard Con
     }
   }
 
-  // --- NEW: Internal Redirect Logic ---
   private navigateBasedOnRole(roles: string[]) {
-    // We check the RAW strings from backend to decide strictly
     if (roles.includes(UserRole.ADMIN)) {
       this.router.navigate(['/dashboard/admin/home']);
     } else if (roles.includes(UserRole.INTERPRETER)) {
@@ -356,7 +376,6 @@ export class RegisterComponent implements OnDestroy { // Renamed to Standard Con
     } else if (roles.includes(UserRole.CLIENT)) {
       this.router.navigate(['/dashboard/client/home']);
     } else {
-      // Fallback
       this.router.navigate(['/dashboard']);
     }
   }

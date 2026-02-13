@@ -22,12 +22,14 @@ interface NavLink {
   isDisabled?: boolean;
 }
 
+// 1. UPDATED ROUTING CONFIGURATION
+// Matches the provided routes definition
 const NAV_CONFIG: Record<string, NavLink[]> = {
   [UserRole.ADMIN]: [
     { label: 'Overview', route: '/dashboard/admin/home' },
     { label: 'Users', isDisabled: true },
     { label: 'Reports', isDisabled: true },
-    { label: 'Messages', route: '/dashboard/admin/chat' },
+    { label: 'Messages', route: '/messages' }, // Fixed: Points to standalone chat
   ],
   [UserRole.INTERPRETER]: [
     { label: 'Overview', route: '/dashboard/interpreter/home' },
@@ -57,7 +59,8 @@ const NAV_CONFIG: Record<string, NavLink[]> = {
 <header
   class="fixed z-[100] transition-all duration-300
          top-0 inset-x-0 h-16
-         md:top-6 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:w-[95%] md:max-w-6xl md:h-16
+         md:top-4 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 
+         md:w-[calc(100%-2rem)] md:max-w-7xl md:h-16
          md:rounded-full md:border md:border-[var(--border)] md:shadow-lg md:backdrop-blur-xl md:bg-[var(--bg-glass)]"
   [class.bg-transparent]="!isScrolled() && !isMenuOpen()"
   [class.bg-[var(--bg-glass)]]="isScrolled() && !isMenuOpen()"
@@ -69,13 +72,13 @@ const NAV_CONFIG: Record<string, NavLink[]> = {
   </div>
 
   <div class="container mx-auto h-full px-4 sm:px-6 flex items-center justify-between relative z-10 whitespace-nowrap">
-   <a (click)="handleLogoClick()" class="flex items-center select-none cursor-pointer">
-  <img src="/assets/images/logo.png" alt="Verbrix logo" class="h-7 w-auto object-contain" />
-  
-  <span class="ml-3 text-lg font-['Outfit'] font-medium tracking-[0.15em] text-[var(--text-main)] uppercase">
-    Verbrix
-  </span>
-</a>
+    
+    <a (click)="handleLogoClick()" class="flex items-center select-none cursor-pointer">
+      <img src="/assets/images/logo.png" alt="Verbrix logo" class="h-7 w-auto object-contain" />
+      <span class="ml-3 text-lg font-['Outfit'] font-medium tracking-[0.15em] text-[var(--text-main)] uppercase">
+        Verbrix
+      </span>
+    </a>
 
     <nav class="hidden md:flex items-center gap-1">
       @for (link of currentNavLinks(); track link.label) {

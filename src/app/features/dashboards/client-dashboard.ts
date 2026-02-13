@@ -1,7 +1,7 @@
-import { Component, inject, OnInit, OnDestroy, signal, effect } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
-import { Router, RouterLink } from '@angular/router';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { RouterLink } from '@angular/router';
 import { catchError, finalize, of, Subscription } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Navbar } from '../../features/layout/navbar';
@@ -108,28 +108,24 @@ interface Relationship {
                   </div>
 
                   <div class="flex items-center gap-3 self-end md:self-center mt-2 md:mt-0">
-                    
                     @if (app.status === 'CHANGES_REQUESTED') {
                       <button [routerLink]="['/interpreters/apply']" 
                               class="px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white rounded-xl font-bold shadow-lg shadow-orange-600/20 transition-all flex items-center gap-2">
                         <i class="ri-edit-2-line"></i> Update & Resubmit
                       </button>
                     } 
-                    
                     @else if (app.status === 'REJECTED') {
                       <button [routerLink]="['/interpreters/apply']" 
                               class="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold shadow-lg shadow-red-600/20 transition-all flex items-center gap-2">
                         <i class="ri-refresh-line"></i> Apply Again
                       </button>
                     } 
-                    
                     @else if (app.status === 'APPROVED') {
                       <button (click)="handleSwitchToInterpreter()" 
                               class="px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold shadow-lg shadow-green-600/20 transition-all flex items-center gap-2">
                         Switch Dashboard <i class="ri-arrow-right-line"></i>
                       </button>
                     }
-
                   </div>
                 </div>
               </div>
@@ -255,8 +251,8 @@ interface Relationship {
 export class ClientDashboard implements OnInit, OnDestroy {
   private http = inject(HttpClient);
   private realtime = inject(RealtimeService); 
-  private authService = inject(AuthService); // Inject Auth Service
-  private readonly API_URL = environment.apiBaseUrl; // Fix: Use apiBaseUrl to match other files
+  private authService = inject(AuthService);
+  private readonly API_URL = environment.apiBaseUrl;
   private realtimeSub?: Subscription;
 
   application = signal<ApplicationStatusResponse | null>(null);
@@ -266,14 +262,15 @@ export class ClientDashboard implements OnInit, OnDestroy {
   loadingRels = signal(true);
 
   ngOnInit(): void {
-    // 🟢 FIX: Only fetch application status if the user is an Interpreter
-    if (this.authService.isInterpreter()) {
-      this.fetchApplicationStatus();
-    } else {
-      // If client, we don't have an interpreter application, so stop loading
-      this.loadingApp.set(false);
+    // 🔴 CRITICAL FIX: Prevent race condition. 
+    // If the page loads before the token is saved (e.g. from Social Login redirect), 
+    // do NOT fire requests or the interceptor will log us out.
+    if (!this.authService.getAccessToken()) {
+        console.warn('Dashboard initialized without token. Waiting...');
+        return; 
     }
 
+    this.fetchApplicationStatus();
     this.fetchRelationships();
     this.subscribeToRealtime();
   }
@@ -284,15 +281,21 @@ export class ClientDashboard implements OnInit, OnDestroy {
 
   fetchApplicationStatus() {
     this.loadingApp.set(true);
-    // 🟢 FIX: Removed manual headers. The AuthInterceptor handles it.
+    
     this.http.get<ApplicationStatusResponse>(`${this.API_URL}/api/v1/interpreters/me/status`)
       .subscribe({
         next: (data) => {
           this.application.set(data);
           this.loadingApp.set(false);
         },
-        error: (err) => {
-          this.application.set(null);
+        error: (err: HttpErrorResponse) => {
+          // Handle 404 (Not Found) -> User hasn't applied
+          if (err.status === 404) {
+            this.application.set(null);
+          } else {
+            console.error('Failed to fetch application status', err);
+            this.application.set(null);
+          }
           this.loadingApp.set(false);
         }
       });
@@ -300,7 +303,7 @@ export class ClientDashboard implements OnInit, OnDestroy {
 
   fetchRelationships(): void {
     this.loadingRels.set(true);
-    // 🟢 FIX: Removed manual headers.
+    
     this.http.get<Relationship[]>(`${this.API_URL}/api/v1/relationships/mine`)
       .pipe(
         catchError((err) => {
@@ -346,7 +349,8 @@ export class ClientDashboard implements OnInit, OnDestroy {
 
       if (refreshEvents.includes(event.type)) {
         this.fetchRelationships();
-        if (event.type === 'APPLICATION_STATUS_CHANGED' && this.authService.isInterpreter()) {
+        
+        if (event.type === 'APPLICATION_STATUS_CHANGED') {
             this.fetchApplicationStatus();
         }
       }

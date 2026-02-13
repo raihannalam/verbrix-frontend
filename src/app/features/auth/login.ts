@@ -23,7 +23,9 @@ import { environment } from '../../../environments/environment';
 
         <div class="relative z-10 max-w-lg text-center">
           <div class="mb-8">
-            <img src="assets/images/logo.png" alt="Verbrix" class="h-16 w-auto mx-auto drop-shadow-lg" loading="eager" />
+            <a routerLink="/" class="block hover:opacity-80 transition-opacity">
+              <img src="assets/images/logo.png" alt="Verbrix" class="h-16 w-auto mx-auto drop-shadow-lg" loading="eager" />
+            </a>
           </div>
           <blockquote class="text-2xl font-bold text-text-main leading-relaxed mb-6">
             "Verbrix removed the fear of traveling for my surgery. I knew exactly what to expect before I even boarded the plane."
@@ -32,7 +34,12 @@ import { environment } from '../../../environments/environment';
         </div>
       </div>
 
-      <div class="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-12">
+      <div class="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-12 relative">
+        <a routerLink="/" class="absolute top-6 left-6 flex items-center gap-2 text-text-muted hover:text-brand transition-colors lg:hidden">
+           <i class="ri-arrow-left-line"></i>
+           <span class="text-sm font-bold">Back to Home</span>
+        </a>
+
         <div class="w-full max-w-md animate-fade-in-up">
           <div class="text-center mb-10">
             <h1 class="text-3xl font-bold text-text-main mb-2">Welcome back</h1>
@@ -55,15 +62,14 @@ import { environment } from '../../../environments/environment';
 
           <form [formGroup]="form" (ngSubmit)="login()" class="space-y-5">
             <div class="space-y-1">
-              <label for="email" class="text-sm font-semibold text-text-main">Email</label>
+              <label for="email" class="text-sm font-semibold text-text-main">Email Address</label>
               <div class="relative">
                 <input 
                   #emailInput
                   id="email" 
                   type="email" 
                   formControlName="email" 
-                  placeholder="name@company.com"
-                  (keydown.enter)="focusPassword()"
+                  placeholder="name@email.com"
                   class="w-full h-12 pl-10 pr-4 rounded-xl bg-bg-surface border border-transparent text-text-main focus:bg-bg-page focus:ring-2 focus:ring-brand/20 focus:border-brand outline-none transition-all placeholder:text-text-dim"
                   [class.ring-2]="emailControl.invalid && emailControl.touched"
                   [class.ring-red-500/20]="emailControl.invalid && emailControl.touched"
@@ -87,8 +93,7 @@ import { environment } from '../../../environments/environment';
                   id="password" 
                   [type]="showPassword() ? 'text' : 'password'"
                   formControlName="password" 
-                  placeholder="••••••••"
-                  (keydown.enter)="login()"
+                  placeholder="Min. 6 characters"
                   class="w-full h-12 pl-10 pr-10 rounded-xl bg-bg-surface border border-transparent text-text-main focus:bg-bg-page focus:ring-2 focus:ring-brand/20 focus:border-brand outline-none transition-all placeholder:text-text-dim"
                   [class.ring-2]="passwordControl.invalid && passwordControl.touched"
                   [class.ring-red-500/20]="passwordControl.invalid && passwordControl.touched"
@@ -122,7 +127,7 @@ import { environment } from '../../../environments/environment';
             <button 
               type="submit" 
               [disabled]="loading() || form.invalid"
-              class="w-full h-12 rounded-xl bg-brand text-white font-bold text-base shadow-lg hover:bg-brand-hover active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 touch-manipulation">
+              class="w-full h-12 rounded-xl bg-brand text-white font-bold text-base shadow-lg hover:bg-brand-hover active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 touch-manipulation">
               @if (loading()) {
                 <i class="ri-loader-4-line animate-spin text-xl"></i>
                 <span>Signing in...</span>
@@ -176,7 +181,6 @@ export class LoginComponent implements OnInit {
   loading = signal(false);
   errorMessage = signal<string | null>(null);
   showPassword = signal(false);
-  // isSecure = window.location.protocol === 'https:';
 
   form = new FormGroup({
     email: new FormControl('', { 
@@ -202,13 +206,6 @@ export class LoginComponent implements OnInit {
     this.showPassword.update(v => !v);
   }
 
-  focusPassword() {
-    if (this.emailControl.valid) {
-      const passwordInput = document.getElementById('password') as HTMLInputElement;
-      passwordInput?.focus();
-    }
-  }
-
   login(): void {
     if (this.form.invalid || this.loading()) {
       this.form.markAllAsTouched();
@@ -223,23 +220,11 @@ export class LoginComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
-          // alert("SUCCESS! Logging in..."); // Optional success alert
           this.loading.set(false);
           this.navigateBasedOnRole(res.roles);
         },
         error: (err) => {
           this.loading.set(false);
-
-          // ---------------------------------------------------------
-          // DEBUGGING TRAP: Alert the EXACT error on your iPhone
-          // ---------------------------------------------------------
-          const status = err.status;
-          const msg = err.message || 'No message';
-          const details = JSON.stringify(err.error || {});
-
-          alert(`DEBUG ERROR:\nStatus: ${status}\nMsg: ${msg}\nDetails: ${details}`);
-
-          // Original fallback logic
           this.errorMessage.set(err?.error?.message || 'Invalid email or password. Please try again.');
         }
       });
@@ -273,21 +258,12 @@ export class LoginComponent implements OnInit {
           },
           error: (err) => {
             this.loading.set(false);
-            
-            // ---------------------------------------------------------
-            // DEBUGGING TRAP FOR GOOGLE TOO
-            // ---------------------------------------------------------
-             const status = err.status;
-             const msg = err.message || 'No message';
-             alert(`GOOGLE ERROR:\nStatus: ${status}\nMsg: ${msg}`);
-
             this.errorMessage.set(err?.error?.message || 'Google sign-in failed. Please try again.');
           }
         });
     } catch (e: any) {
       this.loading.set(false);
       if (e.code !== 'auth/popup-closed-by-user') {
-        alert(`FIREBASE ERROR:\n${e.message}`); // Alert Firebase errors too
         this.errorMessage.set(e?.message || 'Google authentication failed. Please try again.');
       }
     }
