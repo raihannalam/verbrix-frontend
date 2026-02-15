@@ -367,9 +367,6 @@ type ViewMode = 'patient' | 'interpreter';
                <a routerLink="/auth/register" class="inline-flex items-center justify-center h-14 px-8 rounded-xl bg-violet-600 text-white font-semibold text-lg shadow-xl shadow-violet-600/20 hover:bg-violet-500 hover:-translate-y-1 transition-all active:scale-95 w-full sm:w-auto">
                   Get Started Now
                </a>
-               <a routerLink="/contact" class="inline-flex items-center justify-center h-14 px-8 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-semibold text-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-all w-full sm:w-auto">
-                  Contact Sales
-               </a>
             </div>
          </div>
       </section>
