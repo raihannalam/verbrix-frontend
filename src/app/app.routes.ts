@@ -3,6 +3,7 @@ import { authGuard } from './core/auth/auth.guard';
 import { roleGuard } from './core/auth/role.guard';
 import { UserRole } from './core/models/auth.models';
 import { InterpreterApplyComponent } from './features/components/app-apply-interpreter';
+import { HowItWorksComponent } from './features/home/how-it-works';
 
 export const routes: Routes = [
   // 1. ROOT & PUBLIC ROUTES
@@ -11,6 +12,12 @@ export const routes: Routes = [
     pathMatch: 'full', 
     loadComponent: () => import('./features/home/home').then(m => m.Home),
     title: 'Verbrix - Healthcare Translation' 
+  },
+
+  {
+    path: 'how-it-works',
+    component: HowItWorksComponent,
+    title: 'How It Works - Verbrix'
   },
 
   // 2. AUTHENTICATION

@@ -41,32 +41,90 @@ import { RouterLink } from '@angular/router';
 
           <div class="hidden lg:block lg:col-span-2"></div>
 
+          <!-- PRODUCT SECTION (SEO OPTIMIZED, NO CSS CHANGE) -->
           <div class="col-span-1 md:col-span-4 lg:col-span-2">
             <h4 class="font-bold mb-6 text-xs uppercase tracking-widest text-violet-600 dark:text-violet-400">Product</h4>
             <ul class="space-y-4">
-              <li><a routerLink="/auth/login" class="text-slate-500 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors text-sm font-medium">For Patients</a></li>
-              <li><a routerLink="/auth/register" class="text-slate-500 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors text-sm font-medium">For Interpreters</a></li>
-              <li><a routerLink="/how-it-works" class="text-slate-500 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors text-sm font-medium">How it Works</a></li>
-              <li><a routerLink="/pricing" class="text-slate-500 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors text-sm font-medium">Pricing</a></li>
+
+              <li>
+                <a routerLink="/interpreters/browse"
+                   class="text-slate-500 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors text-sm font-medium">
+                   Find Interpreters
+                </a>
+              </li>
+
+              <li>
+                <a routerLink="/auth/register"
+                   class="text-slate-500 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors text-sm font-medium">
+                   Sign Up
+                </a>
+              </li>
+
+              <li>
+                <a routerLink="/auth/login"
+                   class="text-slate-500 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors text-sm font-medium">
+                   Sign In
+                </a>
+              </li>
+
+              <li>
+                <a routerLink="/how-it-works"
+                   class="text-slate-500 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors text-sm font-medium">
+                   How it Works
+                </a>
+              </li>
+
             </ul>
           </div>
 
+          <!-- COMPANY SECTION (UNCHANGED VALID LINKS ONLY) -->
           <div class="col-span-1 md:col-span-4 lg:col-span-2">
             <h4 class="font-bold mb-6 text-xs uppercase tracking-widest text-violet-600 dark:text-violet-400">Company</h4>
             <ul class="space-y-4">
-              <li><a routerLink="/about" class="text-slate-500 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors text-sm font-medium">About Us</a></li>
-              <li><a href="mailto:contact@verbrix.com" class="text-slate-500 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors text-sm font-medium">Contact Support</a></li>
-              <li><a routerLink="/careers" class="text-slate-500 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors text-sm font-medium">Careers</a></li>
-              <li><a routerLink="/blog" class="text-slate-500 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors text-sm font-medium">Blog</a></li>
+
+              <li>
+                <a routerLink="/about"
+                   class="text-slate-500 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors text-sm font-medium">
+                   About Us
+                </a>
+              </li>
+
+              <li>
+                <a href="mailto:contact@verbrix.com"
+                   class="text-slate-500 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors text-sm font-medium">
+                   Contact Support
+                </a>
+              </li>
+
             </ul>
           </div>
 
+          <!-- LEGAL SECTION (UNCHANGED, PERFECT) -->
           <div class="col-span-1 md:col-span-4 lg:col-span-2">
             <h4 class="font-bold mb-6 text-xs uppercase tracking-widest text-violet-600 dark:text-violet-400">Legal</h4>
             <ul class="space-y-4">
-              <li><a routerLink="/legal/privacy" class="text-slate-500 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors text-sm font-medium">Privacy Policy</a></li>
-              <li><a routerLink="/legal/terms" class="text-slate-500 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors text-sm font-medium">Terms of Service</a></li>
-              <li><a routerLink="/legal/deletion" class="text-slate-500 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors text-sm font-medium">Data Deletion</a></li>
+
+              <li>
+                <a routerLink="/legal/privacy"
+                   class="text-slate-500 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors text-sm font-medium">
+                   Privacy Policy
+                </a>
+              </li>
+
+              <li>
+                <a routerLink="/legal/terms"
+                   class="text-slate-500 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors text-sm font-medium">
+                   Terms of Service
+                </a>
+              </li>
+
+              <li>
+                <a routerLink="/legal/deletion"
+                   class="text-slate-500 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors text-sm font-medium">
+                   Data Deletion
+                </a>
+              </li>
+
             </ul>
           </div>
 

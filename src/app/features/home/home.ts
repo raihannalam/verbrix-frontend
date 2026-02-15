@@ -1,6 +1,6 @@
 import { Component, inject, ChangeDetectionStrategy, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common'; // Contains CommonModule for basic directives
+import { CommonModule } from '@angular/common'; 
 import { AuthService } from '../../core/auth/auth.service';
 import { UserRole } from '../../core/models/auth.models';
 import { Footer } from '../layout/footer';
@@ -9,7 +9,7 @@ import { Navbar } from "../layout/navbar";
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterLink, Footer, Navbar], // Added RouterLink
+  imports: [CommonModule, RouterLink, Footer, Navbar],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (!isRedirecting) {
@@ -39,13 +39,13 @@ import { Navbar } from "../layout/navbar";
                 </p>
                 
                 <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                  <a routerLink="/interpreters/browse" class="flex items-center justify-center h-12 px-8 rounded-lg bg-violet-600 text-white font-semibold text-base shadow-sm hover:bg-violet-500 transition-all active:scale-95 cursor-pointer">
-                    Find an Interpreter
-                  </a>
-                  <button class="h-12 px-8 rounded-lg bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 font-semibold text-base shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center justify-center gap-2 transition-all">
-                    <i class="ri-play-circle-line text-xl text-slate-400"></i> View Demo
-                  </button>
-                </div>
+
+  <a routerLink="/interpreters/browse"
+     class="flex items-center justify-center h-12 px-8 rounded-lg bg-violet-600 text-white font-semibold">
+     Find an Interpreter
+  </a>
+</div>
+
               </div>
 
               <div class="flex-1 w-full relative lg:h-auto">
@@ -212,13 +212,13 @@ import { Navbar } from "../layout/navbar";
               </div>
 
               <div class="relative bg-slate-50 dark:bg-slate-900/50 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden grid grid-cols-1 lg:grid-cols-2">
-                <div class="border-r border-slate-200 dark:border-slate-800 p-8 lg:p-12 flex items-center justify-center relative overflow-hidden">
+                <div class="border-r border-slate-200 dark:border-slate-800 p-8 lg:p-12 flex items-center justify-center relative overflow-hidden order-1 lg:order-1">
                   <div class="absolute top-0 right-0 w-64 h-64 bg-violet-100 dark:bg-violet-900/20 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
                   <div class="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden transform transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl">
                     <img src="assets/home/airport.jpg" alt="Airport Pickup" class="w-full h-auto object-cover" loading="lazy">
                   </div>
                 </div>
-                <div class="p-8 lg:p-16 flex flex-col justify-center">
+                <div class="p-8 lg:p-16 flex flex-col justify-center order-2 lg:order-2">
                   <div class="w-12 h-12 rounded-xl bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center text-violet-600 dark:text-violet-300 mb-6">
                     <span class="font-bold text-xl">2</span>
                   </div>
@@ -254,8 +254,8 @@ import { Navbar } from "../layout/navbar";
                   </button>
                 </div>
                 
-                <div class="border-l border-slate-200 dark:border-slate-800 p-8 lg:p-16 flex items-center justify-center relative">
-                  <div class="absolute bottom-0 left-0 w-40 h-40 bg-violet-100 dark:bg-violet-900/30 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
+                <div class="bg-slate-50 dark:bg-slate-900/50 border-l border-slate-200 dark:border-slate-800 p-8 lg:p-12 flex items-center justify-center order-1 lg:order-2 relative overflow-hidden">
+                   <div class="absolute bottom-0 left-0 w-40 h-40 bg-violet-100 dark:bg-violet-900/30 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
                   <div class="relative w-full max-w-xs bg-white dark:bg-slate-900 rounded-lg shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] border border-slate-200 dark:border-slate-800 p-6 overflow-hidden transform transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl">
                     <div class="absolute -top-2 left-0 w-full h-4 bg-white dark:bg-slate-900 [mask-image:linear-gradient(45deg,transparent_50%,#000_50%),linear-gradient(-45deg,transparent_50%,#000_50%)] [mask-size:16px_16px] [mask-repeat:repeat-x]"></div>
                     <div class="text-center mb-6">
@@ -281,6 +281,14 @@ import { Navbar } from "../layout/navbar";
 
             </div>
           </div>
+
+<div class="mt-8 flex justify-center">
+  <a routerLink="/how-it-works"
+     class="inline-flex items-center justify-center h-10 px-6 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all cursor-pointer">
+    Learn More About The Process
+  </a>
+</div>
+
         </section>
 
         <section class="py-20 bg-slate-50 dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800">
@@ -326,7 +334,8 @@ import { Navbar } from "../layout/navbar";
         <section id="patients" class="py-24 bg-white dark:bg-slate-950 scroll-mt-16 border-t border-slate-100 dark:border-slate-800">
           <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-                <div class="order-2 lg:order-1">
+                
+                <div class="order-1 lg:order-1">
                   <div class="inline-flex items-center rounded-full bg-blue-50 dark:bg-blue-900/20 px-3 py-1 text-sm font-medium text-blue-700 dark:text-blue-300 mb-6">
                     For Patients
                   </div>
@@ -338,38 +347,38 @@ import { Navbar } from "../layout/navbar";
                   </p>
                   
                   <div class="space-y-6">
-                     <div class="flex gap-4 group">
+                      <div class="flex gap-4 group">
                         <div class="flex-shrink-0 w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
                            <i class="ri-shield-check-line text-xl"></i>
                         </div>
                         <div>
                            <h4 class="text-lg font-bold text-slate-900 dark:text-white">No Exploitation</h4>
                            <p class="text-slate-500 dark:text-slate-400 mt-1">
-                              Connect directly with verified professionals. No random agents or hidden commissions.
+                             Connect directly with verified professionals. No random agents or hidden commissions.
                            </p>
                         </div>
-                     </div>
-                     <div class="flex gap-4 group">
+                      </div>
+                      <div class="flex gap-4 group">
                         <div class="flex-shrink-0 w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
                            <i class="ri-map-pin-user-line text-xl"></i>
                         </div>
                         <div>
                            <h4 class="text-lg font-bold text-slate-900 dark:text-white">End-to-End Support</h4>
                            <p class="text-slate-500 dark:text-slate-400 mt-1">
-                              Your interpreter guides you from your home country, meets you at the airport, and stays until you return.
+                             Your interpreter guides you from your home country, meets you at the airport, and stays until you return.
                            </p>
                         </div>
-                     </div>
+                      </div>
                   </div>
 
-                  <div class="mt-10">
-                     <button (click)="handleGetStarted()" class="h-12 px-8 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-500 transition-colors shadow-lg shadow-blue-600/20 active:scale-95">
+                  <div class="mt-10 flex flex-wrap gap-4">
+                      <button (click)="handleGetStarted()" class="h-12 px-8 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-500 transition-colors shadow-lg shadow-blue-600/20 active:scale-95">
                         Start Your Journey
-                     </button>
+                      </button>
                   </div>
                 </div>
 
-                <div class="order-1 lg:order-2 relative p-8 lg:p-12 flex items-center justify-center overflow-hidden">
+                <div class="order-2 lg:order-2 relative p-8 lg:p-12 flex items-center justify-center overflow-hidden">
                   <div class="absolute top-0 right-0 w-64 h-64 bg-violet-100 dark:bg-violet-900/20 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
                   <div class="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden transform transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl">
                     <img src="assets/home/consultation.jpg" alt="Patient Comfort" class="w-full h-auto object-cover" loading="lazy">
@@ -382,11 +391,12 @@ import { Navbar } from "../layout/navbar";
         <section id="interpreters" class="py-24 relative overflow-hidden bg-slate-50 dark:bg-slate-900/50">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-                <div class="order-1 rounded-xl overflow-hidden">
+                
+                <div class="order-2 lg:order-1 rounded-xl overflow-hidden">
                   <img src="assets/home/interpreter.jpg" alt="Interpreter Growth" class="w-full h-auto object-cover" loading="lazy">
                 </div>
                   
-                <div class="order-2 text-center md:text-left">
+                <div class="order-1 lg:order-2 text-center md:text-left">
                   <div class="inline-flex items-center rounded-full bg-violet-100 dark:bg-violet-500/20 border border-violet-200 dark:border-violet-500/30 px-3 py-1 text-sm font-medium text-violet-700 dark:text-violet-300 mb-6">
                     For Interpreters
                   </div>
@@ -407,6 +417,7 @@ import { Navbar } from "../layout/navbar";
                           <p class="text-sm text-slate-500">Secure escrow settlement.</p>
                       </div>
                   </div>
+
                 </div>
               </div>
             </div>
