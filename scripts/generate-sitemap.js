@@ -32,14 +32,13 @@ ${routes.map(route => `
 
 </urlset>`;
 
-const distPath = path.join(__dirname, '../dist/verbrix-frontend');
-
+const distPath = path.join(__dirname, '../dist/verbrix-frontend/browser');
 
 if (!fs.existsSync(distPath)) {
-  console.error('dist folder missing');
+  console.error('dist/browser folder missing:', distPath);
   process.exit(1);
 }
 
 fs.writeFileSync(path.join(distPath, 'sitemap.xml'), xml);
 
-console.log('sitemap.xml generated');
+console.log('✅ sitemap.xml generated at:', distPath);
