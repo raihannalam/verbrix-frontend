@@ -1,271 +1,251 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Navbar } from '../layout/navbar';
-import { AdminService } from '../../core/services/admin.service';
+import { Router, RouterModule } from '@angular/router';
+import { Navbar } from '../layout/navbar'; // Adjust path as needed
+import { AdminService } from '../../core/services/admin.service'; // Adjust path as needed
+import { InterpreterSummaryResponse } from '../../admin/models/admin.models'; // Adjust path as needed
+
+type AdminView = 'OVERVIEW' | 'APPROVALS' | 'USERS' | 'FINANCIALS';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, Navbar, FormsModule],
+  imports: [CommonModule, Navbar, FormsModule, DatePipe, RouterModule],
   template: `
-    <app-navbar class="fixed top-0 left-0 h-[72px] w-full z-50"></app-navbar>
+    <app-navbar></app-navbar>
 
-    <div class="min-h-screen bg-gray-50 pt-[90px] px-6 pb-12">
-      <div class="max-w-7xl mx-auto space-y-6">
-        
-        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-          <div>
-            <h1 class="text-2xl font-bold text-gray-900">Admin Portal</h1>
-            <p class="text-gray-500 text-sm">Manage interpreter applications and verifications.</p>
-          </div>
-          <div class="flex gap-2 bg-white p-1 rounded-lg shadow-sm border border-gray-200">
-            <button (click)="filterStatus.set('')" 
-                    [class]="filterStatus() === '' ? 'bg-gray-800 text-white' : 'text-gray-600 hover:bg-gray-50'"
-                    class="px-4 py-2 rounded-md text-xs font-bold uppercase tracking-wider transition-all">
-              All
+    <div class="min-h-screen bg-[#f8f9fa] dark:bg-[#0b0c0f] pt-20 flex transition-colors duration-300">
+      
+      <aside class="w-64 bg-white dark:bg-[#181a1f] border-r border-gray-200 dark:border-gray-800 fixed left-0 top-20 bottom-0 z-10 flex flex-col transition-colors duration-300">
+        <div class="p-6">
+          <h2 class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4">Operations</h2>
+          <nav class="space-y-1">
+            <button (click)="currentView.set('OVERVIEW')"
+                    [class]="currentView() === 'OVERVIEW' 
+                      ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300' 
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#1f2229]'"
+                    class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold transition-colors">
+              <i class="ri-dashboard-line text-lg"></i> Overview
             </button>
-            <button (click)="filterStatus.set('PENDING')" 
-                    [class]="filterStatus() === 'PENDING' ? 'bg-amber-500 text-white' : 'text-gray-600 hover:bg-gray-50'"
-                    class="px-4 py-2 rounded-md text-xs font-bold uppercase tracking-wider transition-all">
-              Pending
-            </button>
-            <button (click)="filterStatus.set('VERIFIED')" 
-                    [class]="filterStatus() === 'VERIFIED' ? 'bg-green-600 text-white' : 'text-gray-600 hover:bg-gray-50'"
-                    class="px-4 py-2 rounded-md text-xs font-bold uppercase tracking-wider transition-all">
-              Verified
-            </button>
-          </div>
-        </div>
-
-        <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
-          <table class="w-full text-left border-collapse">
-            <thead class="bg-gray-50 border-b border-gray-200 text-xs uppercase text-gray-500 font-bold tracking-wider">
-              <tr>
-                <th class="px-6 py-4">Interpreter</th>
-                <th class="px-6 py-4">Email</th>
-                <th class="px-6 py-4">Applied Date</th>
-                <th class="px-6 py-4">Status</th>
-                <th class="px-6 py-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100">
-              @if (isLoadingList()) {
-                <tr><td colspan="5" class="p-8 text-center"><div class="animate-spin h-6 w-6 border-2 border-blue-600 rounded-full border-t-transparent mx-auto"></div></td></tr>
-              } @else if (filteredInterpreters().length === 0) {
-                <tr><td colspan="5" class="p-8 text-center text-gray-400">No interpreters found matching criteria.</td></tr>
-              } @else {
-                @for (user of filteredInterpreters(); track user.id) {
-                  <tr class="hover:bg-gray-50/50 transition-colors group">
-                    <td class="px-6 py-4">
-                      <div class="font-bold text-gray-900">{{ user.firstName }} {{ user.lastName }}</div>
-                    </td>
-                    <td class="px-6 py-4 text-sm text-gray-600">{{ user.email }}</td>
-                    <td class="px-6 py-4 text-sm text-gray-500">{{ user.createdAt | date:'mediumDate' }}</td>
-                    <td class="px-6 py-4">
-                      <span [ngClass]="{
-                        'bg-amber-100 text-amber-800': user.status === 'PENDING',
-                        'bg-green-100 text-green-800': user.status === 'VERIFIED',
-                        'bg-red-100 text-red-800': user.status === 'REJECTED',
-                        'bg-blue-100 text-blue-800': user.status === 'CHANGES_REQUESTED'
-                      }" class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide border border-black/5">
-                        {{ user.status.replace('_', ' ') }}
-                      </span>
-                    </td>
-                    <td class="px-6 py-4 text-right">
-                      <button (click)="openReview(user.id)" 
-                              class="text-blue-600 font-bold text-sm hover:underline hover:text-blue-700">
-                        Review
-                      </button>
-                    </td>
-                  </tr>
-                }
+            <button (click)="currentView.set('APPROVALS')"
+                    [class]="currentView() === 'APPROVALS' 
+                      ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300' 
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#1f2229]'"
+                    class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold transition-colors">
+              <i class="ri-user-follow-line text-lg"></i> 
+              Approvals
+              @if (pendingCount() > 0) {
+                <span class="ml-auto bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">{{ pendingCount() }}</span>
               }
-            </tbody>
-          </table>
-        </div>
-
-      </div>
-    </div>
-
-    @if (selectedInterpreter()) {
-      <div class="fixed inset-0 z-[60] flex justify-end">
-        <div (click)="closeReview()" class="absolute inset-0 bg-black/20 backdrop-blur-sm transition-opacity"></div>
-        
-        <div class="relative w-full max-w-2xl bg-white h-full shadow-2xl overflow-y-auto flex flex-col animate-slide-in">
-          
-          <div class="p-6 border-b border-gray-100 flex justify-between items-start bg-white sticky top-0 z-10">
-            <div>
-              <h2 class="text-xl font-bold text-gray-900">Application Review</h2>
-              <p class="text-sm text-gray-500">ID: #{{ selectedInterpreter().id }} • Applied: {{ selectedInterpreter().createdAt | date }}</p>
-            </div>
-            <button (click)="closeReview()" class="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500">
-              <i class="ri-close-line text-2xl"></i>
             </button>
-          </div>
-
-          <div class="p-6 space-y-8 flex-1">
-            
-            <section>
-              <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Identity & Bio</h3>
-              <div class="flex gap-4 items-start">
-                <img [src]="selectedInterpreter().profilePictureUrl || 'assets/placeholder.png'" 
-                     class="h-20 w-20 rounded-xl object-cover bg-gray-100 border border-gray-200 shadow-sm">
-                <div class="flex-1 space-y-2">
-                  <h3 class="text-lg font-bold text-gray-900">{{ selectedInterpreter().firstName }} {{ selectedInterpreter().lastName }}</h3>
-                  <div class="bg-gray-50 p-3 rounded-lg border border-gray-100 text-sm text-gray-700 italic">
-                    "{{ selectedInterpreter().bio }}"
-                  </div>
-                </div>
+            <button (click)="currentView.set('USERS')"
+                    [class]="currentView() === 'USERS' 
+                      ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300' 
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#1f2229]'"
+                    class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold transition-colors">
+              <i class="ri-group-line text-lg"></i> Users & Clients
+            </button>
+            <button (click)="currentView.set('FINANCIALS')"
+                    [class]="currentView() === 'FINANCIALS' 
+                      ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300' 
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#1f2229]'"
+                    class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold transition-colors">
+              <i class="ri-money-dollar-circle-line text-lg"></i> Financials
+            </button>
+          </nav>
+        </div>
+        
+        <div class="mt-auto p-6 border-t border-gray-100 dark:border-gray-800">
+           <div class="bg-gray-50 dark:bg-[#1f2229] rounded-xl p-4 border border-gray-100 dark:border-gray-800">
+              <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">System Health</p>
+              <div class="flex items-center gap-2 mt-1">
+                 <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                 <span class="text-sm font-bold text-gray-900 dark:text-white">Operational</span>
               </div>
-            </section>
+           </div>
+        </div>
+      </aside>
 
-            <section>
-              <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Introduction</h3>
-              <div class="aspect-video bg-gray-900 rounded-xl overflow-hidden relative group shadow-sm border border-gray-200">
-                <a [href]="selectedInterpreter().introVideoUrl" target="_blank" 
-                   class="absolute inset-0 flex flex-col items-center justify-center text-white bg-black/40 hover:bg-black/30 transition-colors">
-                   <div class="h-12 w-12 bg-white/20 backdrop-blur rounded-full flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-                     <i class="ri-play-fill text-2xl"></i>
-                   </div>
-                   <span class="font-bold text-sm">Watch Video</span>
-                </a>
-              </div>
-            </section>
-
-            <section>
-              <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Verification Documents</h3>
-              <div class="flex items-center gap-4 p-4 border border-gray-200 rounded-xl bg-gray-50/50 hover:bg-white transition-colors">
-                <div class="h-10 w-10 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center">
-                    <i class="ri-passport-line text-xl"></i>
-                </div>
-                <div class="flex-1">
-                  <p class="text-sm font-bold text-gray-900">Government ID / Passport</p>
-                  <p class="text-xs text-gray-500">Required for identity verification</p>
-                </div>
-                <a [href]="selectedInterpreter().governmentIdUrl" target="_blank" class="px-3 py-1.5 text-xs font-bold border border-gray-300 rounded-lg hover:bg-gray-50">
-                    View
-                </a>
-              </div>
-            </section>
-
-            <section>
-              <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Certifications</h3>
+      <main class="flex-1 ml-64 p-8 transition-all duration-300">
+        
+        @if (currentView() === 'OVERVIEW') {
+           <div class="space-y-8 animate-fade-in">
+              <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Platform Overview</h1>
               
-              <div class="space-y-3">
-                @for (cert of selectedInterpreter().certifications; track cert.id) {
-                  <div class="p-4 rounded-xl border transition-all"
-                       [ngClass]="{
-                         'border-green-200 bg-green-50/50': cert.status === 'VERIFIED',
-                         'border-red-200 bg-red-50/50': cert.status === 'REJECTED',
-                         'border-gray-200 bg-white': cert.status === 'PENDING'
-                       }">
-                    
-                    <div class="flex justify-between items-start">
-                      <div>
-                        <p class="font-bold text-gray-900 text-sm">{{ cert.name }}</p>
-                        <p class="text-xs text-gray-500">{{ cert.issuingOrganization }} • Expires: {{ cert.expiryDate || 'N/A' }}</p>
-                      </div>
-                      @if (cert.status !== 'PENDING') {
-                          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide border"
-                                [ngClass]="cert.status === 'VERIFIED' ? 'bg-green-100 text-green-700 border-green-200' : 'bg-red-100 text-red-700 border-red-200'">
-                            {{ cert.status }}
-                          </span>
-                      }
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                 <div class="bg-white dark:bg-[#181a1f] p-6 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm transition-colors">
+                    <div class="flex justify-between items-start mb-4">
+                       <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl text-blue-600 dark:text-blue-400"><i class="ri-user-star-line text-xl"></i></div>
+                       <span class="text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded text-xs font-bold">+12%</span>
                     </div>
+                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white">{{ interpreters().length }}</h3>
+                    <p class="text-gray-500 dark:text-gray-400 text-sm">Total Interpreters</p>
+                 </div>
+                 
+                 <div class="bg-white dark:bg-[#181a1f] p-6 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm transition-colors">
+                    <div class="flex justify-between items-start mb-4">
+                       <div class="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-xl text-purple-600 dark:text-purple-400"><i class="ri-hospital-line text-xl"></i></div>
+                       <span class="text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded text-xs font-bold">+5%</span>
+                    </div>
+                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white">856</h3>
+                    <p class="text-gray-500 dark:text-gray-400 text-sm">Registered Clients</p>
+                 </div>
 
-                    <div class="flex items-center gap-2 mt-3 pt-3 border-t border-gray-200/50">
-                      <a [href]="cert.fileUrl" target="_blank" 
-                         class="text-xs font-bold text-gray-600 hover:text-blue-600 flex items-center gap-1">
-                        <i class="ri-attachment-2"></i> View File
-                      </a>
-                      
-                      @if (cert.status === 'PENDING') {
-                        <div class="flex-1 flex justify-end gap-2">
-                            <button (click)="rejectCert(cert.id)" class="px-3 py-1 text-xs font-bold text-red-600 hover:bg-red-50 rounded-md transition-colors">Reject</button>
-                            <button (click)="verifyCert(cert.id)" class="px-3 py-1 text-xs font-bold bg-green-600 text-white hover:bg-green-700 rounded-md shadow-sm transition-colors">Verify</button>
+                 <div class="bg-white dark:bg-[#181a1f] p-6 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm transition-colors">
+                    <div class="flex justify-between items-start mb-4">
+                       <div class="p-3 bg-green-50 dark:bg-green-900/20 rounded-xl text-green-600 dark:text-green-400"><i class="ri-exchange-dollar-line text-xl"></i></div>
+                       <span class="text-gray-400 dark:text-gray-500 text-xs">This Month</span>
+                    </div>
+                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white">$42,500</h3>
+                    <p class="text-gray-500 dark:text-gray-400 text-sm">Platform Revenue</p>
+                 </div>
+              </div>
+
+              <div class="bg-white dark:bg-[#181a1f] border border-gray-200 dark:border-gray-800 rounded-2xl p-6 transition-colors">
+                 <h3 class="font-bold text-gray-900 dark:text-white mb-4">Recent System Activity</h3>
+                 <div class="space-y-4">
+                    <div class="flex items-center gap-4 text-sm border-b border-gray-50 dark:border-gray-800 pb-3">
+                       <span class="w-20 text-gray-400">10:42 AM</span>
+                       <span class="font-bold text-gray-900 dark:text-white">New Client Registration</span>
+                       <span class="text-gray-500 dark:text-gray-400">Dr. Sarah Smith joined the platform.</span>
+                    </div>
+                    <div class="flex items-center gap-4 text-sm border-b border-gray-50 dark:border-gray-800 pb-3">
+                       <span class="w-20 text-gray-400">09:15 AM</span>
+                       <span class="font-bold text-blue-600 dark:text-blue-400">Payout Processed</span>
+                       <span class="text-gray-500 dark:text-gray-400">Weekly payouts initiated for 150 interpreters.</span>
+                    </div>
+                 </div>
+              </div>
+           </div>
+        }
+
+        @else if (currentView() === 'APPROVALS') {
+          <div class="space-y-6 animate-fade-in">
+            <div class="flex justify-between items-center">
+               <div>
+                  <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Application Queue</h1>
+                  <p class="text-gray-500 dark:text-gray-400 text-sm">Review and verify interpreter credentials.</p>
+               </div>
+               
+               <div class="flex bg-white dark:bg-[#181a1f] p-1 rounded-lg border border-gray-200 dark:border-gray-800 shadow-sm">
+                  <button (click)="filterStatus.set('ACTION_REQUIRED')" 
+                          [class]="filterStatus() === 'ACTION_REQUIRED' 
+                            ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 shadow-md' 
+                            : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#1f2229]'"
+                          class="px-4 py-2 rounded-md text-xs font-bold transition-all">
+                     Action Required ({{ pendingCount() }})
+                  </button>
+                  <button (click)="filterStatus.set('VERIFIED')" 
+                          [class]="filterStatus() === 'VERIFIED' 
+                            ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 shadow-md' 
+                            : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#1f2229]'"
+                          class="px-4 py-2 rounded-md text-xs font-bold transition-all">
+                     History / Verified
+                  </button>
+               </div>
+            </div>
+
+            <div class="bg-white dark:bg-[#181a1f] border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-hidden transition-colors">
+              <table class="w-full text-left">
+                <thead class="bg-gray-50 dark:bg-[#1f2229] border-b border-gray-200 dark:border-gray-800 text-xs uppercase text-gray-500 dark:text-gray-400 font-bold tracking-wider">
+                  <tr>
+                    <th class="px-6 py-4">Applicant</th>
+                    <th class="px-6 py-4">Submission Date</th>
+                    <th class="px-6 py-4">Current Status</th>
+                    <th class="px-6 py-4 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                  @for (user of filteredInterpreters(); track user.id) {
+                    <tr class="hover:bg-gray-50 dark:hover:bg-[#252830] transition-colors">
+                      <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
+                           <div class="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center font-bold text-gray-500 dark:text-gray-300">
+                             {{ user.firstName.charAt(0) }}
+                           </div>
+                           <div>
+                              <div class="font-bold text-gray-900 dark:text-white">{{ user.firstName }} {{ user.lastName }}</div>
+                              <div class="text-xs text-gray-500 dark:text-gray-400">{{ user.email }}</div>
+                           </div>
                         </div>
-                      }
-                    </div>
-                  </div>
-                }
-                @if (selectedInterpreter().certifications.length === 0) {
-                    <div class="text-center p-4 border border-dashed border-gray-300 rounded-xl text-gray-400 text-sm">
-                        No certifications uploaded.
-                    </div>
-                }
-              </div>
-            </section>
-
+                      </td>
+                      <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{{ user.createdAt | date:'mediumDate' }}</td>
+                      <td class="px-6 py-4">
+                        @if (user.status === 'PENDING') {
+                           <span class="bg-amber-100 text-amber-800 border border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase">New Application</span>
+                        } @else if (user.status === 'CHANGES_REQUESTED') {
+                           <span class="bg-blue-100 text-blue-800 border border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase">Resubmitted</span>
+                        } @else if (user.status === 'VERIFIED') {
+                           <span class="bg-green-100 text-green-800 border border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase">Verified</span>
+                        } @else if (user.status === 'REJECTED') {
+                           <span class="bg-red-100 text-red-800 border border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase">Rejected</span>
+                        }
+                      </td>
+                      <td class="px-6 py-4 text-right">
+                        <button (click)="navigateToReview(user.id)" 
+                                class="text-blue-600 dark:text-blue-400 font-bold text-sm hover:underline flex items-center gap-1 ml-auto">
+                           Review Application <i class="ri-arrow-right-line"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  }
+                  @if (filteredInterpreters().length === 0) {
+                     <tr><td colspan="4" class="p-12 text-center text-gray-400 dark:text-gray-500">No applications found in this category.</td></tr>
+                  }
+                </tbody>
+              </table>
+            </div>
           </div>
+        }
 
-          <div class="p-6 border-t border-gray-200 bg-gray-50 sticky bottom-0 z-10 space-y-3">
-            @if (selectedInterpreter().status === 'PENDING' || selectedInterpreter().status === 'CHANGES_REQUESTED') {
-              <div class="grid grid-cols-2 gap-3">
-                <button (click)="approveInterpreter()" 
-                        class="w-full py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold shadow-md shadow-green-600/20 transition-all flex items-center justify-center gap-2">
-                  <i class="ri-check-double-line"></i> Approve Application
-                </button>
-                <button (click)="showRejectInput.set(!showRejectInput())" 
-                        class="w-full py-3 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-xl font-bold transition-all">
-                  Request Changes
-                </button>
-              </div>
+        @else if (currentView() === 'USERS') {
+           <div class="flex flex-col items-center justify-center h-[60vh] text-gray-400 dark:text-gray-600 animate-fade-in">
+              <i class="ri-tools-line text-4xl mb-4"></i>
+              <h2 class="text-xl font-bold text-gray-900 dark:text-white">User Management</h2>
+              <p>Module coming soon.</p>
+           </div>
+        }
+        @else if (currentView() === 'FINANCIALS') {
+           <div class="flex flex-col items-center justify-center h-[60vh] text-gray-400 dark:text-gray-600 animate-fade-in">
+              <i class="ri-bank-card-line text-4xl mb-4"></i>
+              <h2 class="text-xl font-bold text-gray-900 dark:text-white">Financial Reports</h2>
+              <p>Module coming soon.</p>
+           </div>
+        }
 
-              @if (showRejectInput()) {
-                <div class="mt-3 animate-fade-in bg-white p-3 rounded-xl border border-gray-200 shadow-sm">
-                  <label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Reason for changes</label>
-                  <textarea [(ngModel)]="rejectReason" 
-                            class="w-full p-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none min-h-[80px]"
-                            placeholder="e.g., Profile photo is blurry, Certificate 1 is expired..."></textarea>
-                  <div class="flex justify-end gap-2 mt-2">
-                    <button (click)="showRejectInput.set(false)" class="text-xs font-bold text-gray-500 hover:text-gray-700 px-2">Cancel</button>
-                    <button (click)="requestChanges()" 
-                            [disabled]="!rejectReason.trim()"
-                            class="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 disabled:opacity-50">
-                      Send Request
-                    </button>
-                  </div>
-                </div>
-              }
-            } @else {
-              <div class="text-center p-3 bg-white border border-gray-200 rounded-xl shadow-sm">
-                <p class="text-sm font-medium text-gray-600">
-                    Application Status: <span class="font-bold text-gray-900">{{ selectedInterpreter().status }}</span>
-                </p>
-              </div>
-            }
-          </div>
-
-        </div>
-      </div>
-    }
+      </main>
+    </div>
   `,
   styles: [`
-    .animate-slide-in { animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
-    @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
-    .animate-fade-in { animation: fadeIn 0.2s ease-out; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-fade-in { animation: fadeIn 0.4s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   `]
 })
 export class AdminDashboard implements OnInit {
   private adminService = inject(AdminService);
+  private router = inject(Router);
 
-  // State
-  interpreters = signal<any[]>([]);
-  filterStatus = signal<string>(''); // '' | 'PENDING' | 'VERIFIED'
-  isLoadingList = signal(true);
+  // View State
+  currentView = signal<AdminView>('OVERVIEW');
   
-  // Selection
-  selectedInterpreter = signal<any>(null);
-  showRejectInput = signal(false);
-  rejectReason = '';
+  // Data State
+  interpreters = signal<InterpreterSummaryResponse[]>([]);
+  filterStatus = signal<'ACTION_REQUIRED' | 'VERIFIED'>('ACTION_REQUIRED');
 
-  // Computed
+  // Computed Values
+  pendingCount = computed(() => 
+    this.interpreters().filter(i => i.status === 'PENDING' || i.status === 'CHANGES_REQUESTED').length
+  );
+
   filteredInterpreters = computed(() => {
-    const status = this.filterStatus();
-    if (!status) return this.interpreters();
-    return this.interpreters().filter(i => i.status === status);
+    const list = this.interpreters();
+    if (this.filterStatus() === 'ACTION_REQUIRED') {
+        // Group Pending AND Changes Requested together
+        return list.filter(i => i.status === 'PENDING' || i.status === 'CHANGES_REQUESTED');
+    } else {
+        return list.filter(i => i.status === 'VERIFIED' || i.status === 'REJECTED');
+    }
   });
 
   ngOnInit() {
@@ -273,87 +253,13 @@ export class AdminDashboard implements OnInit {
   }
 
   loadData() {
-    this.isLoadingList.set(true);
     this.adminService.getAllInterpreters().subscribe({
-      next: (data) => {
-        this.interpreters.set(data);
-        this.isLoadingList.set(false);
-      },
-      error: () => this.isLoadingList.set(false)
+      next: (data) => this.interpreters.set(data),
+      error: (e) => console.error('Load failed', e)
     });
   }
 
-  openReview(id: number) {
-    this.adminService.getInterpreterDetails(id).subscribe(details => {
-      this.selectedInterpreter.set(details);
-      this.showRejectInput.set(false);
-      this.rejectReason = '';
-    });
-  }
-
-  closeReview() {
-    this.selectedInterpreter.set(null);
-  }
-
-  // --- ACTIONS ---
-
-  approveInterpreter() {
-    // Validation check: Are all certs verified?
-    const pendingCerts = this.selectedInterpreter().certifications.some((c: any) => c.status !== 'VERIFIED');
-    if (pendingCerts) {
-        if (!confirm('Warning: Some certifications are not verified. Approve anyway?')) return;
-    } else {
-        if (!confirm('Confirm approval? This will grant the user interpreter access.')) return;
-    }
-
-    this.adminService.approveInterpreter(this.selectedInterpreter().id).subscribe({
-      next: () => {
-        alert('Interpreter Verified Successfully');
-        this.closeReview();
-        this.loadData(); 
-      },
-      error: (err) => alert(err.error?.message || 'Failed to approve')
-    });
-  }
-
-  requestChanges() {
-    if (!this.rejectReason.trim()) return;
-
-    this.adminService.requestChanges(this.selectedInterpreter().id, this.rejectReason).subscribe({
-      next: () => {
-        alert('Change request sent to user.');
-        this.closeReview();
-        this.loadData();
-      },
-      error: (err) => alert('Failed to send request')
-    });
-  }
-
-  verifyCert(certId: number) {
-    this.adminService.verifyCertification(certId).subscribe({
-      next: () => {
-        // Optimistic update
-        const current = this.selectedInterpreter();
-        const updatedCerts = current.certifications.map((c: any) => 
-          c.id === certId ? { ...c, status: 'VERIFIED' } : c
-        );
-        this.selectedInterpreter.set({ ...current, certifications: updatedCerts });
-      }
-    });
-  }
-
-  rejectCert(certId: number) {
-    const reason = prompt("Enter reason for rejection:");
-    if (!reason) return;
-
-    this.adminService.rejectCertification(certId, reason).subscribe({
-      next: () => {
-        const current = this.selectedInterpreter();
-        const updatedCerts = current.certifications.map((c: any) => 
-          c.id === certId ? { ...c, status: 'REJECTED' } : c
-        );
-        this.selectedInterpreter.set({ ...current, certifications: updatedCerts });
-      }
-    });
+  navigateToReview(id: number) {
+    this.router.navigate(['/dashboard/admin/interpreters', id]);
   }
 }

@@ -2,50 +2,50 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
-
-export interface AdminRemarkRequest {
-  message: string;
-}
+import { 
+  InterpreterSummaryResponse, 
+  InterpreterDetailResponse, 
+  AdminRemarkRequest 
+} from '../../admin/models/admin.models';
 
 @Injectable({ providedIn: 'root' })
 export class AdminService {
   private http = inject(HttpClient);
-  // Matches @RequestMapping("/api/v1/admin/interpreters")
   private apiUrl = `${environment.apiUrl}/admin/interpreters`;
 
-  // Get list of interpreters (optional filter by status)
-  getAllInterpreters(status?: string): Observable<any[]> {
+  // --- List View ---
+  getAllInterpreters(status?: string): Observable<InterpreterSummaryResponse[]> {
     const url = status ? `${this.apiUrl}?status=${status}` : this.apiUrl;
-    return this.http.get<any[]>(url);
+    return this.http.get<InterpreterSummaryResponse[]>(url);
   }
 
-  // Get full details
-  getInterpreterDetails(id: number): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/${id}`);
+  // --- Detail View ---
+  getInterpreterDetails(id: number): Observable<InterpreterDetailResponse> {
+    return this.http.get<InterpreterDetailResponse>(`${this.apiUrl}/${id}`);
   }
 
-  // Approve Application
+  // --- Application Actions ---
   approveInterpreter(id: number): Observable<any> {
     return this.http.post(`${this.apiUrl}/${id}/approve`, {});
   }
 
-  // Request Changes (Reject with feedback)
   requestChanges(id: number, message: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/${id}/request-changes`, { message });
+    const body: AdminRemarkRequest = { message };
+    return this.http.post(`${this.apiUrl}/${id}/request-changes`, body);
   }
 
-  // Permanently Reject
   rejectPermanently(id: number, message: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/${id}/reject`, { message });
+    const body: AdminRemarkRequest = { message };
+    return this.http.post(`${this.apiUrl}/${id}/reject`, body);
   }
 
-  // Verify a specific certification doc
+  // --- Document Verification ---
   verifyCertification(certId: number): Observable<any> {
     return this.http.patch(`${this.apiUrl}/certifications/${certId}/verify`, {});
   }
 
-  // Reject a certification doc
   rejectCertification(certId: number, message: string): Observable<any> {
-    return this.http.patch(`${this.apiUrl}/certifications/${certId}/reject`, { message });
+    const body: AdminRemarkRequest = { message };
+    return this.http.patch(`${this.apiUrl}/certifications/${certId}/reject`, body);
   }
 }

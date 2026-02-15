@@ -4,7 +4,6 @@ import { roleGuard } from './core/auth/role.guard';
 import { UserRole } from './core/models/auth.models';
 import { InterpreterApplyComponent } from './features/components/app-apply-interpreter';
 
-
 export const routes: Routes = [
   // 1. ROOT & PUBLIC ROUTES
   { 
@@ -13,7 +12,6 @@ export const routes: Routes = [
     loadComponent: () => import('./features/home/home').then(m => m.Home),
     title: 'Verbrix - Healthcare Translation' 
   },
-
 
   // 2. AUTHENTICATION
   {
@@ -57,9 +55,7 @@ export const routes: Routes = [
     title: 'Update Application | Verbrix'
   },
 
-  // -----------------------------------------------------------
-  // 4. NEW: DISCOVERY & PROFILES (Accessible by Clients)
-  // -----------------------------------------------------------
+  // 4. DISCOVERY & PROFILES
   {
     path: 'interpreters/find',
     loadComponent: () => import('./features/interpreters/find-interpreter')
@@ -73,12 +69,9 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
 
-  // -----------------------------------------------------------
-  // 5. NEW: MESSAGING (Standalone Page)
-  // -----------------------------------------------------------
+  // 5. MESSAGING
   {
     path: 'messages',
-    // 🔴 Point this to the new ChatLayoutComponent (Full Page)
     loadComponent: () => import('../app/features/chat/chat-page').
       then(m => m.ChatPageComponent),
     canActivate: [authGuard],
@@ -101,7 +94,6 @@ export const routes: Routes = [
         children: [
           { 
             path: 'home', 
-            // 🔴 Ensure this points to the updated ClientDashboard
             loadComponent: () => import('./features/dashboards/client-dashboard').then(m => m.ClientDashboard),
             title: 'My Dashboard | Verbrix'
           },
@@ -125,6 +117,7 @@ export const routes: Routes = [
       },
 
       // 🟥 ADMIN ZONE
+      // Restored strictly to your requested structure
       {
         path: 'admin',
         canActivate: [roleGuard],
@@ -135,6 +128,13 @@ export const routes: Routes = [
             loadComponent: () => import('./features/dashboards/admin-dashboard').then(m => m.AdminDashboard),
             title: 'Admin Console | Verbrix'
           },
+          // NEW: Detail View nested here so it's protected by Admin Guard
+          {
+            path: 'interpreters/:id',
+            loadComponent: () => import('./admin/interpreter-details-admin').then(m => m.InterpreterDetailComponent),
+            title: 'Application Review | Verbrix'
+          },
+          // Redirects dashboard/admin -> dashboard/admin/home
           { path: '', redirectTo: 'home', pathMatch: 'full' }
         ]
       }
