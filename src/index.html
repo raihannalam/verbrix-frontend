@@ -49,48 +49,63 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500&display=swap" rel="stylesheet">
 
   <script type="application/ld+json">
-    [
-      {
-        "@context": "https://schema.org",
-        "@type": "Organization",
-        "name": "Verbrix",
-        "url": "https://verbrix.com",
-        "logo": "https://verbrix.com/assets/images/logo.png",
-        "description": "Platform connecting international patients with verified medical interpreters for medical tourism in India.",
-        "sameAs": [
-          "https://twitter.com/verbrixglobal",
-          "https://linkedin.com/company/verbrixglobal",
-          "https://instagram.com/verbrixglobal",
-          "https://facebook.com/verbrixglobal",
-        ],
-        "contactPoint": {
-          "@type": "ContactPoint",
-          "email": "contact@verbrix.com",
-          "contactType": "customer support",
-          "areaServed": "Global",
-          "availableLanguage": ["English", "Arabic", "Russian", "French"]
-        }
-      },
-      {
-        "@context": "https://schema.org",
-        "@type": "Service",
-        "serviceType": "Medical Interpretation",
-        "provider": {
-          "@type": "Organization",
-          "name": "Verbrix"
-        },
-        "areaServed": {
-          "@type": "Country",
-          "name": "India"
-        },
-        "description": "Certified medical interpreters assisting patients traveling to India for healthcare treatment.",
-        "audience": {
-          "@type": "Audience",
-          "audienceType": "Medical Tourists"
-        }
-      }
-    ]
-  </script>
+[
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Verbrix",
+    "url": "https://verbrix.com",
+    "logo": "https://verbrix.com/assets/images/logo.png",
+    "description": "Platform connecting international patients with verified medical interpreters for medical tourism in India.",
+    "sameAs": [
+      "https://twitter.com/verbrixglobal",
+      "https://linkedin.com/company/verbrixglobal",
+      "https://instagram.com/verbrixglobal",
+      "https://facebook.com/verbrixglobal"
+    ],
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "email": "contact@verbrix.com",
+      "contactType": "customer support",
+      "areaServed": "Global",
+      "availableLanguage": ["English", "Arabic", "Russian", "French"]
+    }
+  },
+
+  {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "serviceType": "Medical Interpretation",
+    "provider": {
+      "@type": "Organization",
+      "name": "Verbrix"
+    },
+    "areaServed": {
+      "@type": "Country",
+      "name": "India"
+    },
+    "description": "Certified medical interpreters assisting patients traveling to India for healthcare treatment.",
+    "audience": {
+      "@type": "Audience",
+      "audienceType": "Medical Tourists"
+    }
+  },
+
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Verbrix",
+    "url": "https://verbrix.com",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://verbrix.com/interpreters/browse",
+      "query-input": "required name=search_term_string"
+    }
+  }
+
+]
+</script>
+
 </head>
 
 <body

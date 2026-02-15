@@ -32,7 +32,8 @@ ${routes.map(route => `
 
 </urlset>`;
 
-const distPath = path.join(__dirname, '../dist/verbrix/browser');
+const distPath = path.join(__dirname, '../dist/verbrix-frontend');
+
 
 if (!fs.existsSync(distPath)) {
   console.error('dist folder missing');
