@@ -4,6 +4,7 @@ import { roleGuard } from './core/auth/role.guard';
 import { UserRole } from './core/models/auth.models';
 import { InterpreterApplyComponent } from './features/components/app-apply-interpreter';
 
+
 export const routes: Routes = [
   // 1. ROOT & PUBLIC ROUTES
   { 
@@ -12,6 +13,7 @@ export const routes: Routes = [
     loadComponent: () => import('./features/home/home').then(m => m.Home),
     title: 'Verbrix - Healthcare Translation' 
   },
+
 
   // 2. AUTHENTICATION
   {

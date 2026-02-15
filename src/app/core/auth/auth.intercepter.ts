@@ -20,18 +20,27 @@ export class AuthInterceptor implements HttpInterceptor {
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     const token = this.authService.getAccessToken();
 
+    // OPTIONAL: Prevent attaching tokens to auth endpoints to avoid 401s completely
+    // const isAuthEndpoint = request.url.includes('/auth/');
+    // if (token && !isAuthEndpoint) { ... }
+    
+    // Current logic (Attaches token to everything if it exists)
     if (token) {
       request = this.addToken(request, token);
     }
 
     return next.handle(request).pipe(
       catchError(error => {
-        // 🟢 FIX 1: Ignore Auth endpoints
-        const isAuthRequest = request.url.includes('auth/login') || request.url.includes('auth/refresh-token');
+        // 🟢 FIX 1: EXCLUDE ALL AUTH ENDPOINTS
+        // We must include 'social-login', 'register', etc. so the interceptor 
+        // doesn't try to refresh a token when we are actually trying to log in.
+        const isAuthRequest = 
+            request.url.includes('auth/login') || 
+            request.url.includes('auth/social-login') || 
+            request.url.includes('auth/register') || 
+            request.url.includes('auth/refresh-token');
         
-        // 🟢 FIX 2: Ignore the Status endpoint. 
-        // If this returns 401 (e.g. slight delay in token), we don't want to log the user out.
-        // We just want the dashboard to treat it as "Not Applied Yet" (null).
+        // 🟢 FIX 2: Ignore the Status endpoint
         const isStatusRequest = request.url.includes('/interpreters/me/status');
 
         if (error instanceof HttpErrorResponse && error.status === 401 && !isAuthRequest && !isStatusRequest) {
@@ -67,9 +76,7 @@ export class AuthInterceptor implements HttpInterceptor {
           
           // Debugging Log
           console.error('Auto-Logout triggered by 401 from URL:', request.url); 
-          console.error('Full Error:', err);
-
-          // Logout only if refresh fails
+          
           this.authService.logout();
           return throwError(() => err);
         })
