@@ -2,10 +2,12 @@
 <html lang="en">
 
 <head>
+
   <base href="/">
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+  <!-- Primary SEO -->
   <title>Medical Interpreters for Medical Tourism in India | Verbrix</title>
 
   <meta name="description"
@@ -18,15 +20,15 @@
   <link rel="canonical" href="https://verbrix.com/" />
   <meta name="theme-color" content="#7c3aed" />
 
-  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <!-- Favicons -->
+  <link rel="icon" href="favicon.ico" />
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
-
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
-
   <link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png" />
   <link rel="icon" type="image/png" sizes="512x512" href="android-chrome-512x512.png" />
 
+  <!-- Open Graph -->
   <meta property="og:site_name" content="Verbrix" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://verbrix.com/" />
@@ -35,19 +37,24 @@
     content="Traveling to India for treatment? Connect with certified medical interpreters for secure, real-time communication." />
   <meta property="og:image" content="https://verbrix.com/assets/images/logo.png" />
 
+  <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:site" content="@verbrixglobal" />
   <meta name="twitter:title" content="Verbrix - Trusted Medical Interpreters" />
   <meta name="twitter:description" content="Bridging the language gap for medical tourists in India." />
   <meta name="twitter:image" content="https://verbrix.com/assets/images/logo.png" />
 
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
     rel="stylesheet" />
-  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css"
+    rel="stylesheet" />
 
+  <!-- Structured Data (VALID JSON) -->
   <script type="application/ld+json">
 [
   {
@@ -68,10 +75,14 @@
       "email": "contact@verbrix.com",
       "contactType": "customer support",
       "areaServed": "Global",
-      "availableLanguage": ["English", "Arabic", "Russian", "French"]
+      "availableLanguage": [
+        "English",
+        "Arabic",
+        "Russian",
+        "French"
+      ]
     }
   },
-
   {
     "@context": "https://schema.org",
     "@type": "Service",
@@ -90,7 +101,6 @@
       "audienceType": "Medical Tourists"
     }
   },
-
   {
     "@context": "https://schema.org",
     "@type": "WebSite",
@@ -98,11 +108,10 @@
     "url": "https://verbrix.com",
     "potentialAction": {
       "@type": "SearchAction",
-      "target": "https://verbrix.com/interpreters/browse",
+      "target": "https://verbrix.com/interpreters/browse?q={search_term_string}",
       "query-input": "required name=search_term_string"
     }
   }
-
 ]
 </script>
 
@@ -111,17 +120,20 @@
 <body
   class="bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-50 font-sans antialiased overflow-x-hidden selection:bg-violet-100 selection:text-violet-900">
 
+  <!-- Angular root -->
   <app-root>
 
-    <!-- SEO fallback content for crawlers and no-JS environments -->
+    <!-- SEO fallback content -->
     <header>
       <h1>Medical Interpreters for Medical Tourism in India | Verbrix</h1>
     </header>
 
     <main>
+
       <p>
         Verbrix connects international patients with certified medical interpreters
-        for secure, real-time healthcare communication and on-ground support in India.
+        for secure healthcare communication, real-time translation, and complete
+        support during medical treatment in India.
       </p>
 
       <nav>
@@ -129,7 +141,7 @@
           <li><a href="/auth/login">Sign In</a></li>
           <li><a href="/auth/register">Sign Up</a></li>
           <li><a href="/how-it-works">How It Works</a></li>
-          <li><a href="/interpreters/browse">Find Interpreters</a></li>
+          <li><a href="/interpreters/browse">Find Medical Interpreters</a></li>
           <li><a href="/about">About Verbrix</a></li>
         </ul>
       </nav>
@@ -139,6 +151,5 @@
   </app-root>
 
 </body>
-
 
 </html>
