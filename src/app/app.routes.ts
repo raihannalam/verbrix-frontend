@@ -179,9 +179,13 @@ export const routes: Routes = [
 
 
   // 7. GLOBAL FALLBACK
-  { 
-    path: '**', 
-    redirectTo: '' 
-  }
+{
+  path: '**',
+  loadComponent: () =>
+    import('../app/features/errors/not-found')
+      .then(m => m.NotFoundComponent),
+  title: 'Page Not Found | Verbrix'
+}
+
 
 ];
