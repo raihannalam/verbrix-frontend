@@ -5,9 +5,7 @@ import {
   signal,
   afterNextRender,
   DestroyRef,
-  NgZone,
-  ElementRef,
-  viewChild
+  NgZone
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
@@ -22,14 +20,19 @@ interface NavLink {
   label: string;
   route?: string;
   fragment?: string;
+  queryParams?: Record<string, any>; // Added queryParams support
   isDisabled?: boolean;
 }
 
+// NOTE: Ensure '/dashboard/admin' matches the actual route to AdminDashboard in your app.routes.ts
+const ADMIN_BASE_ROUTE = '/dashboard/admin';
+
 const NAV_CONFIG: Record<string, NavLink[]> = {
   [UserRole.ADMIN]: [
-    { label: 'Overview', route: '/dashboard/admin/home' },
-    { label: 'Users', isDisabled: true },
-    { label: 'Reports', isDisabled: true },
+    { label: 'Overview', route: '/dashboard/admin/home' }, 
+    { label: 'Approvals', route: '/dashboard/admin/approvals' },
+    { label: 'Users', route: '/dashboard/admin/users' },
+    { label: 'Financials', route: '/dashboard/admin/financials' },
     { label: 'Messages', route: '/messages' },
   ],
   [UserRole.INTERPRETER]: [
@@ -85,7 +88,9 @@ const NAV_CONFIG: Record<string, NavLink[]> = {
               </span>
             } @else if (link.route) {
               <a [routerLink]="link.route"
+                 [queryParams]="link.queryParams"
                  routerLinkActive="text-blue-600 bg-blue-50 dark:bg-blue-900/20 font-semibold"
+                 [routerLinkActiveOptions]="link.queryParams ? { matrixParams: 'ignored', queryParams: 'exact', paths: 'subset', fragment: 'ignored' } : { exact: false }"
                  class="px-4 py-2 rounded-lg text-sm font-medium text-[var(--text-muted)] transition-all hover:text-blue-600 hover:bg-[var(--bg-surface)] cursor-pointer">
                 {{ link.label }}
               </a>
@@ -123,11 +128,11 @@ const NAV_CONFIG: Record<string, NavLink[]> = {
             <div class="hidden md:flex items-center gap-2 flex-nowrap">
               <a routerLink="/auth/login" 
                  class="px-5 py-2 text-sm font-semibold text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors cursor-pointer rounded-full hover:bg-[var(--bg-surface)]">
-                  Sign In
+                 Sign In
               </a>
               <a routerLink="/auth/register" 
                  class="inline-flex items-center justify-center rounded-full bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 text-sm font-semibold shadow-lg shadow-blue-600/25 cursor-pointer whitespace-nowrap transition-transform hover:scale-105 active:scale-95">
-                  Get Started
+                 Get Started
               </a>
             </div>
           }
@@ -174,8 +179,11 @@ const NAV_CONFIG: Record<string, NavLink[]> = {
               {{ link.label }}
             </span>
           } @else if (link.route) {
-            <a [routerLink]="link.route" (click)="closeMenu()"
+            <a [routerLink]="link.route" 
+               [queryParams]="link.queryParams"
+               (click)="closeMenu()"
                routerLinkActive="bg-blue-50 dark:bg-blue-900/20 text-blue-600 font-bold"
+               [routerLinkActiveOptions]="link.queryParams ? { matrixParams: 'ignored', queryParams: 'exact', paths: 'subset', fragment: 'ignored' } : { exact: false }"
                class="flex items-center px-4 py-3 rounded-xl text-base font-semibold text-[var(--text-muted)] hover:bg-[var(--bg-surface)] cursor-pointer">
               {{ link.label }}
             </a>
@@ -212,7 +220,7 @@ export class Navbar {
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
   private document = inject(DOCUMENT);
-  private ngZone = inject(NgZone); // Added for performance
+  private ngZone = inject(NgZone);
 
   isLoggedIn = this.auth.isLoggedIn;
   
@@ -250,7 +258,7 @@ export class Navbar {
   dashboardRoute = computed(() => {
     const role = this.auth.currentUser()?.role;
     if (!role) return '/';
-    if (role === UserRole.ADMIN) return '/dashboard/admin/home';
+    if (role === UserRole.ADMIN) return '/dashboard/admin'; // Updated to match likely admin route
     if (role === UserRole.INTERPRETER) return '/dashboard/interpreter/home';
     if (role === UserRole.CLIENT) return '/dashboard/client/home';
     return '/';
@@ -260,15 +268,13 @@ export class Navbar {
     afterNextRender(() => {
       this.checkScroll();
       
-      // Optimization: Run scroll listener outside Angular zone to prevent change detection spam
       this.ngZone.runOutsideAngular(() => {
         fromEvent(window, 'scroll', { passive: true })
           .pipe(
-            throttleTime(50), // Optimization: Throttle scroll events
+            throttleTime(50),
             takeUntilDestroyed(this.destroyRef)
           )
           .subscribe(() => {
-            // Only re-enter the zone if the state actually changes
             this.ngZone.run(() => this.checkScroll());
           });
       });
@@ -280,8 +286,7 @@ export class Navbar {
   }
 
   private checkScroll() {
-    const scrolled = window.scrollY > 0; // Changed from 10 to 0 for immediate effect on stickiness
-    // Only update signal if value is different
+    const scrolled = window.scrollY > 0;
     if (this.isScrolled() !== scrolled) {
       this.isScrolled.set(scrolled);
     }
@@ -332,7 +337,7 @@ export class Navbar {
   private doScroll(id: string) {
     const el = this.document.getElementById(id);
     if (!el) return;
-    const headerHeight = 64; // Fixed 16 (4rem) = 64px
+    const headerHeight = 64; 
     const offset = el.getBoundingClientRect().top + window.scrollY - headerHeight;
     window.scrollTo({ top: offset, behavior: 'smooth' });
   }

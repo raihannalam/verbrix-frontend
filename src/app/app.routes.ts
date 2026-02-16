@@ -149,29 +149,15 @@ export const routes: Routes = [
       },
 
 
-      // ADMIN
+      // -------------------------------------------------------
+      // ADMIN (USING SEPARATE ROUTE FILE)
+      // -------------------------------------------------------
       {
         path: 'admin',
         canActivate: [roleGuard],
         data: { expectedRoles: [UserRole.ADMIN] },
-        children: [
-
-          {
-            path: 'home',
-            loadComponent: () => import('./features/dashboards/admin-dashboard')
-              .then(m => m.AdminDashboard),
-            title: 'Admin Dashboard | Verbrix'
-          },
-
-          {
-            path: 'interpreters/:id',
-            loadComponent: () => import('./admin/interpreter-details-admin')
-              .then(m => m.InterpreterDetailComponent),
-            title: 'Interpreter Application Review | Verbrix'
-          },
-
-          { path: '', redirectTo: 'home', pathMatch: 'full' }
-        ]
+        // Loads the ADMIN_ROUTES array from admin.routes.ts
+        loadChildren: () => import('./admin/admin.routes').then(m => m.ADMIN_ROUTES)
       }
 
     ]
@@ -186,6 +172,5 @@ export const routes: Routes = [
         .then(m => m.NotFoundComponent),
     title: 'Page Not Found | Verbrix'
   }
-
 
 ];
