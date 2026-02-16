@@ -7,6 +7,7 @@ const routes = [
   '',
   '/auth/login',
   '/auth/register',
+  '/auth/password-reset',
   '/how-it-works',
   '/interpreters/browse',
   '/about',
