@@ -1,4 +1,5 @@
 import { Component, inject, signal, OnDestroy } from '@angular/core';
+import { Meta } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -153,6 +154,8 @@ import { EmailRequest, PasswordResetRequest, OtpVerificationResponse } from '../
   `]
 })
 export class PasswordReset implements OnDestroy {
+
+  private meta = inject(Meta);
   private fb = inject(FormBuilder);
   private auth = inject(AuthService);
 
@@ -282,7 +285,23 @@ export class PasswordReset implements OnDestroy {
     this.successMessage.set(null);
   }
 
-  ngOnDestroy() {
-    if (this.timerRef) clearInterval(this.timerRef);
+  ngOnInit() {
+
+  this.meta.updateTag({
+    name: 'robots',
+    content: 'noindex, nofollow'
+  });
+
+}
+
+ngOnDestroy() {
+
+  if (this.timerRef) {
+    clearInterval(this.timerRef);
   }
+
+  this.meta.removeTag('name="robots" content="noindex, nofollow"');
+
+}
+
 }
