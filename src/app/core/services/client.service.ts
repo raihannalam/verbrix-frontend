@@ -7,7 +7,7 @@ import { environment } from '../../../environments/environment';
 
 export interface ConnectRequest {
   // FIXED: Matches Java 'private Long interpreterProfileId;'
-  interpreterProfileId: number; 
+  interpreterProfileId: number;
   initialMessage: string;
 }
 
@@ -23,8 +23,9 @@ export interface InterpreterProfile {
   bio: string;
   profilePictureUrl?: string;
   introVideoUrl?: string;
-  experienceYears?: number;
-  consultationFees?: number;
+  experienceYears: number;
+  experienceMonths: number;
+  consultationFees: number;
   consultationFee?: number;
   specializations: string[];
   languages: LanguageAbility[];
@@ -32,6 +33,7 @@ export interface InterpreterProfile {
   ratingCount: number;
   online: boolean;
   available: boolean;
+  lastSeenAt?: string;
 }
 
 @Injectable({

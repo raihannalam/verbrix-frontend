@@ -8,9 +8,9 @@ import { HowItWorksComponent } from './features/home/how-it-works';
 export const routes: Routes = [
 
   // 1. ROOT & PUBLIC ROUTES
-  { 
-    path: '', 
-    pathMatch: 'full', 
+  {
+    path: '',
+    pathMatch: 'full',
     loadComponent: () => import('./features/home/home').then(m => m.Home),
     title: 'Medical Interpreters in India | Verbrix'
   },
@@ -46,7 +46,7 @@ export const routes: Routes = [
   },
 
   {
-    path: 'interpreters/browse', 
+    path: 'interpreters/browse',
     loadComponent: () => import('./features/public/public-interpreters')
       .then(m => m.FindInterpreterComponent),
     title: 'Find Medical Interpreters in India | Verbrix'
@@ -61,15 +61,15 @@ export const routes: Routes = [
 
 
   // 3. INTERPRETER APPLICATION FLOW
-  { 
-    path: 'interpreters/apply', 
+  {
+    path: 'interpreters/apply',
     component: InterpreterApplyComponent,
     canActivate: [authGuard],
     title: 'Apply as Medical Interpreter | Verbrix'
   },
 
-  { 
-    path: 'interpreters/re-apply', 
+  {
+    path: 'interpreters/re-apply',
     component: InterpreterApplyComponent,
     canActivate: [authGuard],
     title: 'Update Interpreter Application | Verbrix'
@@ -112,17 +112,17 @@ export const routes: Routes = [
 
   {
     path: 'dashboard',
-    canActivate: [authGuard], 
+    canActivate: [authGuard],
     children: [
 
       // CLIENT
       {
         path: 'client',
         canActivate: [roleGuard],
-        data: { expectedRoles: [UserRole.CLIENT] }, 
+        data: { expectedRoles: [UserRole.CLIENT] },
         children: [
-          { 
-            path: 'home', 
+          {
+            path: 'home',
             loadComponent: () => import('./features/dashboards/client-dashboard')
               .then(m => m.ClientDashboard),
             title: 'Client Dashboard | Verbrix'
@@ -138,8 +138,8 @@ export const routes: Routes = [
         canActivate: [roleGuard],
         data: { expectedRoles: [UserRole.INTERPRETER] },
         children: [
-          { 
-            path: 'home', 
+          {
+            path: 'home',
             loadComponent: () => import('./features/dashboards/interpreter-dashboard')
               .then(m => m.InterpreterDashboard),
             title: 'Interpreter Dashboard | Verbrix'
@@ -156,8 +156,8 @@ export const routes: Routes = [
         data: { expectedRoles: [UserRole.ADMIN] },
         children: [
 
-          { 
-            path: 'home', 
+          {
+            path: 'home',
             loadComponent: () => import('./features/dashboards/admin-dashboard')
               .then(m => m.AdminDashboard),
             title: 'Admin Dashboard | Verbrix'
@@ -179,13 +179,13 @@ export const routes: Routes = [
 
 
   // 7. GLOBAL FALLBACK
-{
-  path: '**',
-  loadComponent: () =>
-    import('../app/features/errors/not-found')
-      .then(m => m.NotFoundComponent),
-  title: 'Page Not Found | Verbrix'
-}
+  {
+    path: '**',
+    loadComponent: () =>
+      import('../app/features/errors/not-found')
+        .then(m => m.NotFoundComponent),
+    title: 'Page Not Found | Verbrix'
+  }
 
 
 ];
