@@ -20,12 +20,9 @@ interface NavLink {
   label: string;
   route?: string;
   fragment?: string;
-  queryParams?: Record<string, any>; // Added queryParams support
+  queryParams?: Record<string, any>;
   isDisabled?: boolean;
 }
-
-// NOTE: Ensure '/dashboard/admin' matches the actual route to AdminDashboard in your app.routes.ts
-const ADMIN_BASE_ROUTE = '/dashboard/admin';
 
 const NAV_CONFIG: Record<string, NavLink[]> = {
   [UserRole.ADMIN]: [
@@ -61,7 +58,7 @@ const NAV_CONFIG: Record<string, NavLink[]> = {
   imports: [RouterLink, RouterLinkActive, CommonModule],
   template: `
     <header
-      class="fixed top-0 inset-x-0 w-full z-[100] h-16 transition-all duration-300 border-b"
+      class="w-full h-16 transition-all duration-300 border-b relative z-[1001]"
       [class.border-transparent]="!isScrolled() && !isMenuOpen()"
       [class.border-[var(--border)]]="isScrolled() || isMenuOpen()"
       [class.bg-transparent]="!isScrolled() && !isMenuOpen()"
@@ -119,8 +116,7 @@ const NAV_CONFIG: Record<string, NavLink[]> = {
               </a>
               <button (click)="logout()" 
                       class="h-8 w-8 rounded-full flex items-center justify-center text-[var(--text-dim)] transition-colors hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 cursor-pointer" 
-                      title="Sign Out"
-                      aria-label="Sign Out">
+                      title="Sign Out">
                 <i class="ri-logout-box-r-line"></i>
               </button>
             </div>
@@ -148,7 +144,7 @@ const NAV_CONFIG: Record<string, NavLink[]> = {
     </header>
 
     <div
-      class="md:hidden fixed inset-0 z-[90] bg-black/40 backdrop-blur-[2px] transition-opacity duration-300"
+      class="md:hidden fixed inset-0 z-[999] bg-black/40 backdrop-blur-[2px] transition-opacity duration-300"
       [class.opacity-0]="!isMenuOpen()"
       [class.pointer-events-none]="!isMenuOpen()"
       (click)="closeMenu()"
@@ -156,7 +152,7 @@ const NAV_CONFIG: Record<string, NavLink[]> = {
     </div>
 
     <aside
-      class="md:hidden fixed top-0 right-0 z-[95] h-[100dvh] w-[80%] max-w-[300px] bg-[var(--bg-page)] shadow-2xl pt-20 pb-6 px-6 transition-transform duration-300"
+      class="md:hidden fixed top-0 right-0 z-[1000] h-[100dvh] w-[80%] max-w-[300px] bg-[var(--bg-page)] shadow-2xl pt-20 pb-6 px-6 transition-transform duration-300"
       [class.translate-x-full]="!isMenuOpen()"
       [style.visibility]="isMenuOpen() ? 'visible' : 'hidden'" 
     >
@@ -209,7 +205,17 @@ const NAV_CONFIG: Record<string, NavLink[]> = {
     </aside>
   `,
   styles: [`
-    :host { display: block; }
+    :host { 
+      display: block;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+      z-index: 2000; /* Highest priority */
+      transform: translateZ(0);
+      backface-visibility: hidden;
+    }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { scrollbar-width: none; }
   `]
@@ -223,7 +229,6 @@ export class Navbar {
   private ngZone = inject(NgZone);
 
   isLoggedIn = this.auth.isLoggedIn;
-  
   isMenuOpen = signal(false); 
   isScrolled = signal(false);
 
@@ -258,7 +263,7 @@ export class Navbar {
   dashboardRoute = computed(() => {
     const role = this.auth.currentUser()?.role;
     if (!role) return '/';
-    if (role === UserRole.ADMIN) return '/dashboard/admin'; // Updated to match likely admin route
+    if (role === UserRole.ADMIN) return '/dashboard/admin';
     if (role === UserRole.INTERPRETER) return '/dashboard/interpreter/home';
     if (role === UserRole.CLIENT) return '/dashboard/client/home';
     return '/';
@@ -271,7 +276,7 @@ export class Navbar {
       this.ngZone.runOutsideAngular(() => {
         fromEvent(window, 'scroll', { passive: true })
           .pipe(
-            throttleTime(50),
+            throttleTime(20),
             takeUntilDestroyed(this.destroyRef)
           )
           .subscribe(() => {
@@ -286,7 +291,9 @@ export class Navbar {
   }
 
   private checkScroll() {
-    const scrolled = window.scrollY > 0;
+    // Aggressive check: if scroll is 0 and menu is closed, stay transparent.
+    // If ANY scroll happens OR menu is open, show background.
+    const scrolled = window.scrollY > 10;
     if (this.isScrolled() !== scrolled) {
       this.isScrolled.set(scrolled);
     }
