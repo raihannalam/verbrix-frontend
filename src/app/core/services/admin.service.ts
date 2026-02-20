@@ -2,11 +2,11 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
-import { 
-  InterpreterSummaryResponse, 
-  InterpreterDetailResponse, 
-  AdminRemarkRequest 
-} from '../../admin/models/admin.models';
+import {
+  InterpreterSummaryResponse,
+  InterpreterDetailResponse,
+  AdminRemarkRequest
+} from '../../features/admin/models/admin.models';
 
 @Injectable({ providedIn: 'root' })
 export class AdminService {

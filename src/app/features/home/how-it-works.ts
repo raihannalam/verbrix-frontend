@@ -1,8 +1,8 @@
 import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { Navbar } from '../layout/navbar';
-import { Footer } from '../layout/footer';
+import { Navbar } from '../../layout/navbar/navbar';
+import { Footer } from '../../layout/footer/footer';
 
 type ViewMode = 'patient' | 'interpreter';
 
@@ -15,10 +15,10 @@ type ViewMode = 'patient' | 'interpreter';
     <app-navbar class="sticky top-0 z-50 block w-full bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-slate-950/60" />
 
     <main class="w-full bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-50 font-sans antialiased transition-colors duration-300">
-      
+
       <section class="relative pt-24 pb-12 lg:pt-32 lg:pb-20 overflow-hidden border-b border-slate-100 dark:border-slate-800">
          <div class="absolute inset-0 -z-10 h-full w-full bg-white dark:bg-slate-950 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] dark:bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
-         
+
          <div class="max-w-4xl mx-auto px-4 text-center">
             <div class="inline-flex items-center rounded-full border border-violet-200 dark:border-violet-800 bg-violet-50/50 dark:bg-violet-900/20 px-3 py-1 text-sm font-medium text-violet-800 dark:text-violet-300 mb-8 hover:bg-violet-100 dark:hover:bg-violet-900/40 transition-colors">
               <span class="flex h-2 w-2 rounded-full bg-violet-600 dark:bg-violet-400 mr-2 animate-pulse"></span>
@@ -40,8 +40,8 @@ type ViewMode = 'patient' | 'interpreter';
                     [class.translate-x-full]="currentView() === 'interpreter'"
                     [class.left-1.5]="true">
                </div>
-               
-               <button (click)="toggleView('patient')" 
+
+               <button (click)="toggleView('patient')"
                        [attr.aria-pressed]="currentView() === 'patient'"
                        class="relative z-10 px-6 py-2.5 rounded-xl text-sm font-semibold transition-colors duration-200 min-w-[140px] flex items-center justify-center gap-2"
                        [class.text-slate-900]="currentView() === 'patient'"
@@ -49,7 +49,7 @@ type ViewMode = 'patient' | 'interpreter';
                        [class.text-slate-500]="currentView() !== 'patient'">
                   <i class="ri-user-heart-line text-lg"></i> I am a Patient
                </button>
-               
+
                <button (click)="toggleView('interpreter')"
                        [attr.aria-pressed]="currentView() === 'interpreter'"
                        class="relative z-10 px-6 py-2.5 rounded-xl text-sm font-semibold transition-colors duration-200 min-w-[140px] flex items-center justify-center gap-2"
@@ -67,7 +67,7 @@ type ViewMode = 'patient' | 'interpreter';
 
           @if (currentView() === 'patient') {
             <div class="animate-slide-up space-y-24">
-              
+
               <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                  <div>
                     <div class="w-12 h-12 rounded-xl bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center text-violet-600 dark:text-violet-300 mb-6 font-bold text-xl">1</div>
@@ -84,10 +84,10 @@ type ViewMode = 'patient' | 'interpreter';
                        </li>
                     </ul>
                  </div>
-                 
+
                  <div class="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 lg:p-12 relative overflow-hidden flex items-center justify-center">
                     <div class="absolute top-0 right-0 w-64 h-64 bg-violet-200/40 dark:bg-violet-900/20 rounded-full blur-3xl opacity-60"></div>
-                    
+
                     <div class="relative w-full max-w-sm bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 p-6 space-y-4 transform transition-transform hover:scale-[1.02] duration-500">
                        <div class="h-2 w-1/3 bg-slate-200 dark:bg-slate-700 rounded mb-2"></div>
                        <div class="flex gap-2 border-b border-slate-100 dark:border-slate-800 pb-4">
@@ -126,7 +126,7 @@ type ViewMode = 'patient' | 'interpreter';
 
                  <div class="lg:order-1 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 lg:p-12 relative overflow-hidden flex items-center justify-center">
                     <div class="absolute bottom-0 left-0 w-64 h-64 bg-green-200/40 dark:bg-green-900/20 rounded-full blur-3xl opacity-60"></div>
-                    
+
                     <div class="relative w-full max-w-xs bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 p-6 text-center transform transition-transform hover:scale-[1.02] duration-500">
                        <div class="w-14 h-14 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-full flex items-center justify-center mx-auto mb-4">
                           <i class="ri-shield-check-line text-2xl"></i>
@@ -166,7 +166,7 @@ type ViewMode = 'patient' | 'interpreter';
                        </div>
                        <div class="w-24 h-32 bg-slate-800 rounded-lg border border-slate-700 shadow-lg"></div>
                     </div>
-                    
+
                     <div class="flex justify-center gap-4 z-10 mb-2">
                        <div class="w-10 h-10 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-white transition-colors cursor-pointer border border-slate-700"><i class="ri-mic-line"></i></div>
                        <div class="w-10 h-10 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-white transition-colors cursor-pointer border border-slate-700"><i class="ri-video-on-line"></i></div>
@@ -179,7 +179,7 @@ type ViewMode = 'patient' | 'interpreter';
 
           @if (currentView() === 'interpreter') {
              <div class="animate-slide-up space-y-24">
-               
+
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                    <div>
                       <div class="w-12 h-12 rounded-xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-600 dark:text-orange-300 mb-6 font-bold text-xl">1</div>
@@ -188,10 +188,10 @@ type ViewMode = 'patient' | 'interpreter';
                          Generic translators compete on price. Verbrix interpreters compete on <strong>expertise</strong>. Upload your certifications to unlock premium badges and set your own hourly rates.
                       </p>
                    </div>
-                   
+
                    <div class="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 lg:p-12 relative overflow-hidden flex items-center justify-center">
                       <div class="absolute top-0 right-0 w-64 h-64 bg-orange-200/40 dark:bg-orange-900/20 rounded-full blur-3xl opacity-60"></div>
-                      
+
                       <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 w-64 overflow-hidden transform transition-transform hover:scale-[1.02] duration-500">
                          <div class="h-20 bg-gradient-to-r from-orange-100 to-amber-100 dark:from-orange-900/40 dark:to-amber-900/40 relative">
                             <div class="absolute -bottom-6 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full bg-white dark:bg-slate-800 p-1">
@@ -249,7 +249,7 @@ type ViewMode = 'patient' | 'interpreter';
                          Track your earnings, manage your schedule, and export tax-ready invoices from one beautiful dashboard. We handle the paperwork so you can focus on interpreting.
                       </p>
                    </div>
-                   
+
                    <div class="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 lg:p-12 relative overflow-hidden flex items-end justify-center">
                       <div class="bg-white dark:bg-slate-900 w-full max-w-sm rounded-t-xl shadow-lg border-x border-t border-slate-200 dark:border-slate-800 p-6 pb-0">
                          <div class="flex justify-between items-end mb-4">
@@ -294,7 +294,7 @@ type ViewMode = 'patient' | 'interpreter';
                   <h3 class="font-bold text-lg text-slate-900 dark:text-white mb-3">LiveKit Video Engine</h3>
                   <p class="text-slate-500 dark:text-slate-400 leading-relaxed">High-definition, low-latency video with expiring security tokens for maximum privacy.</p>
                </div>
-               
+
                <div class="p-8 rounded-2xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 hover:shadow-lg hover:shadow-violet-900/5 transition-all duration-300">
                   <div class="w-12 h-12 rounded-lg bg-red-50 dark:bg-red-900/20 flex items-center justify-center text-red-600 dark:text-red-400 text-2xl mb-6">
                     <i class="ri-admin-line"></i>
@@ -323,7 +323,7 @@ type ViewMode = 'patient' | 'interpreter';
               <p class="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed">
                 Experience healthcare without borders. Whether you need help or offer help, Verbrix is your platform.
               </p>
-              
+
               <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
                 <a routerLink="/auth/register" class="h-14 px-8 rounded-xl bg-violet-600 text-white font-semibold text-lg hover:bg-violet-500 transition-all shadow-lg shadow-violet-600/20 active:scale-95 flex items-center justify-center w-full sm:w-auto">
                   Get Started Now

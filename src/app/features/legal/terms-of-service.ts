@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Navbar } from '../layout/navbar';
-import { Footer } from '../layout/footer';
+import { Navbar } from '../../layout/navbar/navbar';
+import { Footer } from '../../layout/footer/footer';
 
 @Component({
   selector: 'app-terms-of-service',
@@ -12,7 +12,7 @@ import { Footer } from '../layout/footer';
 
     <main class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-50 py-20 px-4 sm:px-6 lg:px-8">
       <div class="max-w-3xl mx-auto bg-white dark:bg-slate-900 p-8 md:p-12 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800">
-        
+
         <div class="mb-10 border-b border-slate-100 dark:border-slate-800 pb-8">
            <span class="text-violet-600 dark:text-violet-400 text-sm font-bold tracking-wider uppercase">Legal</span>
            <h1 class="text-3xl md:text-4xl font-bold mt-2 text-slate-900 dark:text-white">Terms of Service</h1>
@@ -38,7 +38,7 @@ import { Footer } from '../layout/footer';
           <p>
             All payments are processed securely. Refunds are available for cancellations made 24 hours prior to the scheduled booking time. No-shows are not eligible for refunds.
           </p>
-          
+
            <h3 class="text-xl font-bold text-slate-900 dark:text-white mt-8 mb-4">4. Prohibited Uses</h3>
            <p>
              You may not use the platform for any illegal activities, including but not limited to fraud, harassment, or transmitting malware.

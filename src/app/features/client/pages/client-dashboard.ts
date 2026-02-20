@@ -3,10 +3,10 @@ import { CommonModule, DatePipe, isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { catchError, finalize, of, Subscription } from 'rxjs';
-import { environment } from '../../../environments/environment';
-import { Navbar } from '../../features/layout/navbar';
-import { RealtimeService } from '../../core/realtime/realtime.service'; 
-import { AuthService } from '../../core/auth/auth.service';
+import { environment } from '../../../../environments/environment';
+import { Navbar } from '../../../layout/navbar/navbar';
+import { RealtimeService } from '../../../core/services/realtime.service';
+import { AuthService } from '../../../core/auth/auth.service';
 
 // --- Interfaces ---
 interface ApplicationStatusResponse {
@@ -36,7 +36,7 @@ interface Relationship {
 
     <div class="min-h-screen bg-[#f3f4f6] dark:bg-[#0b0c0f] pt-24 pb-12 px-4 sm:px-6 transition-colors duration-300">
       <div class="max-w-7xl mx-auto">
-        
+
         <div class="mb-8 animate-fade-in flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <h1 class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
@@ -46,17 +46,17 @@ interface Relationship {
               Manage your medical interpretation team.
             </p>
           </div>
-          
-          <button routerLink="/interpreters/find" 
+
+          <button routerLink="/interpreters/find"
                   class="px-5 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl font-bold shadow-sm hover:opacity-90 transition-all flex items-center gap-2">
              <i class="ri-search-line"></i> Find Interpreter
           </button>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
+
           <div class="lg:col-span-2 space-y-6 animate-slide-up">
-             
+
              <div class="flex items-center justify-between">
                 <h2 class="text-lg font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2">
                    <i class="ri-team-line text-blue-500"></i> Active Connections
@@ -70,13 +70,13 @@ interface Relationship {
                       <div class="h-28 bg-white dark:bg-[#181a1f] rounded-2xl animate-pulse border border-gray-100 dark:border-gray-800"></div>
                    }
                 </div>
-             } 
-             
+             }
+
              @else {
                 <div class="space-y-4">
                    @for (rel of myRelationships(); track rel.id) {
                       <div class="group bg-white dark:bg-[#181a1f] border border-gray-200 dark:border-gray-800 rounded-2xl p-5 hover:border-blue-400 dark:hover:border-blue-700 transition-all duration-300 shadow-sm hover:shadow-md relative overflow-hidden">
-                          
+
                           <div class="absolute left-0 top-0 bottom-0 w-1" [ngClass]="getStatusBorder(rel.status)"></div>
 
                           <div class="flex flex-col sm:flex-row gap-5 items-start sm:items-center">
@@ -103,7 +103,7 @@ interface Relationship {
                              </div>
 
                              <div class="flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
-                                <button routerLink="/messages" 
+                                <button routerLink="/messages"
                                         [queryParams]="{ recipientId: rel.id }"
                                         class="flex-1 sm:flex-none px-4 py-2.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-300 font-bold rounded-xl text-sm hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors">
                                    Chat
@@ -135,14 +135,14 @@ interface Relationship {
           </div>
 
           <div class="space-y-6">
-             
+
              @if (!loadingApp() && application(); as app) {
                 <div class="bg-white dark:bg-[#181a1f] border border-gray-200 dark:border-gray-800 rounded-2xl p-5 shadow-sm animate-fade-in">
                    <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Professional Profile</h3>
-                   
+
                    <div class="flex items-start gap-3 mb-4">
                       <div class="mt-1">
-                         <i class="ri-file-user-line text-xl" 
+                         <i class="ri-file-user-line text-xl"
                             [ngClass]="{
                                'text-yellow-500': app.status === 'PENDING',
                                'text-blue-500': app.status === 'UNDER_REVIEW',
@@ -153,7 +153,7 @@ interface Relationship {
                       <div>
                          <p class="font-bold text-gray-900 dark:text-white text-sm">Interpreter Application</p>
                          <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                            Status: <span class="font-semibold" 
+                            Status: <span class="font-semibold"
                                           [ngClass]="{
                                              'text-yellow-600 dark:text-yellow-400': app.status === 'PENDING',
                                              'text-blue-600 dark:text-blue-400': app.status === 'UNDER_REVIEW',
@@ -169,16 +169,16 @@ interface Relationship {
                          Switch to Interpreter View
                       </button>
                    }
-                   
+
                    @else if (app.status === 'REJECTED') {
                       @if (!rejectionDismissed()) {
                         <div class="relative bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 rounded-xl p-4 mb-2 animate-fade-in">
-                           <button (click)="dismissRejection()" 
+                           <button (click)="dismissRejection()"
                                    class="absolute top-2 right-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
                                    title="Dismiss">
                               <i class="ri-close-line"></i>
                            </button>
-                           
+
                            <div class="flex flex-col gap-2">
                               <span class="text-xs font-bold text-red-600 dark:text-red-400 flex items-center gap-1">
                                  <i class="ri-prohibited-line"></i> Not Eligible
@@ -205,7 +205,7 @@ interface Relationship {
                       </button>
                    }
                 </div>
-             } 
+             }
              @else if (!loadingApp() && !application()) {
                 <div class="bg-gradient-to-br from-indigo-900 to-purple-900 rounded-2xl p-5 text-white shadow-lg relative overflow-hidden group">
                    <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/3"></div>
@@ -244,14 +244,14 @@ interface Relationship {
   styles: [`
     .animate-fade-in { animation: fadeIn 0.5s ease-out; }
     .animate-slide-up { animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
-    
+
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
   `]
 })
 export class ClientDashboard implements OnInit, OnDestroy {
   private http = inject(HttpClient);
-  private realtime = inject(RealtimeService); 
+  private realtime = inject(RealtimeService);
   private authService = inject(AuthService);
   private platformId = inject(PLATFORM_ID);
   private readonly API_URL = environment.apiBaseUrl;
@@ -259,7 +259,7 @@ export class ClientDashboard implements OnInit, OnDestroy {
 
   application = signal<ApplicationStatusResponse | null>(null);
   myRelationships = signal<Relationship[]>([]);
-  
+
   loadingApp = signal(true);
   loadingRels = signal(true);
   rejectionDismissed = signal(false);
@@ -267,7 +267,7 @@ export class ClientDashboard implements OnInit, OnDestroy {
   ngOnInit(): void {
     if (!this.authService.getAccessToken()) {
         console.warn('Dashboard initialized without token. Waiting...');
-        return; 
+        return;
     }
 
     this.fetchApplicationStatus();
@@ -281,7 +281,7 @@ export class ClientDashboard implements OnInit, OnDestroy {
 
   fetchApplicationStatus() {
     this.loadingApp.set(true);
-    
+
     this.http.get<ApplicationStatusResponse>(`${this.API_URL}/api/v1/interpreters/me/status`)
       .subscribe({
         next: (data) => {
@@ -305,7 +305,7 @@ export class ClientDashboard implements OnInit, OnDestroy {
 
   fetchRelationships(): void {
     this.loadingRels.set(true);
-    
+
     this.http.get<Relationship[]>(`${this.API_URL}/api/v1/relationships/mine`)
       .pipe(
         catchError((err) => {
@@ -321,14 +321,14 @@ export class ClientDashboard implements OnInit, OnDestroy {
 
   getStatusStyles(status: string): string {
     switch (status) {
-      case 'REQUESTED': 
+      case 'REQUESTED':
         return 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800';
-      case 'REQUEST_ACCEPTED': 
+      case 'REQUEST_ACCEPTED':
         return 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800';
-      case 'CONSULTATION_ACTIVE': 
+      case 'CONSULTATION_ACTIVE':
       case 'AGREEMENT_ACTIVE':
         return 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800';
-      default: 
+      default:
         return 'bg-gray-50 text-gray-600 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700';
     }
   }
@@ -337,14 +337,14 @@ export class ClientDashboard implements OnInit, OnDestroy {
     switch (status) {
       case 'REQUESTED': return 'bg-yellow-400';
       case 'REQUEST_ACCEPTED': return 'bg-blue-500';
-      case 'CONSULTATION_ACTIVE': 
+      case 'CONSULTATION_ACTIVE':
       case 'AGREEMENT_ACTIVE': return 'bg-green-500';
       default: return 'bg-gray-300';
     }
   }
 
   handleSwitchToInterpreter() {
-    window.location.reload(); 
+    window.location.reload();
   }
 
   // --- Rejection Dismissal Logic ---
@@ -369,13 +369,13 @@ export class ClientDashboard implements OnInit, OnDestroy {
   private subscribeToRealtime(): void {
     this.realtimeSub = this.realtime.events$.subscribe(event => {
       if (!event) return;
-      
+
       const refreshEvents = [
-        'RELATIONSHIP_REQUEST_RESPONSE', 
-        'CONSULTATION_STARTED', 
+        'RELATIONSHIP_REQUEST_RESPONSE',
+        'CONSULTATION_STARTED',
         'AGREEMENT_ACTIVATED',
         'RELATIONSHIP_TERMINATED',
-        'APPLICATION_STATUS_CHANGED' 
+        'APPLICATION_STATUS_CHANGED'
       ];
 
       if (refreshEvents.includes(event.type)) {

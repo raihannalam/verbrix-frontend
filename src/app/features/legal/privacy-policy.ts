@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Navbar } from '../layout/navbar';
-import { Footer } from '../layout/footer';
+import { Navbar } from '../../layout/navbar/navbar';
+import { Footer } from '../../layout/footer/footer';
 
 @Component({
   selector: 'app-privacy-policy',
@@ -12,7 +12,7 @@ import { Footer } from '../layout/footer';
 
     <main class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-50 py-20 px-4 sm:px-6 lg:px-8">
       <div class="max-w-3xl mx-auto bg-white dark:bg-slate-900 p-8 md:p-12 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800">
-        
+
         <div class="mb-10 border-b border-slate-100 dark:border-slate-800 pb-8">
            <span class="text-violet-600 dark:text-violet-400 text-sm font-bold tracking-wider uppercase">Legal</span>
            <h1 class="text-3xl md:text-4xl font-bold mt-2 text-slate-900 dark:text-white">Privacy Policy</h1>
@@ -23,7 +23,7 @@ import { Footer } from '../layout/footer';
           <p>
             At Verbrix, we take your privacy seriously. This Privacy Policy explains how we collect, use, disclosure, and safeguard your information when you visit our website or use our mobile application.
           </p>
-          
+
           <h3 class="text-xl font-bold text-slate-900 dark:text-white mt-8 mb-4">1. Information We Collect</h3>
           <p>
             We collect information that you voluntarily provide to us when you register on the Services, express an interest in obtaining information about us or our products and Services, when you participate in activities on the Services or otherwise when you contact us.

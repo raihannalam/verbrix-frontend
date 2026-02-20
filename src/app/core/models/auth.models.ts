@@ -54,7 +54,6 @@ export interface RefreshTokenRequest {
   refreshToken: string;
 }
 
-// --- Responses ---
 
 export interface LoginResponse {
   email: string;

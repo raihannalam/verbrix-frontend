@@ -12,8 +12,8 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { finalize, forkJoin } from 'rxjs';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ImageCropperComponent, ImageCroppedEvent } from 'ngx-image-cropper';
-import { environment } from '../../../environments/environment';
-import { Navbar } from "../../features/layout/navbar";
+import { environment } from '../../../../environments/environment';
+import { Navbar } from "../../../layout/navbar/navbar";
 
 interface Metadata {
   id: string;
@@ -28,17 +28,17 @@ interface Metadata {
     <app-navbar class="fixed top-0 left-0 h-[72px] w-full z-50"></app-navbar>
 
     <div class="min-h-screen pt-24 pb-12 px-4 sm:px-6 bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300">
-      
+
       @if (loadingData()) {
         <div class="flex flex-col items-center justify-center h-[60vh] space-y-4">
            <div class="animate-spin h-10 w-10 border-4 border-blue-600 border-t-transparent rounded-full"></div>
            <p class="text-gray-500 animate-pulse">Checking for existing application...</p>
         </div>
-      } 
-      
+      }
+
       @else {
         <div class="max-w-4xl mx-auto bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 p-6 sm:p-8 transition-colors duration-300">
-          
+
           <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 border-b border-gray-100 dark:border-gray-800 pb-6 gap-4">
               <div>
                 <h2 class="text-2xl font-bold tracking-tight">
@@ -54,18 +54,18 @@ interface Metadata {
           </div>
 
           <form [formGroup]="applyForm" (ngSubmit)="onSubmit()" class="space-y-10">
-            
+
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              
+
               <div class="lg:col-span-4 space-y-3">
                   <label class="text-[10px] font-bold uppercase text-gray-500 dark:text-gray-400 mb-1 block">Profile Photo</label>
-                  
-                  <div [class]="'relative group aspect-square w-full rounded-2xl overflow-hidden border-2 border-dashed flex items-center justify-center transition-all cursor-pointer shadow-sm ' + 
-                               (applyForm.get('profilePictureUrl')?.value 
-                                ? 'border-green-500/50 dark:border-green-500/50 bg-gray-50 dark:bg-black/20' 
+
+                  <div [class]="'relative group aspect-square w-full rounded-2xl overflow-hidden border-2 border-dashed flex items-center justify-center transition-all cursor-pointer shadow-sm ' +
+                               (applyForm.get('profilePictureUrl')?.value
+                                ? 'border-green-500/50 dark:border-green-500/50 bg-gray-50 dark:bg-black/20'
                                 : 'border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 hover:border-blue-500')"
                        (click)="profilePicInput.click()">
-                      
+
                       @if (isUploadingPic()) {
                           <div class="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
                       } @else if (applyForm.get('profilePictureUrl')?.value) {
@@ -88,20 +88,20 @@ interface Metadata {
                   <label class="text-[10px] font-bold uppercase text-gray-500 dark:text-gray-400 mb-1 block">
                       Introduction Video <span class="text-[10px] normal-case opacity-70 ml-1">(YouTube/Vimeo URL)</span>
                   </label>
-                  
+
                   <div class="relative">
                       <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                           <i class="ri-link text-gray-400"></i>
                       </div>
-                      <input formControlName="introVideoUrl" 
-                             placeholder="https://youtube.com/..." 
+                      <input formControlName="introVideoUrl"
+                             placeholder="https://youtube.com/..."
                              class="w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white p-3 rounded-xl text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-gray-400 pl-10">
                   </div>
-                  
+
                   <div class="flex-1 rounded-xl overflow-hidden bg-gray-100 dark:bg-black/40 border border-gray-200 dark:border-gray-800 relative min-h-[200px] flex items-center justify-center">
                       @if (videoPreviewUrl()) {
-                          <iframe [src]="videoPreviewUrl()" 
-                                  class="w-full h-full absolute inset-0" 
+                          <iframe [src]="videoPreviewUrl()"
+                                  class="w-full h-full absolute inset-0"
                                   frameborder="0" allowfullscreen></iframe>
                       } @else {
                           <div class="text-center p-6 text-gray-400 dark:text-gray-600">
@@ -117,7 +117,7 @@ interface Metadata {
               <h3 class="font-bold text-lg flex items-center gap-2">
                   <i class="ri-file-user-line text-blue-600 dark:text-blue-400"></i> Basic Information
               </h3>
-              
+
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="space-y-1">
                   <label class="text-[10px] font-bold uppercase text-gray-500 dark:text-gray-400 mb-1 block">First Name</label>
@@ -137,7 +137,7 @@ interface Metadata {
                           <p class="text-red-500 text-xs">Minimum 50 characters required.</p>
                       }
                   </div>
-                  
+
                   <div class="space-y-4">
                       <div class="grid grid-cols-2 gap-3">
                           <div class="space-y-1">
@@ -164,12 +164,12 @@ interface Metadata {
 
                       <input formControlName="governmentIdDetails" placeholder="ID Number" class="w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white p-2.5 rounded-xl text-xs outline-none focus:border-blue-500">
 
-                      <div (click)="govId.click()" 
-                           [class]="'flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-all h-[70px] relative group ' + 
-                                    (applyForm.get('governmentIdUrl')?.value 
-                                     ? 'border-green-500/30 bg-green-50 dark:bg-green-900/10' 
+                      <div (click)="govId.click()"
+                           [class]="'flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-all h-[70px] relative group ' +
+                                    (applyForm.get('governmentIdUrl')?.value
+                                     ? 'border-green-500/30 bg-green-50 dark:bg-green-900/10'
                                      : 'border-dashed border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800')">
-                          
+
                           @if(applyForm.get('governmentIdUrl')?.value && isImage(applyForm.get('governmentIdUrl')?.value)) {
                               <img [src]="applyForm.get('governmentIdUrl')?.value" class="h-10 w-10 object-cover rounded bg-white border border-gray-200">
                           } @else if(applyForm.get('governmentIdUrl')?.value) {
@@ -192,16 +192,16 @@ interface Metadata {
                           </div>
 
                           @if (isUploadingDoc()) {
-                              <div class="animate-spin h-4 w-4 border-2 border-blue-600 border-t-transparent rounded-full"></div> 
-                          } @else if (applyForm.get('governmentIdUrl')?.value) { 
-                              <button type="button" 
-                                      (click)="openFile($event, applyForm.get('governmentIdUrl')?.value)" 
+                              <div class="animate-spin h-4 w-4 border-2 border-blue-600 border-t-transparent rounded-full"></div>
+                          } @else if (applyForm.get('governmentIdUrl')?.value) {
+                              <button type="button"
+                                      (click)="openFile($event, applyForm.get('governmentIdUrl')?.value)"
                                       class="h-8 w-8 flex items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 hover:bg-blue-200 hover:scale-105 transition-all z-20"
                                       title="View Document">
                                   <i class="ri-eye-line text-lg"></i>
                               </button>
                           }
-                          
+
                           <input type="file" (change)="onFileUpload($event, 'governmentIdUrl')" accept="application/pdf,image/*" class="hidden" #govId>
                       </div>
                   </div>
@@ -231,8 +231,8 @@ interface Metadata {
               <div class="flex flex-wrap gap-2">
                   @for (spec of availableSpecializations(); track spec.id) {
                       <button type="button" (click)="toggleSpecialization(spec.id)"
-                          [class]="isSpecSelected(spec.id) 
-                              ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/20' 
+                          [class]="isSpecSelected(spec.id)
+                              ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/20'
                               : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-blue-400'"
                           class="px-4 py-2 rounded-full border text-sm font-medium transition-all">
                           {{ spec.label }}
@@ -250,11 +250,11 @@ interface Metadata {
                   <i class="ri-add-line"></i> Add Language
                 </button>
               </div>
-              
+
               <div formArrayName="languageAbilities" class="grid grid-cols-1 gap-4">
-                <div *ngFor="let lang of languageAbilities.controls; let i=index" [formGroupName]="i" 
+                <div *ngFor="let lang of languageAbilities.controls; let i=index" [formGroupName]="i"
                      class="flex flex-col md:flex-row gap-4 p-4 bg-gray-50 dark:bg-gray-800/40 border border-gray-200 dark:border-gray-700 rounded-xl relative group">
-                  
+
                   <div class="grid grid-cols-2 md:flex md:flex-1 gap-4 w-full">
                       <div class="flex-1 space-y-1 col-span-2 md:col-span-1">
                           <label class="text-[10px] font-bold uppercase text-gray-500 dark:text-gray-400 mb-1 block">Language</label>
@@ -276,13 +276,13 @@ interface Metadata {
                           <label class="text-[10px] font-bold uppercase text-gray-500 dark:text-gray-400 mb-1 block">Proof</label>
                           <div class="relative">
                                <input type="file" (change)="onLanguageProofUpload($event, i)" accept="application/pdf,image/*" class="hidden" #langProof>
-                               
-                               <div (click)="langProof.click()" 
-                                  [class]="lang.get('proofUrl')?.value 
-                                      ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800 pr-2 pl-2' 
+
+                               <div (click)="langProof.click()"
+                                  [class]="lang.get('proofUrl')?.value
+                                      ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800 pr-2 pl-2'
                                       : 'bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-400 border-gray-300 dark:border-gray-600 hover:border-blue-400 px-4'"
                                   class="w-full h-[46px] border rounded-xl text-xs font-bold flex items-center justify-between gap-2 transition-all cursor-pointer">
-                                  
+
                                   <div class="flex items-center gap-2 overflow-hidden">
                                       @if(lang.get('proofUrl')?.value && isImage(lang.get('proofUrl')?.value)) {
                                          <img [src]="lang.get('proofUrl')?.value" class="h-6 w-6 rounded border object-cover">
@@ -291,14 +291,14 @@ interface Metadata {
                                          <i class="ri-file-pdf-line text-lg"></i>
                                          <span class="truncate">Uploaded</span>
                                       } @else {
-                                         <i class="ri-upload-cloud-2-line text-lg"></i> 
+                                         <i class="ri-upload-cloud-2-line text-lg"></i>
                                          <span>Upload</span>
                                       }
                                   </div>
-                                  
-                                  @if(lang.get('proofUrl')?.value) { 
-                                     <button type="button" 
-                                             (click)="openFile($event, lang.get('proofUrl')?.value)" 
+
+                                  @if(lang.get('proofUrl')?.value) {
+                                     <button type="button"
+                                             (click)="openFile($event, lang.get('proofUrl')?.value)"
                                              class="h-6 w-6 flex items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 hover:bg-blue-200 z-10"
                                              title="View Proof">
                                          <i class="ri-eye-line"></i>
@@ -324,9 +324,9 @@ interface Metadata {
                   <i class="ri-add-line"></i> Add Cert
                 </button>
               </div>
-              
+
               <div formArrayName="certifications" class="space-y-4">
-                <div *ngFor="let cert of certifications.controls; let i=index" [formGroupName]="i" 
+                <div *ngFor="let cert of certifications.controls; let i=index" [formGroupName]="i"
                      class="p-5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800/30 relative group">
                   <button type="button" (click)="removeCertification(i)" class="absolute top-3 right-3 text-gray-400 hover:text-red-500 transition-colors">
                       <i class="ri-close-line text-xl"></i>
@@ -345,17 +345,17 @@ interface Metadata {
                         <label class="text-[10px] font-bold uppercase text-gray-500 dark:text-gray-400 mb-1 block">Description</label>
                         <textarea formControlName="description" rows="2" class="w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white p-3 rounded-xl text-sm outline-none focus:border-blue-500 resize-none"></textarea>
                     </div>
-                    
+
                     <div class="space-y-1">
                         <label class="text-[10px] font-bold uppercase text-gray-500 dark:text-gray-400 mb-1 block">Document</label>
                         <input type="file" (change)="onCertFileUpload($event, i)" accept="application/pdf,image/*" class="hidden" #certFile>
-                        
-                        <div (click)="certFile.click()" 
-                             [class]="cert.get('fileUrl')?.value 
-                                ? 'border-green-500/30 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' 
+
+                        <div (click)="certFile.click()"
+                             [class]="cert.get('fileUrl')?.value
+                                ? 'border-green-500/30 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400'
                                 : 'border-blue-300/50 bg-blue-50 dark:bg-blue-900/10 hover:bg-blue-100'"
                              class="w-full h-[46px] text-xs font-bold border border-dashed rounded-xl flex items-center justify-between px-3 cursor-pointer transition-all">
-                             
+
                              <div class="flex items-center gap-2 overflow-hidden">
                                 @if(cert.get('fileUrl')?.value && isImage(cert.get('fileUrl')?.value)) {
                                    <img [src]="cert.get('fileUrl')?.value" class="h-8 w-8 rounded border object-cover">
@@ -375,9 +375,9 @@ interface Metadata {
                                 }
                              </div>
 
-                             @if(cert.get('fileUrl')?.value) { 
-                                <button type="button" 
-                                        (click)="openFile($event, cert.get('fileUrl')?.value)" 
+                             @if(cert.get('fileUrl')?.value) {
+                                <button type="button"
+                                        (click)="openFile($event, cert.get('fileUrl')?.value)"
                                         class="h-7 w-7 flex items-center justify-center rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 shadow-sm text-blue-600 dark:text-blue-400 hover:scale-105 z-10"
                                         title="View Certificate">
                                     <i class="ri-eye-line text-lg"></i>
@@ -403,10 +403,10 @@ interface Metadata {
 
             <div class="pt-8">
               <button type="submit" [disabled]="applyForm.invalid || isSubmitting() || isUploadingPic() || isUploadingDoc()"
-                class="w-full py-4 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 text-white rounded-xl font-bold shadow-lg shadow-blue-600/20 
+                class="w-full py-4 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 text-white rounded-xl font-bold shadow-lg shadow-blue-600/20
                        disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98] flex items-center justify-center gap-2 text-lg">
-                @if (isSubmitting()) { 
-                  <div class="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div> 
+                @if (isSubmitting()) {
+                  <div class="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
                 }
                 {{ isSubmitting() ? 'Processing...' : (isReapplying() ? 'Confirm Updates' : 'Submit Application') }}
               </button>
@@ -415,7 +415,7 @@ interface Metadata {
           </form>
         </div>
       }
-      
+
       @if (showCropper) {
           <div class="fixed inset-0 z-[100] bg-black/80 flex flex-col items-center justify-center p-4">
               <div class="bg-white dark:bg-gray-900 w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
@@ -425,7 +425,7 @@ interface Metadata {
                           <i class="ri-close-line text-xl"></i>
                       </button>
                   </div>
-                  
+
                   <div class="flex-1 bg-black/5 p-4 relative overflow-auto min-h-[300px]">
                       <image-cropper
                           [imageChangedEvent]="imageChangedEvent"
@@ -467,12 +467,12 @@ export class InterpreterApplyComponent implements OnInit {
   proficiencyLevels = signal<any[]>([]);
 
   applyForm!: FormGroup;
-  
+
   isReapplying = signal(false);
-  loadingData = signal(false); 
+  loadingData = signal(false);
   isSubmitting = signal(false);
   isUploadingPic = signal(false);
-  isUploadingDoc = signal(false); 
+  isUploadingDoc = signal(false);
   videoPreviewUrl = signal<SafeResourceUrl | null>(null);
 
   // --- CROPPER STATE ---
@@ -480,7 +480,7 @@ export class InterpreterApplyComponent implements OnInit {
   imageChangedEvent: any = '';
   croppedImage: any = '';
   blobToUpload: Blob | null = null;
-  
+
   ngOnInit() {
     this.initForm();
     this.loadMetadata();
@@ -539,7 +539,7 @@ export class InterpreterApplyComponent implements OnInit {
 
                 // Patch Arrays
                 const langArray = this.languageAbilities;
-                langArray.clear(); 
+                langArray.clear();
                 if (data.languageAbilities?.length > 0) {
                     data.languageAbilities.forEach((lang: any) => {
                         const group = this.createLanguageGroup();
@@ -583,7 +583,7 @@ export class InterpreterApplyComponent implements OnInit {
       proofUrl: ['']
     });
   }
-  
+
   addLanguage() { this.languageAbilities.push(this.createLanguageGroup()); }
   removeLanguage(i: number) { if (this.languageAbilities.length > 1) this.languageAbilities.removeAt(i); }
 
@@ -612,7 +612,7 @@ export class InterpreterApplyComponent implements OnInit {
   }
 
   // --- 4. IMAGE CROPPER LOGIC ---
-  
+
   onProfilePicSelected(event: any): void {
       if (event.target.files && event.target.files.length > 0) {
         this.imageChangedEvent = event;
@@ -624,7 +624,7 @@ export class InterpreterApplyComponent implements OnInit {
     this.croppedImage = event.objectUrl || event.base64;
     this.blobToUpload = event.blob || null;
   }
-  
+
   imageLoaded() { /** cropper loaded */ }
   cropperReady() { /** cropper ready */ }
   loadImageFailed() { alert('Failed to load image'); }
@@ -637,7 +637,7 @@ export class InterpreterApplyComponent implements OnInit {
   saveCrop() {
       if (!this.blobToUpload) return;
       this.showCropper = false;
-      
+
       // Upload the cropped blob
       const formData = new FormData();
       formData.append('file', this.blobToUpload, 'profile-pic.png');
@@ -701,7 +701,7 @@ export class InterpreterApplyComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     if (!input.files?.length) return;
     const file = input.files[0];
-    
+
     // Preview
     const objectUrl = URL.createObjectURL(file);
     this.languageAbilities.at(index).patchValue({ proofUrl: objectUrl });
@@ -728,7 +728,7 @@ export class InterpreterApplyComponent implements OnInit {
     // Upload
     const formData = new FormData();
     formData.append('file', file);
-    
+
     this.http.post<{ url: string }>(`${this.API_URL}/files/upload`, formData, { headers: this.getAuthHeaders() })
       .subscribe(res => {
         this.certifications.at(index).patchValue({ fileUrl: res.url });
@@ -738,7 +738,7 @@ export class InterpreterApplyComponent implements OnInit {
   // --- 6. SUBMISSION ---
 
   private getAuthHeaders(): HttpHeaders {
-    const token = localStorage.getItem('token'); 
+    const token = localStorage.getItem('token');
     let headers = new HttpHeaders();
     if (token) headers = headers.set('Authorization', `Bearer ${token}`);
     return headers;
@@ -747,9 +747,9 @@ export class InterpreterApplyComponent implements OnInit {
   onSubmit() {
     if (this.applyForm.invalid) return;
     this.isSubmitting.set(true);
-    
+
     const formValue = this.applyForm.value;
-    const payload = { 
+    const payload = {
         ...formValue,
         certifications: formValue.certifications.map((cert: any) => ({
             ...cert,
@@ -762,8 +762,8 @@ export class InterpreterApplyComponent implements OnInit {
       ? `${this.API_URL}/interpreters/re-apply`
       : `${this.API_URL}/interpreters/apply`;
 
-    const request$ = this.isReapplying() 
-      ? this.http.put(url, payload, { headers: this.getAuthHeaders() }) 
+    const request$ = this.isReapplying()
+      ? this.http.put(url, payload, { headers: this.getAuthHeaders() })
       : this.http.post(url, payload, { headers: this.getAuthHeaders() });
 
     request$.subscribe({
@@ -782,7 +782,7 @@ export class InterpreterApplyComponent implements OnInit {
     if (!url) { this.videoPreviewUrl.set(null); return; }
     let embedUrl = '';
     const ytMatch = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
-    if (ytMatch) { embedUrl = `https://www.youtube.com/embed/${ytMatch[1]}`; } 
+    if (ytMatch) { embedUrl = `https://www.youtube.com/embed/${ytMatch[1]}`; }
     else {
         const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
         if (vimeoMatch) { embedUrl = `https://player.vimeo.com/video/${vimeoMatch[1]}`; }

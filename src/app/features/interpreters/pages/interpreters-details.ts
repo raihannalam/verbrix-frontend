@@ -5,8 +5,9 @@ import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { finalize } from 'rxjs/operators';
-import { Navbar } from '../layout/navbar';
-import { ClientService } from '../../core/services/client.service';
+import { Navbar } from '../../../layout/navbar/navbar';
+import { ClientService } from '../../../core/services/client.service';
+import {MetadataService} from '../../../core/services/metadata.service';
 
 // --- Interfaces ---
 export interface LanguageAbility {
@@ -37,12 +38,12 @@ export interface InterpreterAuthenticatedProfile {
 @Component({
    selector: 'app-interpreter-details',
    standalone: true,
-   imports: [CommonModule, Navbar, CurrencyPipe, TitleCasePipe, FormsModule],
+   imports: [CommonModule, Navbar, CurrencyPipe, FormsModule],
    template: `
     <app-navbar class="fixed top-0 left-0 w-full z-50"></app-navbar>
 
     <div class="min-h-screen bg-[#f8f9fa] dark:bg-[#0b0c0f] pt-[80px] pb-12 px-4 md:px-8 font-sans transition-colors duration-300">
-      
+
       @if (loading()) {
         <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 animate-pulse mt-8">
            <div class="lg:col-span-2 space-y-6">
@@ -51,8 +52,8 @@ export interface InterpreterAuthenticatedProfile {
            </div>
            <div class="h-[500px] bg-gray-200 dark:bg-gray-800 rounded-3xl w-full hidden lg:block"></div>
         </div>
-      } 
-      
+      }
+
       @else if (!profile() && !loading()) {
         <div class="flex flex-col items-center justify-center min-h-[60vh] text-center animate-fade-in">
            <div class="w-24 h-24 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-6 text-gray-400">
@@ -68,32 +69,32 @@ export interface InterpreterAuthenticatedProfile {
 
       @else if (profile(); as interpreter) {
         <div class="max-w-6xl mx-auto animate-fade-in mt-6">
-          
+
           <button (click)="goBack()" class="group mb-6 flex items-center gap-2 text-gray-500 hover:text-blue-600 transition-colors text-xs font-bold uppercase tracking-wide">
             <i class="ri-arrow-left-line group-hover:-translate-x-1 transition-transform"></i> Back to Directory
           </button>
 
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            
+
             <div class="lg:col-span-8 space-y-8">
-              
+
               <div class="bg-white dark:bg-[#181a1f] border border-gray-200 dark:border-gray-800 rounded-3xl overflow-hidden shadow-sm">
-                 
+
                  <div class="w-full bg-black relative group aspect-video">
                     @if (safeVideoUrl()) {
                       @if (videoType() === 'iframe') {
-                         <iframe 
-                           [src]="safeVideoUrl()" 
-                           class="w-full h-full absolute inset-0" 
-                           frameborder="0" 
-                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                         <iframe
+                           [src]="safeVideoUrl()"
+                           class="w-full h-full absolute inset-0"
+                           frameborder="0"
+                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                            allowfullscreen>
                          </iframe>
                       } @else {
-                         <video 
-                           [src]="interpreter.introVideoUrl" 
-                           controls 
-                           playsinline 
+                         <video
+                           [src]="interpreter.introVideoUrl"
+                           controls
+                           playsinline
                            class="w-full h-full object-contain bg-black">
                          </video>
                       }
@@ -112,9 +113,9 @@ export interface InterpreterAuthenticatedProfile {
                  <div class="p-6 md:p-8 relative">
                     <div class="flex flex-col sm:flex-row gap-6 items-start">
                        <div class="shrink-0 relative -mt-16 sm:-mt-20 z-10">
-                          <img [src]="interpreter.profilePictureUrl || 'assets/default-avatar.png'" 
+                          <img [src]="interpreter.profilePictureUrl || 'assets/default-avatar.png'"
                                class="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl object-cover border-4 border-white dark:border-[#181a1f] shadow-lg bg-gray-200">
-                          
+
                           <div class="absolute bottom-1 right-1 flex items-center justify-center" [title]="interpreter.online ? 'Online' : 'Offline'">
                              <span class="relative flex h-5 w-5">
                                <span *ngIf="interpreter.online" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
@@ -123,7 +124,7 @@ export interface InterpreterAuthenticatedProfile {
                              </span>
                           </div>
                        </div>
-                       
+
                        <div class="flex-1 w-full">
                           <div class="flex flex-col sm:flex-row justify-between items-start gap-2">
                              <div>
@@ -137,7 +138,7 @@ export interface InterpreterAuthenticatedProfile {
                                    <span>{{ interpreter.experienceYears }} Yrs Exp.</span>
                                 </p>
                              </div>
-                             
+
                              <div class="flex items-center gap-1.5 bg-yellow-50 dark:bg-yellow-900/20 px-3 py-1.5 rounded-lg border border-yellow-100 dark:border-yellow-900/30">
                                 <i class="ri-star-fill text-yellow-400"></i>
                                 <span class="font-bold text-gray-900 dark:text-white">{{ interpreter.rating }}</span>
@@ -148,7 +149,7 @@ export interface InterpreterAuthenticatedProfile {
                           <div class="flex flex-wrap gap-2 mt-4">
                              @for (spec of interpreter.specializations; track spec) {
                                <span class="px-3 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-lg text-xs font-bold uppercase tracking-wide border border-blue-100 dark:border-blue-800/50">
-                                  {{ spec }}
+                                  {{ metadata.getSpecializationName(spec) }}
                                </span>
                              }
                           </div>
@@ -175,9 +176,9 @@ export interface InterpreterAuthenticatedProfile {
                        <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-[#131519] rounded-xl border border-gray-100 dark:border-gray-800 hover:border-blue-200 dark:hover:border-blue-900 transition-colors">
                           <div class="flex items-center gap-3">
                              <div class="w-10 h-10 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center text-blue-600 dark:text-blue-400 shadow-sm">
-                                <span class="text-xs font-bold">{{ lang.language.substring(0,2).toUpperCase() }}</span>
+                                <span class="text-xs font-bold">{{ metadata.getLanguageName(lang.language).substring(0,2).toUpperCase() }}</span>
                              </div>
-                             <span class="font-bold text-gray-700 dark:text-gray-200">{{ lang.language | titlecase }}</span>
+                             <span class="font-bold text-gray-700 dark:text-gray-200">{{ metadata.getLanguageName(lang.language) }}</span>
                           </div>
                           <span class="text-xs font-bold uppercase text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2.5 py-1 rounded-md border border-blue-100 dark:border-blue-800/30">
                              {{ lang.proficiency }}
@@ -190,9 +191,9 @@ export interface InterpreterAuthenticatedProfile {
 
             <div class="lg:col-span-4 relative">
                <div class="sticky top-24 space-y-6">
-                 
+
                  <div class="bg-white dark:bg-[#181a1f] border border-gray-200 dark:border-gray-800 rounded-3xl p-6 shadow-xl shadow-gray-200/50 dark:shadow-none">
-                    
+
                     <div class="flex items-center justify-between mb-6 pb-6 border-b border-gray-100 dark:border-gray-800">
                        <div>
                           <p class="text-gray-500 dark:text-gray-400 font-medium text-xs uppercase tracking-wider">Session Rate</p>
@@ -215,7 +216,7 @@ export interface InterpreterAuthenticatedProfile {
                              <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 ml-1 uppercase">
                                 Request Connection
                              </label>
-                             <textarea 
+                             <textarea
                                  [(ngModel)]="initialMessage"
                                  rows="3"
                                  [placeholder]="'Hi ' + interpreter.firstName + ', I would like to book a medical interpretation session...'"
@@ -223,7 +224,7 @@ export interface InterpreterAuthenticatedProfile {
                              ></textarea>
                           </div>
 
-                          <button (click)="connectToInterpreter()" 
+                          <button (click)="connectToInterpreter()"
                                   [disabled]="!interpreter.available || isConnecting() || !initialMessage.trim()"
                                   class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-600/20 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 disabled:shadow-none">
                              @if(isConnecting()) {
@@ -252,7 +253,7 @@ export interface InterpreterAuthenticatedProfile {
                           <span>{{ errorMessage() }}</span>
                        </div>
                     }
-                    
+
                     <div class="mt-6 pt-6 border-t border-gray-100 dark:border-gray-800 flex flex-col gap-2 text-xs text-gray-400 text-center">
                        <p><i class="ri-shield-check-line text-green-500 mr-1"></i> Verified Interpreter</p>
                        <p>Response time: usually within 2 hours</p>
@@ -264,7 +265,7 @@ export interface InterpreterAuthenticatedProfile {
 
           </div>
         </div>
-      } 
+      }
     </div>
   `,
    styles: [`
@@ -277,6 +278,7 @@ export class InterpreterDetailsComponent implements OnInit {
    private router = inject(Router);
    private clientService = inject(ClientService);
    private sanitizer = inject(DomSanitizer);
+   metadata = inject(MetadataService);
 
    profile = signal<InterpreterAuthenticatedProfile | null>(null);
    loading = signal(true);

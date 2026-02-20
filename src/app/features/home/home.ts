@@ -1,10 +1,10 @@
 import { Component, inject, ChangeDetectionStrategy, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common'; 
+import { CommonModule } from '@angular/common';
 import { AuthService } from '../../core/auth/auth.service';
 import { UserRole } from '../../core/models/auth.models';
-import { Footer } from '../layout/footer';
-import { Navbar } from "../layout/navbar";
+import { Footer } from '../../layout/footer/footer';
+import { Navbar } from "../../layout/navbar/navbar";
 
 @Component({
   selector: 'app-home',
@@ -19,25 +19,25 @@ import { Navbar } from "../layout/navbar";
 
         <section class="relative pt-24 pb-20 lg:pt-32 lg:pb-28 overflow-hidden border-b border-slate-100 dark:border-slate-800">
           <div class="absolute inset-0 -z-10 h-full w-full bg-white dark:bg-slate-950 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] dark:bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
-          
+
           <div class="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col lg:flex-row gap-12 lg:gap-8 items-center">
-              
+
               <div class="flex-1 text-center lg:text-left">
                 <div class="inline-flex items-center rounded-full border border-violet-200 dark:border-violet-800 bg-violet-50/50 dark:bg-violet-900/20 px-3 py-1 text-sm font-medium text-violet-800 dark:text-violet-300 mb-8 mx-auto lg:mx-0 hover:bg-violet-100 dark:hover:bg-violet-900/40 transition-colors cursor-pointer">
                   <span class="flex h-2 w-2 rounded-full bg-violet-600 dark:bg-violet-400 mr-2 animate-pulse"></span>
                   <span>Verified Interpreters Worldwide</span>
                 </div>
-                
+
                 <h1 class="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight text-slate-900 dark:text-white mb-6 text-balance">
                   Global healthcare, <br>
                   <span class="text-violet-600 dark:text-violet-400">fluent in every language.</span>
                 </h1>
-                
+
                 <p class="text-lg sm:text-xl text-slate-500 dark:text-slate-400 mb-10 max-w-2xl mx-auto lg:mx-0 leading-relaxed text-pretty">
                   Don't let language barriers compromise your health. Connect with verified medical interpreters for guidance before you travel and support when you arrive.
                 </p>
-                
+
                 <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
 
   <a routerLink="/interpreters/browse"
@@ -50,7 +50,7 @@ import { Navbar } from "../layout/navbar";
 
               <div class="flex-1 w-full relative lg:h-auto">
                 <div class="absolute -top-24 -right-24 w-96 h-96 bg-violet-200 dark:bg-violet-900/30 rounded-full blur-3xl opacity-50 -z-10"></div>
-                
+
                 <div class="relative rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl overflow-hidden animate-slide-up">
                   <div class="h-10 bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700 flex items-center px-4 gap-2">
                     <div class="w-3 h-3 rounded-full bg-red-400/80"></div>
@@ -58,7 +58,7 @@ import { Navbar } from "../layout/navbar";
                     <div class="w-3 h-3 rounded-full bg-green-400/80"></div>
                     <div class="ml-4 h-5 w-64 bg-white dark:bg-slate-700 rounded border border-slate-200 dark:border-slate-600"></div>
                   </div>
-                  
+
                   <div class="p-6 grid grid-cols-12 gap-6 bg-slate-50/50 dark:bg-slate-950/50">
                     <div class="col-span-3 space-y-3 hidden sm:block">
                       <div class="h-8 w-24 bg-slate-200 dark:bg-slate-800 rounded animate-pulse"></div>
@@ -66,11 +66,11 @@ import { Navbar } from "../layout/navbar";
                       <div class="h-4 w-3/4 bg-slate-100 dark:bg-slate-800 rounded"></div>
                       <div class="h-4 w-5/6 bg-slate-100 dark:bg-slate-800 rounded"></div>
                     </div>
-                    
+
                     <div class="col-span-12 sm:col-span-9 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm relative group p-2">
                       <div class="rounded-lg overflow-hidden">
-                        <img 
-                          src="assets/home/videocall.jpg" 
+                        <img
+                          src="assets/home/videocall.jpg"
                           alt="Medical Interpreter Video Call"
                           class="w-full h-auto object-cover"
                           priority
@@ -108,7 +108,7 @@ import { Navbar } from "../layout/navbar";
                  <p class="text-lg text-slate-500 dark:text-slate-400 leading-relaxed">
                    Whether you are coming from the Middle East, CIS countries, or Africa, our interpreters are stationed in every major medical city.
                  </p>
-                 
+
                  <div class="grid grid-cols-2 gap-4 pt-4">
                     <div class="flex items-center gap-3 p-3 rounded-lg border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
                         <div class="w-2 h-2 rounded-full bg-red-500"></div>
@@ -128,12 +128,12 @@ import { Navbar } from "../layout/navbar";
                     </div>
                  </div>
               </div>
-              
+
               <div class="flex-1 relative p-2 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
                 <div class="rounded-lg overflow-hidden">
-                  <img 
-                    src="assets/home/globalma.jpg" 
-                    alt="Global Connectivity Map" 
+                  <img
+                    src="assets/home/globalmap.jpg"
+                    alt="Global Connectivity Map"
                     class="w-full h-auto object-cover opacity-90 hover:opacity-100 transition-opacity duration-500"
                     loading="lazy"
                   >
@@ -154,7 +154,7 @@ import { Navbar } from "../layout/navbar";
             </div>
 
             <div class="space-y-16">
-              
+
               <div class="relative bg-slate-50 dark:bg-slate-900/50 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden grid grid-cols-1 lg:grid-cols-2">
                 <div class="p-8 lg:p-16 flex flex-col justify-center order-2 lg:order-1">
                   <div class="w-12 h-12 rounded-xl bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center text-violet-600 dark:text-violet-300 mb-6">
@@ -173,7 +173,7 @@ import { Navbar } from "../layout/navbar";
                     </li>
                   </ul>
                 </div>
-                
+
                 <div class="bg-slate-50 dark:bg-slate-900/50 border-l border-slate-200 dark:border-slate-800 p-8 lg:p-12 flex items-center justify-center order-1 lg:order-2 relative overflow-hidden">
                   <div class="absolute top-1/2 right-1/2 translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-violet-200/40 dark:bg-violet-900/30 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
                   <div class="relative w-full max-w-sm">
@@ -253,7 +253,7 @@ import { Navbar } from "../layout/navbar";
                     <i class="ri-arrow-right-line group-hover:ml-2 transition-all"></i>
                   </button>
                 </div>
-                
+
                 <div class="bg-slate-50 dark:bg-slate-900/50 border-l border-slate-200 dark:border-slate-800 p-8 lg:p-12 flex items-center justify-center order-1 lg:order-2 relative overflow-hidden">
                    <div class="absolute bottom-0 left-0 w-40 h-40 bg-violet-100 dark:bg-violet-900/30 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
                   <div class="relative w-full max-w-xs bg-white dark:bg-slate-900 rounded-lg shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] border border-slate-200 dark:border-slate-800 p-6 overflow-hidden transform transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl">
@@ -334,7 +334,7 @@ import { Navbar } from "../layout/navbar";
         <section id="patients" class="py-24 bg-white dark:bg-slate-950 scroll-mt-16 border-t border-slate-100 dark:border-slate-800">
           <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-                
+
                 <div class="order-1 lg:order-1">
                   <div class="inline-flex items-center rounded-full bg-blue-50 dark:bg-blue-900/20 px-3 py-1 text-sm font-medium text-blue-700 dark:text-blue-300 mb-6">
                     For Patients
@@ -345,7 +345,7 @@ import { Navbar } from "../layout/navbar";
                   <p class="text-lg text-slate-500 dark:text-slate-400 mb-8 leading-relaxed text-pretty">
                     Traveling for treatment is stressful. Middlemen overcharge, language barriers isolate you, and uncertainty is high. Verbrix replaces that with trust.
                   </p>
-                  
+
                   <div class="space-y-6">
                       <div class="flex gap-4 group">
                         <div class="flex-shrink-0 w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
@@ -391,11 +391,11 @@ import { Navbar } from "../layout/navbar";
         <section id="interpreters" class="py-24 relative overflow-hidden bg-slate-50 dark:bg-slate-900/50">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-                
+
                 <div class="order-2 lg:order-1 rounded-xl overflow-hidden">
                   <img src="assets/home/interpreter.jpg" alt="Interpreter Growth" class="w-full h-auto object-cover" loading="lazy">
                 </div>
-                  
+
                 <div class="order-1 lg:order-2 text-center md:text-left">
                   <div class="inline-flex items-center rounded-full bg-violet-100 dark:bg-violet-500/20 border border-violet-200 dark:border-violet-500/30 px-3 py-1 text-sm font-medium text-violet-700 dark:text-violet-300 mb-6">
                     For Interpreters
@@ -404,7 +404,7 @@ import { Navbar } from "../layout/navbar";
                   <p class="text-lg text-slate-600 dark:text-slate-400 mb-8 leading-relaxed">
                     Stop relying on random hospital calls. Build long-term relationships with international patients and get paid securely.
                   </p>
-                  
+
                   <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8 text-left">
                       <div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
                           <i class="ri-global-line text-2xl text-violet-600 mb-2"></i>
@@ -432,7 +432,7 @@ import { Navbar } from "../layout/navbar";
               <p class="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed">
                 Join thousands of patients and providers accessing global healthcare without the language barrier.
               </p>
-              
+
               <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
                 <button (click)="handleGetStarted()" class="h-14 px-8 rounded-xl bg-violet-600 text-white font-semibold text-lg hover:bg-violet-500 transition-all shadow-lg shadow-violet-600/20 active:scale-95">
                   Get Started Now
@@ -443,7 +443,7 @@ import { Navbar } from "../layout/navbar";
         </section>
 
       </main>
-      
+
       <app-footer />
     }
   `,

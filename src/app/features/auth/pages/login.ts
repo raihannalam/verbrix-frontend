@@ -2,12 +2,12 @@ import { Component, inject, signal, DestroyRef, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
-import { AuthService } from '../../core/auth/auth.service';
-import { UserRole, SocialLoginRequest } from '../../core/models/auth.models';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router'; // Added ActivatedRoute
+import { AuthService } from '../../../core/auth/auth.service';
+import { UserRole, SocialLoginRequest } from '../../../core/models/auth.models';
 import { initializeApp, getApps } from 'firebase/app';
 import { GoogleAuthProvider, getAuth, signInWithPopup } from 'firebase/auth';
-import { environment } from '../../../environments/environment';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-login',
@@ -36,8 +36,8 @@ import { environment } from '../../../environments/environment';
 
       <div class="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-12 relative">
         <a routerLink="/" class="absolute top-6 left-6 flex items-center gap-2 text-text-muted hover:text-brand transition-colors lg:hidden">
-           <i class="ri-arrow-left-line"></i>
-           <span class="text-sm font-bold">Back to Home</span>
+          <i class="ri-arrow-left-line"></i>
+          <span class="text-sm font-bold">Back to Home</span>
         </a>
 
         <div class="w-full max-w-md animate-fade-in-up">
@@ -73,16 +73,10 @@ import { environment } from '../../../environments/environment';
                   class="w-full h-12 pl-10 pr-4 rounded-xl bg-bg-surface border border-transparent text-text-main focus:bg-bg-page focus:ring-2 focus:ring-brand/20 focus:border-brand outline-none transition-all placeholder:text-text-dim"
                   [class.ring-2]="emailControl.invalid && emailControl.touched"
                   [class.ring-red-500/20]="emailControl.invalid && emailControl.touched"
-                  [class.border-red-500]="emailControl.invalid && emailControl.touched"
+                [class.border-red-500]="emailControl.invalid && emailControl.touched"
                 />
                 <i class="ri-mail-line absolute left-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none"></i>
               </div>
-              @if (emailControl.invalid && emailControl.touched) {
-                <p class="text-xs text-red-500 font-medium ml-1 flex items-center gap-1">
-                  <i class="ri-error-warning-line"></i>
-                  <span>Please enter a valid email address</span>
-                </p>
-              }
             </div>
 
             <div class="space-y-1">
@@ -97,7 +91,7 @@ import { environment } from '../../../environments/environment';
                   class="w-full h-12 pl-10 pr-10 rounded-xl bg-bg-surface border border-transparent text-text-main focus:bg-bg-page focus:ring-2 focus:ring-brand/20 focus:border-brand outline-none transition-all placeholder:text-text-dim"
                   [class.ring-2]="passwordControl.invalid && passwordControl.touched"
                   [class.ring-red-500/20]="passwordControl.invalid && passwordControl.touched"
-                  [class.border-red-500]="passwordControl.invalid && passwordControl.touched"
+                [class.border-red-500]="passwordControl.invalid && passwordControl.touched"
                 />
                 <i class="ri-lock-password-line absolute left-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none"></i>
 
@@ -110,12 +104,6 @@ import { environment } from '../../../environments/environment';
                   <i [class]="showPassword() ? 'ri-eye-off-line' : 'ri-eye-line'"></i>
                 </button>
               </div>
-              @if (passwordControl.invalid && passwordControl.touched) {
-                <p class="text-xs text-red-500 font-medium ml-1 flex items-center gap-1">
-                  <i class="ri-error-warning-line"></i>
-                  <span>Password must be at least 6 characters</span>
-                </p>
-              }
             </div>
 
             <div class="flex items-center justify-end">
@@ -139,7 +127,7 @@ import { environment } from '../../../environments/environment';
 
           <p class="text-center mt-8 text-text-muted">
             Don't have an account?
-            <a routerLink="/auth/register" class="font-semibold text-brand hover:text-brand-hover hover:underline touch-manipulation">
+            <a [routerLink]="['/auth/register']" [queryParams]="returnUrl() ? { returnUrl: returnUrl() } : null" class="font-semibold text-brand hover:text-brand-hover hover:underline touch-manipulation">
               Create an account
             </a>
           </p>
@@ -155,48 +143,39 @@ import { environment } from '../../../environments/environment';
     </div>
   `,
   styles: [`
-    .animate-fade-in-up {
-      animation: fadeInUp 0.5s ease-out forwards;
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    @keyframes fadeInUp {
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .animate-shake {
-      animation: shake 0.4s ease-in-out;
-    }
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-8px); }
-      75% { transform: translateX(8px); }
-    }
+    .animate-fade-in-up { animation: fadeInUp 0.5s ease-out forwards; opacity: 0; transform: translateY(10px); }
+    @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+    .animate-shake { animation: shake 0.4s ease-in-out; }
+    @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
   `]
 })
 export class LoginComponent implements OnInit {
   private auth = inject(AuthService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute); // Injected to read query params
   private destroyRef = inject(DestroyRef);
 
   loading = signal(false);
   errorMessage = signal<string | null>(null);
   showPassword = signal(false);
+  returnUrl = signal<string | null>(null); // State to hold the return path
 
   form = new FormGroup({
-    email: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required, Validators.email]
-    }),
-    password: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required, Validators.minLength(6)]
-    }),
+    email: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
+    password: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(6)] }),
   });
 
   get emailControl() { return this.form.controls.email; }
   get passwordControl() { return this.form.controls.password; }
 
   ngOnInit() {
+    // Capture the returnUrl from the route query parameters
+    this.route.queryParams
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => {
+        this.returnUrl.set(params['returnUrl'] || null);
+      });
+
     this.form.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.errorMessage.set(null));
@@ -225,29 +204,24 @@ export class LoginComponent implements OnInit {
         },
         error: (err) => {
           this.loading.set(false);
-          this.errorMessage.set(err?.error?.message || 'Invalid email or password. Please try again.');
+          this.errorMessage.set(err?.error?.message || 'Invalid email or password.');
         }
       });
   }
 
   async loginWithGoogle(): Promise<void> {
     if (this.loading()) return;
-
     this.errorMessage.set(null);
     this.loading.set(true);
 
     try {
       if (!getApps().length) initializeApp(environment.firebaseConfig);
-
       const provider = new GoogleAuthProvider();
       const authInstance = getAuth();
       const result = await signInWithPopup(authInstance, provider);
       const idToken = await result.user.getIdToken();
 
-      const req: Omit<SocialLoginRequest, 'deviceId' | 'deviceDetails'> = {
-        idToken: idToken,
-        provider: 'google'
-      };
+      const req: Omit<SocialLoginRequest, 'deviceId' | 'deviceDetails'> = { idToken: idToken, provider: 'google' };
 
       this.auth.socialLogin(req)
         .pipe(takeUntilDestroyed(this.destroyRef))
@@ -258,40 +232,35 @@ export class LoginComponent implements OnInit {
           },
           error: (err) => {
             this.loading.set(false);
-            this.errorMessage.set(err?.error?.message || 'Google sign-in failed. Please try again.');
+            this.errorMessage.set(err?.error?.message || 'Google sign-in failed.');
           }
         });
     } catch (e: any) {
       this.loading.set(false);
       if (e.code !== 'auth/popup-closed-by-user') {
-        this.errorMessage.set(e?.message || 'Google authentication failed. Please try again.');
+        this.errorMessage.set(e?.message || 'Google authentication failed.');
       }
     }
   }
 
   private navigateBasedOnRole(roles: string[]) {
-    console.log('🚀 Login API Succeeded! Roles received:', roles);
+    // 1. Prioritize the returnUrl if it exists
+    const redirectUrl = this.returnUrl();
+    if (redirectUrl) {
+      this.router.navigateByUrl(redirectUrl);
+      return;
+    }
 
-    let targetRoute = '';
+    // 2. Fallback to default role-based routing
+    let targetRoute = '/dashboard';
     if (roles.includes(UserRole.ADMIN)) {
       targetRoute = '/dashboard/admin/home';
     } else if (roles.includes(UserRole.INTERPRETER)) {
       targetRoute = '/dashboard/interpreter/home';
     } else if (roles.includes(UserRole.CLIENT)) {
       targetRoute = '/dashboard/client/home';
-    } else {
-      targetRoute = '/dashboard';
     }
 
-    console.log('🧭 Attempting to navigate to:', targetRoute);
-
-    // The .then() will tell us if the Router itself refused to move
-    this.router.navigate([targetRoute]).then(success => {
-      if (success) {
-        console.log('✅ Navigation successful!');
-      } else {
-        console.error('❌ Navigation FAILED. Does this route exist in app.routes.ts?');
-      }
-    });
+    this.router.navigate([targetRoute]);
   }
 }

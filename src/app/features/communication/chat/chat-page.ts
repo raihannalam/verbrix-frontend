@@ -5,14 +5,14 @@ import { FormsModule } from '@angular/forms';
 import { Subscription, switchMap, tap, finalize, of, catchError } from 'rxjs';
 
 // Services
-import { ChatService, ChatMessage } from '../../core/services/chat.service';
-import { RealtimeService } from '../../core/realtime/realtime.service';
-import { AuthService } from '../../core/auth/auth.service';
-import { PaymentService } from '../../core/services/payment.service';
+import { ChatService, ChatMessage } from '../../../core/services/chat.service';
+import { RealtimeService } from '../../../core/services/realtime.service';
+import { AuthService } from '../../../core/auth/auth.service';
+import { PaymentService } from '../../../core/services/payment.service';
 
 // Components
-import { Navbar } from '../layout/navbar';
-import { VideoCallComponent } from '../components/video-call';
+import { Navbar } from '../../../layout/navbar/navbar';
+import { VideoCallComponent } from '../video/video-call';
 
 // --- Interfaces ---
 export interface ChatRelationship {
@@ -37,31 +37,31 @@ export interface ChatRelationship {
 
     @if (videoCallToken()) {
       <div class="fixed inset-0 z-[60] bg-black animate-fade-in">
-        <app-video-call 
-            [token]="videoCallToken()!" 
-            wsUrl="wss://verbrix-is1gv2zd.livekit.cloud" 
+        <app-video-call
+            [token]="videoCallToken()!"
+            wsUrl="wss://verbrix-is1gv2zd.livekit.cloud"
             (close)="onCallEnded()">
         </app-video-call>
       </div>
     }
 
     <div class="h-screen bg-white dark:bg-[#0f1115] pt-[64px] flex overflow-hidden">
-      
+
       <aside class="w-full md:w-[380px] border-r border-gray-200 dark:border-gray-800 flex flex-col bg-white dark:bg-[#13151a] z-20 transition-transform duration-300 absolute md:relative h-full"
              [class.-translate-x-full]="showMobileChat() && isMobileView()"
              [class.translate-x-0]="!showMobileChat() || !isMobileView()">
-        
+
         <div class="p-5 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
           <h2 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Messages</h2>
           <div class="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400">
              <span class="text-xs font-bold">{{ relationships().length }}</span>
           </div>
         </div>
-        
+
         <div class="px-4 py-3">
             <div class="relative">
                 <i class="ri-search-line absolute left-3 top-2.5 text-gray-400"></i>
-                <input type="text" placeholder="Search conversations..." 
+                <input type="text" placeholder="Search conversations..."
                        class="w-full bg-gray-100 dark:bg-[#1f2229] border-none rounded-xl py-2.5 pl-10 text-sm focus:ring-2 focus:ring-blue-500/50 dark:text-white placeholder-gray-500 transition-all">
             </div>
         </div>
@@ -87,7 +87,7 @@ export interface ChatRelationship {
                  [class.bg-blue-50]="selectedRel()?.relationshipId === rel.relationshipId"
                  [class.dark:bg-blue-900_10]="selectedRel()?.relationshipId === rel.relationshipId"
                  [class.border-l-blue-500]="selectedRel()?.relationshipId === rel.relationshipId">
-              
+
               <div class="flex items-center gap-4">
                 <div class="relative shrink-0">
                     @if (getOtherAvatar(rel)) {
@@ -114,13 +114,13 @@ export interface ChatRelationship {
                     }
                   </div>
                   <div class="flex justify-between items-center">
-                      <p class="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[80%]" 
+                      <p class="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[80%]"
                          [class.font-semibold]="!rel.lastMessageRead && !isMyMessageSimple(rel)"
                          [class.text-gray-900]="!rel.lastMessageRead && !isMyMessageSimple(rel)"
                          [class.dark:text-white]="!rel.lastMessageRead && !isMyMessageSimple(rel)">
                           {{ rel.lastMessagePreview || 'Start a conversation' }}
                       </p>
-                      
+
                       @if (!rel.lastMessageRead && !isMyMessageSimple(rel)) {
                           <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
                       }
@@ -136,7 +136,7 @@ export interface ChatRelationship {
             [class.translate-x-full]="!showMobileChat() && isMobileView()"
             [class.translate-x-0]="showMobileChat() || !isMobileView()"
             [class.absolute]="isMobileView()">
-        
+
         @if (selectedRel(); as rel) {
           <div class="h-[72px] bg-white dark:bg-[#13151a] border-b border-gray-200 dark:border-gray-800 px-4 flex items-center justify-between shadow-sm z-10 shrink-0">
             <div class="flex items-center gap-3">
@@ -148,7 +148,7 @@ export interface ChatRelationship {
                  <img [src]="getOtherAvatar(rel) || 'assets/default-avatar.png'" class="w-10 h-10 rounded-full object-cover bg-gray-200">
                  <div class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white dark:border-[#13151a] rounded-full" *ngIf="rel.online"></div>
                </div>
-               
+
                <div class="flex flex-col">
                   <h2 class="text-sm md:text-base font-bold text-gray-900 dark:text-white leading-tight">
                     {{ getOtherName(rel) }}
@@ -176,7 +176,7 @@ export interface ChatRelationship {
           </div>
 
           <div #scrollContainer class="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 scroll-smooth bg-dots-pattern">
-            
+
             @if (messagesLoading()) {
               <div class="flex flex-col items-center justify-center py-12 gap-3">
                 <div class="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
@@ -200,14 +200,14 @@ export interface ChatRelationship {
                         </span>
                     </div>
                 } @else {
-                    <div class="flex w-full flex-col animate-slide-up" 
-                         [class.items-end]="isMyMessage(msg)" 
+                    <div class="flex w-full flex-col animate-slide-up"
+                         [class.items-end]="isMyMessage(msg)"
                          [class.items-start]="!isMyMessage(msg)">
-                         
-                        <div class="max-w-[85%] md:max-w-[65%] flex flex-col" 
-                             [class.items-end]="isMyMessage(msg)" 
+
+                        <div class="max-w-[85%] md:max-w-[65%] flex flex-col"
+                             [class.items-end]="isMyMessage(msg)"
                              [class.items-start]="!isMyMessage(msg)">
-                            
+
                             @if (!isMyMessage(msg) && showNameHeader(messages(), i)) {
                                 <span class="text-[10px] text-gray-400 ml-3 mb-1 font-medium">
                                     {{ getOtherName(rel) }}
@@ -216,15 +216,15 @@ export interface ChatRelationship {
 
                             <div class="px-4 py-2.5 text-[15px] shadow-sm relative group transition-all"
                                  [ngClass]="getBubbleClass(isMyMessage(msg), msg.type === 'IMAGE')">
-                                
+
                                 @if (msg.type === 'IMAGE' && msg.fileUrl) {
                                    <div class="overflow-hidden rounded-lg mb-1 bg-black/10">
-                                     <img [src]="msg.fileUrl" 
-                                          class="max-w-full max-h-72 object-contain cursor-zoom-in hover:scale-[1.02] transition-transform duration-300" 
+                                     <img [src]="msg.fileUrl"
+                                          class="max-w-full max-h-72 object-contain cursor-zoom-in hover:scale-[1.02] transition-transform duration-300"
                                           (click)="openImage(msg.fileUrl)">
                                    </div>
                                 }
-                                
+
                                 @if (msg.content) {
                                     <span class="whitespace-pre-wrap leading-relaxed block min-w-[2rem]">{{ msg.content }}</span>
                                 }
@@ -245,7 +245,7 @@ export interface ChatRelationship {
           </div>
 
           <div class="bg-white dark:bg-[#13151a] p-3 md:p-4 sticky bottom-0 z-20 shrink-0 border-t border-gray-100 dark:border-gray-800">
-            
+
             @if (rel.status === 'REQUESTED') {
               <div class="flex flex-col items-center justify-center p-6 bg-gray-50 dark:bg-gray-800/30 rounded-2xl border border-gray-200 dark:border-gray-800 border-dashed">
                  <div class="w-10 h-10 bg-yellow-100 dark:bg-yellow-900/20 rounded-full flex items-center justify-center text-yellow-600 dark:text-yellow-400 mb-2">
@@ -254,7 +254,7 @@ export interface ChatRelationship {
                  <h3 class="font-bold text-gray-900 dark:text-white">Request Pending</h3>
                  <p class="text-sm text-gray-500 text-center mt-1">Chat will be enabled once the request is accepted.</p>
               </div>
-            } 
+            }
             @else if (rel.status === 'REQUEST_ACCEPTED' && isClient()) {
                <div class="flex flex-col md:flex-row items-center justify-between p-5 bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20 rounded-2xl border border-indigo-100 dark:border-indigo-800 gap-4 shadow-sm">
                     <div class="text-center md:text-left">
@@ -266,7 +266,7 @@ export interface ChatRelationship {
                             To unlock high-quality video consultations with {{ rel.interpreterName }}, please complete the secure payment.
                         </p>
                     </div>
-                    <button (click)="payConsultation(rel)" 
+                    <button (click)="payConsultation(rel)"
                             [disabled]="isProcessingPayment()"
                             class="w-full md:w-auto px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-indigo-500/30 active:scale-95 whitespace-nowrap">
                       @if (isProcessingPayment()) {
@@ -280,7 +280,7 @@ export interface ChatRelationship {
                <div class="mt-4 opacity-50 hover:opacity-100 transition-opacity">
                    <ng-container *ngTemplateOutlet="inputBox"></ng-container>
                </div>
-            } 
+            }
             @else {
                <ng-container *ngTemplateOutlet="inputBox"></ng-container>
             }
@@ -288,7 +288,7 @@ export interface ChatRelationship {
             <ng-template #inputBox>
                 <div class="flex items-end gap-2 max-w-5xl mx-auto relative">
                     <input type="file" #fileInput hidden (change)="handleFileUpload($event)" accept="image/*">
-                    <button (click)="fileInput.click()" [disabled]="isUploading()" 
+                    <button (click)="fileInput.click()" [disabled]="isUploading()"
                             class="p-3 mb-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-full transition-all"
                             title="Attach Image">
                         <i *ngIf="!isUploading()" class="ri-attachment-2 text-xl"></i>
@@ -296,15 +296,15 @@ export interface ChatRelationship {
                     </button>
 
                     <div class="flex-1 bg-gray-100 dark:bg-[#1f2229] rounded-[24px] flex items-center px-2 border-2 border-transparent focus-within:border-blue-500/30 focus-within:bg-white dark:focus-within:bg-[#13151a] transition-all">
-                        <textarea [(ngModel)]="newMessage" 
+                        <textarea [(ngModel)]="newMessage"
                                   (keydown.enter)="onEnterKey($event)"
-                                  placeholder="Type your message..." 
+                                  placeholder="Type your message..."
                                   rows="1"
                                   class="w-full bg-transparent border-none focus:ring-0 text-[15px] text-gray-900 dark:text-white resize-none max-h-32 py-3 px-2 placeholder-gray-500 custom-scrollbar"></textarea>
                     </div>
-                        
-                    <button (click)="sendMessage()" 
-                            [disabled]="!newMessage.trim() && !isUploading()" 
+
+                    <button (click)="sendMessage()"
+                            [disabled]="!newMessage.trim() && !isUploading()"
                             class="p-3 mb-1 bg-blue-600 disabled:bg-gray-200 dark:disabled:bg-gray-800 disabled:text-gray-400 text-white rounded-full hover:bg-blue-700 transition-all shadow-md active:scale-90">
                       <i class="ri-send-plane-fill text-lg translate-x-px translate-y-px"></i>
                     </button>
@@ -354,21 +354,21 @@ export class ChatPageComponent implements OnInit, OnDestroy, AfterViewInit {
   // State Signals
   relationships = signal<ChatRelationship[]>([]);
   loadingRelationships = signal(true);
-  
+
   selectedRel = signal<ChatRelationship | null>(null);
-  
+
   messages = signal<ChatMessage[]>([]);
   messagesLoading = signal(false);
-  
+
   isUploading = signal(false);
   isProcessingPayment = signal(false);
   videoCallToken = signal<string | null>(null);
-  
+
   showMobileChat = signal(false);
   isMobileView = signal(window.innerWidth < 768);
 
   newMessage = '';
-  
+
   // Logic Variables
   private activeChatSub: Subscription | null = null;
   private socketSub: any = null;
@@ -448,15 +448,15 @@ export class ChatPageComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this.socketSub?.unsubscribe();
     this.activeChatSub?.unsubscribe();
-    
+
     this.selectedRel.set(rel);
     this.showMobileChat.set(true);
     this.messages.set([]);
     this.messagesLoading.set(true);
     this.newMessage = '';
 
-    const url = this.router.createUrlTree([], { 
-        relativeTo: this.route, 
+    const url = this.router.createUrlTree([], {
+        relativeTo: this.route,
         queryParams: { relationshipId: rel.relationshipId },
         queryParamsHandling: 'merge'
     }).toString();
@@ -467,7 +467,7 @@ export class ChatPageComponent implements OnInit, OnDestroy, AfterViewInit {
       .subscribe({
         next: (msgs) => {
           this.messages.set(msgs);
-          
+
           // FIX: If we have history, verify sidebar has the latest info
           if (msgs.length > 0) {
              const lastMsg = msgs[msgs.length - 1];
@@ -484,7 +484,7 @@ export class ChatPageComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private setupRealtime(relId: number) {
     this.socketSub = this.realtime.subscribeToTopic(
-      `/topic/chat/${relId}`, 
+      `/topic/chat/${relId}`,
       (msg: ChatMessage) => {
         // 1. Add to active message list if chat is open
         if (this.selectedRel()?.relationshipId === relId) {
@@ -492,7 +492,7 @@ export class ChatPageComponent implements OnInit, OnDestroy, AfterViewInit {
                 if (prev.some(p => p.id === msg.id)) return prev;
                 return [...prev, msg];
              });
-             
+
              if (this.isNearBottom || this.isMyMessage(msg)) {
                 this.scrollToBottom();
              }
@@ -509,8 +509,8 @@ export class ChatPageComponent implements OnInit, OnDestroy, AfterViewInit {
           // 1. Update the specific relationship data
           const updatedList = rels.map(r => {
               if (r.relationshipId === relId) {
-                  return { 
-                      ...r, 
+                  return {
+                      ...r,
                       lastMessagePreview: msg.type === 'IMAGE' ? '📷 Image' : msg.content,
                       lastMessageTime: new Date().toISOString(),
                       lastMessageRead: this.selectedRel()?.relationshipId === relId // Read if currently open
@@ -538,7 +538,7 @@ export class ChatPageComponent implements OnInit, OnDestroy, AfterViewInit {
     };
 
     this.realtime.sendMessage('/app/chat.sendMessage', payload);
-    
+
     if (type === 'TEXT') {
         this.newMessage = '';
         const textarea = document.querySelector('textarea');
@@ -557,11 +557,11 @@ export class ChatPageComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     this.isUploading.set(true);
-    
+
     this.chatService.uploadAttachment(file)
       .pipe(finalize(() => {
           this.isUploading.set(false);
-          input.value = ''; 
+          input.value = '';
       }))
       .subscribe({
         next: (res) => this.sendMessage('IMAGE', res.url),
@@ -570,7 +570,7 @@ export class ChatPageComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onEnterKey(e: Event) {
-      e.preventDefault(); 
+      e.preventDefault();
       this.sendMessage();
   }
 
@@ -589,7 +589,7 @@ export class ChatPageComponent implements OnInit, OnDestroy, AfterViewInit {
   getBubbleClass(isMine: boolean, isImage: boolean): string {
     const base = 'rounded-2xl px-4 py-2 break-words max-w-full ';
     if (isImage) return 'bg-transparent p-0 shadow-none';
-    
+
     if (isMine) {
         return base + 'bg-blue-600 text-white rounded-br-sm';
     } else {
@@ -616,9 +616,9 @@ export class ChatPageComponent implements OnInit, OnDestroy, AfterViewInit {
   private setupScrollObserver() {
       this.scrollObserver?.disconnect();
       if (!this.scrollContainer) return;
-      
+
       const el = this.scrollContainer.nativeElement;
-      
+
       el.addEventListener('scroll', () => {
           const threshold = 100;
           const position = el.scrollTop + el.clientHeight;
@@ -629,7 +629,7 @@ export class ChatPageComponent implements OnInit, OnDestroy, AfterViewInit {
       this.scrollObserver = new MutationObserver(() => {
           if (this.isNearBottom) this.scrollToBottom();
       });
-      
+
       this.scrollObserver.observe(el, { childList: true, subtree: true, attributes: true });
   }
 
@@ -650,7 +650,7 @@ export class ChatPageComponent implements OnInit, OnDestroy, AfterViewInit {
           switchMap(order => {
               return new Promise((resolve, reject) => {
                   this.paymentService.openGateway(
-                      order, 
+                      order,
                       this.auth.currentUser()?.email || '',
                       resolve,
                       reject
@@ -682,22 +682,22 @@ export class ChatPageComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // --- Helpers ---
   isClient() { return this.auth.isClient(); }
-  
+
   getOtherName(rel: ChatRelationship): string {
     return this.isClient() ? rel.interpreterName : rel.clientName;
   }
-  
+
   getOtherAvatar(rel: ChatRelationship): string | null {
     return (this.isClient() ? rel.interpreterProfilePicture : rel.clientProfilePicture) || null;
   }
-  
+
   isVideoAllowed(status: string): boolean {
     return ['CONSULTATION_ACTIVE', 'AGREEMENT_ACTIVE', 'WORK_ACTIVE'].includes(status);
   }
-  
+
   openImage(url: string) { window.open(url, '_blank'); }
-  
+
   isMyMessageSimple(rel: ChatRelationship): boolean {
-      return false; 
+      return false;
   }
 }

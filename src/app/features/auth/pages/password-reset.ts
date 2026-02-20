@@ -4,8 +4,8 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { take } from 'rxjs/operators';
-import { AuthService } from '../../core/auth/auth.service';
-import { EmailRequest, PasswordResetRequest, OtpVerificationResponse } from '../../core/models/auth.models';
+import { AuthService } from '../../../core/auth/auth.service';
+import { EmailRequest, PasswordResetRequest, OtpVerificationResponse } from '../../../core/models/auth.models';
 
 @Component({
   selector: 'app-password-reset',
@@ -13,7 +13,7 @@ import { EmailRequest, PasswordResetRequest, OtpVerificationResponse } from '../
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   template: `
     <div class="min-h-screen w-full flex bg-bg-page">
-      
+
       <div class="hidden lg:flex lg:w-1/2 relative bg-brand-surface overflow-hidden items-center justify-center p-12">
         <div class="absolute inset-0">
           <div class="absolute top-0 left-0 w-[500px] h-[500px] bg-indigo-500 blur-[150px] opacity-20 rounded-full mix-blend-multiply"></div>
@@ -40,7 +40,7 @@ import { EmailRequest, PasswordResetRequest, OtpVerificationResponse } from '../
         </a>
 
         <div class="w-full max-w-md animate-fade-in-up">
-          
+
           <div class="text-center mb-10">
             <h1 class="text-3xl font-bold text-text-main mb-2">Reset Password</h1>
             <p class="text-text-muted">
@@ -95,7 +95,7 @@ import { EmailRequest, PasswordResetRequest, OtpVerificationResponse } from '../
                 <button type="submit" [disabled]="loading() || form.controls.otp.invalid" class="w-full h-12 rounded-xl bg-brand text-white font-bold text-base shadow-lg hover:bg-brand-hover active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center mt-2 touch-manipulation">
                   {{ loading() ? 'Verifying...' : 'Verify Code' }}
                 </button>
-                
+
                 <button type="button" (click)="step.set('enterEmail')" class="w-full text-sm text-text-muted hover:text-text-main mt-2 touch-manipulation">Change Email</button>
               </div>
             }
@@ -105,11 +105,11 @@ import { EmailRequest, PasswordResetRequest, OtpVerificationResponse } from '../
                 <div class="space-y-1">
                   <label class="text-xs font-bold uppercase tracking-wider text-text-muted">New Password</label>
                   <div class="relative">
-                    <input 
-                      [type]="showPassword() ? 'text' : 'password'" 
-                      formControlName="newPassword" 
-                      class="w-full h-12 px-4 pl-10 pr-10 rounded-xl bg-bg-surface border border-transparent text-text-main focus:bg-bg-page focus:ring-2 focus:ring-brand/20 focus:border-brand outline-none transition-all placeholder:text-text-dim" 
-                      placeholder="Min. 6 characters" 
+                    <input
+                      [type]="showPassword() ? 'text' : 'password'"
+                      formControlName="newPassword"
+                      class="w-full h-12 px-4 pl-10 pr-10 rounded-xl bg-bg-surface border border-transparent text-text-main focus:bg-bg-page focus:ring-2 focus:ring-brand/20 focus:border-brand outline-none transition-all placeholder:text-text-dim"
+                      placeholder="Min. 6 characters"
                     />
                     <i class="ri-lock-password-line absolute left-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none"></i>
                     <button type="button" (click)="togglePassword()" class="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-main touch-manipulation">
@@ -141,7 +141,7 @@ import { EmailRequest, PasswordResetRequest, OtpVerificationResponse } from '../
           }
 
           <p class="text-center mt-8 text-text-muted">
-            Remembered your password? 
+            Remembered your password?
             <a routerLink="/auth/login" class="font-semibold text-brand hover:text-brand-hover hover:underline touch-manipulation">Sign in</a>
           </p>
         </div>
@@ -164,7 +164,7 @@ export class PasswordReset implements OnDestroy {
   errorMessage = signal<string | null>(null);
   successMessage = signal<string | null>(null);
   showPassword = signal(false);
-  
+
   canResend = signal(false);
   countdown = signal(60);
   private timerRef: any;

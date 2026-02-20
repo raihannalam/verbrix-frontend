@@ -35,32 +35,34 @@ export interface InterpreterDetailResponse {
   firstName: string;
   lastName: string;
   bio: string;
-  
+
   // Experience
   experienceYears: number;
   experienceMonths: number;
-  
+
   // Account
   userId: number;
   email: string;
-  
+
   // Assets
   profilePictureUrl: string;
   governmentIdUrl: string;
+  governmentIdType: string;
+  governmentIdDetails: string;
   introVideoUrl: string;
-  
+
   // Status
   status: VerificationStatus;
   available: boolean;
   online: boolean;
   lastSeenAt: string;
   rejectionReason?: string;
-  
+
   // Skills
   languageAbilities: LanguageAbility[];
   specializations: string[]; // Enum Keys e.g., 'CARDIOLOGY'
   certifications: CertificationAdminResponse[];
-  
+
   // Financials
   consultationFee: number;
   serviceAgreementFee: number;

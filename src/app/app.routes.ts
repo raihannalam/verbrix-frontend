@@ -2,8 +2,6 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/auth.guard';
 import { roleGuard } from './core/auth/role.guard';
 import { UserRole } from './core/models/auth.models';
-import { InterpreterApplyComponent } from './features/components/app-apply-interpreter';
-import { HowItWorksComponent } from './features/home/how-it-works';
 
 export const routes: Routes = [
 
@@ -17,13 +15,13 @@ export const routes: Routes = [
 
   {
     path: 'how-it-works',
-    component: HowItWorksComponent,
+    loadComponent: () => import('./features/home/how-it-works').then(m => m.HowItWorksComponent),
     title: 'How Verbrix Works | Medical Interpreter Platform'
   },
 
   {
     path: 'about',
-    loadComponent: () => import('./features/about/about').then(m => m.AboutUsComponent),
+    loadComponent: () => import('./features/home/about').then(m => m.AboutUsComponent),
     title: 'About Us | Verbrix Team'
   },
 
@@ -47,7 +45,8 @@ export const routes: Routes = [
 
   {
     path: 'interpreters/browse',
-    loadComponent: () => import('./features/public/public-interpreters')
+    // Note: Verify the exported class name in public-interpreters.ts
+    loadComponent: () => import('./features/interpreters/pages/public-interpreters')
       .then(m => m.FindInterpreterComponent),
     title: 'Find Medical Interpreters in India | Verbrix'
   },
@@ -63,14 +62,16 @@ export const routes: Routes = [
   // 3. INTERPRETER APPLICATION FLOW
   {
     path: 'interpreters/apply',
-    component: InterpreterApplyComponent,
+    loadComponent: () => import('./features/interpreters/pages/app-apply-interpreter')
+      .then(m => m.InterpreterApplyComponent),
     canActivate: [authGuard],
     title: 'Apply as Medical Interpreter | Verbrix'
   },
 
   {
     path: 'interpreters/re-apply',
-    component: InterpreterApplyComponent,
+    loadComponent: () => import('./features/interpreters/pages/app-apply-interpreter')
+      .then(m => m.InterpreterApplyComponent),
     canActivate: [authGuard],
     title: 'Update Interpreter Application | Verbrix'
   },
@@ -80,7 +81,7 @@ export const routes: Routes = [
 
   {
     path: 'interpreters/find',
-    loadComponent: () => import('./features/interpreters/find-interpreter')
+    loadComponent: () => import('./features/interpreters/pages/find-interpreter')
       .then(m => m.FindInterpreterComponent),
     canActivate: [authGuard],
     title: 'Search Interpreters | Verbrix'
@@ -88,7 +89,7 @@ export const routes: Routes = [
 
   {
     path: 'interpreters/:id',
-    loadComponent: () => import('./features/interpreters/interpreters-details')
+    loadComponent: () => import('./features/interpreters/pages/interpreters-details')
       .then(m => m.InterpreterDetailsComponent),
     canActivate: [authGuard],
     title: 'Interpreter Profile | Verbrix'
@@ -99,7 +100,7 @@ export const routes: Routes = [
 
   {
     path: 'messages',
-    loadComponent: () => import('../app/features/chat/chat-page')
+    loadComponent: () => import('./features/communication/chat/chat-page')
       .then(m => m.ChatPageComponent),
     canActivate: [authGuard],
     title: 'Messages & Conversations | Verbrix'
@@ -123,7 +124,7 @@ export const routes: Routes = [
         children: [
           {
             path: 'home',
-            loadComponent: () => import('./features/dashboards/client-dashboard')
+            loadComponent: () => import('./features/client/pages/client-dashboard')
               .then(m => m.ClientDashboard),
             title: 'Client Dashboard | Verbrix'
           },
@@ -140,7 +141,7 @@ export const routes: Routes = [
         children: [
           {
             path: 'home',
-            loadComponent: () => import('./features/dashboards/interpreter-dashboard')
+            loadComponent: () => import('./features/interpreters/pages/interpreter-dashboard')
               .then(m => m.InterpreterDashboard),
             title: 'Interpreter Dashboard | Verbrix'
           },
@@ -156,8 +157,7 @@ export const routes: Routes = [
         path: 'admin',
         canActivate: [roleGuard],
         data: { expectedRoles: [UserRole.ADMIN] },
-        // Loads the ADMIN_ROUTES array from admin.routes.ts
-        loadChildren: () => import('./admin/admin.routes').then(m => m.ADMIN_ROUTES)
+        loadChildren: () => import('./features/admin/admin.routes').then(m => m.ADMIN_ROUTES)
       }
 
     ]
@@ -168,7 +168,7 @@ export const routes: Routes = [
   {
     path: '**',
     loadComponent: () =>
-      import('../app/features/errors/not-found')
+      import('./core/errors/not-found')
         .then(m => m.NotFoundComponent),
     title: 'Page Not Found | Verbrix'
   }

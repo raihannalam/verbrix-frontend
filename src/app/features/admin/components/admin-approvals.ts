@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
-import { AdminService } from '../../core/services/admin.service';
+import { AdminService } from '../../../core/services/admin.service';
 import { InterpreterSummaryResponse } from '../models/admin.models';
 
 @Component({
@@ -15,18 +15,18 @@ import { InterpreterSummaryResponse } from '../models/admin.models';
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Application Queue</h1>
             <p class="text-gray-500 dark:text-gray-400 text-sm">Review and verify interpreter credentials.</p>
           </div>
-          
+
           <div class="flex bg-white dark:bg-[#181a1f] p-1 rounded-lg border border-gray-200 dark:border-gray-800 shadow-sm">
-            <button (click)="filterStatus.set('ACTION_REQUIRED')" 
-                    [class]="filterStatus() === 'ACTION_REQUIRED' 
-                      ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 shadow-md' 
+            <button (click)="filterStatus.set('ACTION_REQUIRED')"
+                    [class]="filterStatus() === 'ACTION_REQUIRED'
+                      ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 shadow-md'
                       : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#1f2229]'"
                     class="px-4 py-2 rounded-md text-xs font-bold transition-all">
                 Action Required ({{ pendingCount() }})
             </button>
-            <button (click)="filterStatus.set('VERIFIED')" 
-                    [class]="filterStatus() === 'VERIFIED' 
-                      ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 shadow-md' 
+            <button (click)="filterStatus.set('VERIFIED')"
+                    [class]="filterStatus() === 'VERIFIED'
+                      ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 shadow-md'
                       : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#1f2229]'"
                     class="px-4 py-2 rounded-md text-xs font-bold transition-all">
                 History / Verified
@@ -72,7 +72,7 @@ import { InterpreterSummaryResponse } from '../models/admin.models';
                     }
                   </td>
                   <td class="px-6 py-4 text-right">
-                    <button (click)="navigateToReview(user.id)" 
+                    <button (click)="navigateToReview(user.id)"
                             class="text-blue-600 dark:text-blue-400 font-bold text-sm hover:underline flex items-center gap-1 ml-auto">
                         Review Application <i class="ri-arrow-right-line"></i>
                     </button>
@@ -100,7 +100,7 @@ export class AdminApprovalsComponent implements OnInit {
   interpreters = signal<InterpreterSummaryResponse[]>([]);
   filterStatus = signal<'ACTION_REQUIRED' | 'VERIFIED'>('ACTION_REQUIRED');
 
-  pendingCount = computed(() => 
+  pendingCount = computed(() =>
     this.interpreters().filter(i => i.status === 'PENDING' || i.status === 'CHANGES_REQUESTED').length
   );
 

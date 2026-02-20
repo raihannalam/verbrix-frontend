@@ -23,7 +23,7 @@ export class AuthInterceptor implements HttpInterceptor {
     // OPTIONAL: Prevent attaching tokens to auth endpoints to avoid 401s completely
     // const isAuthEndpoint = request.url.includes('/auth/');
     // if (token && !isAuthEndpoint) { ... }
-    
+
     // Current logic (Attaches token to everything if it exists)
     if (token) {
       request = this.addToken(request, token);
@@ -32,21 +32,21 @@ export class AuthInterceptor implements HttpInterceptor {
     return next.handle(request).pipe(
       catchError(error => {
         // 🟢 FIX 1: EXCLUDE ALL AUTH ENDPOINTS
-        // We must include 'social-login', 'register', etc. so the interceptor 
+        // We must include 'social-login', 'register', etc. so the interceptor
         // doesn't try to refresh a token when we are actually trying to log in.
-        const isAuthRequest = 
-            request.url.includes('auth/login') || 
-            request.url.includes('auth/social-login') || 
-            request.url.includes('auth/register') || 
+        const isAuthRequest =
+            request.url.includes('auth/login') ||
+            request.url.includes('auth/social-login') ||
+            request.url.includes('auth/register') ||
             request.url.includes('auth/refresh-token');
-        
+
         // 🟢 FIX 2: Ignore the Status endpoint
         const isStatusRequest = request.url.includes('/interpreters/me/status');
 
         if (error instanceof HttpErrorResponse && error.status === 401 && !isAuthRequest && !isStatusRequest) {
           return this.handle401Error(request, next);
         }
-        
+
         return throwError(() => error);
       })
     );
@@ -73,10 +73,10 @@ export class AuthInterceptor implements HttpInterceptor {
         }),
         catchError((err) => {
           this.isRefreshing = false;
-          
+
           // Debugging Log
-          console.error('Auto-Logout triggered by 401 from URL:', request.url); 
-          
+          console.error('Auto-Logout triggered by 401 from URL:', request.url);
+
           this.authService.logout();
           return throwError(() => err);
         })

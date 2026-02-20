@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Navbar } from '../layout/navbar';
-import { Footer } from '../layout/footer';
+import { Navbar } from '../../layout/navbar/navbar';
+import { Footer } from '../../layout/footer/footer';
 
 interface TeamMember {
   name: string;
@@ -20,21 +20,21 @@ interface TeamMember {
     <app-navbar class="sticky top-0 z-50 block w-full bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-slate-950/60" />
 
     <main class="w-full bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-50 font-sans antialiased transition-colors duration-300">
-      
+
       <section class="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden border-b border-slate-100 dark:border-slate-800">
         <div class="absolute inset-0 -z-10 h-full w-full bg-white dark:bg-slate-950 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] dark:bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
-        
+
         <div class="max-w-4xl mx-auto px-4 text-center relative z-10">
           <div class="inline-flex items-center rounded-full bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-800 px-3 py-1 text-sm font-medium text-violet-700 dark:text-violet-300 mb-8 hover:bg-violet-100 dark:hover:bg-violet-900/30 transition-colors">
             <span class="flex h-2 w-2 rounded-full bg-violet-600 dark:bg-violet-400 mr-2.5 animate-pulse"></span>
             Our Mission
           </div>
-          
+
           <h1 class="text-4xl md:text-6xl font-bold tracking-tight text-slate-900 dark:text-white mb-6 text-balance">
             Reimagining communication <br>
             <span class="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-indigo-600 dark:from-violet-400 dark:to-indigo-400">in healthcare.</span>
           </h1>
-          
+
           <p class="text-lg md:text-xl text-slate-600 dark:text-slate-400 leading-relaxed max-w-2xl mx-auto">
             Our mission is to eliminate language barriers so that every patient, anywhere in the world, can receive care with clarity, dignity, and understanding.
           </p>
@@ -97,7 +97,7 @@ interface TeamMember {
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
             @for (member of team; track member.name) {
               <div class="group relative bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-6 border border-slate-100 dark:border-slate-800 hover:border-violet-200 dark:hover:border-violet-800 transition-all duration-300 hover:shadow-xl hover:shadow-violet-900/5 hover:-translate-y-1">
-                
+
                 <div class="w-24 h-24 mx-auto mb-6 rounded-2xl bg-white dark:bg-slate-800 flex items-center justify-center text-4xl shadow-sm border border-slate-200 dark:border-slate-700 relative overflow-hidden">
                    <div class="absolute inset-0 bg-gradient-to-tr from-violet-50/50 to-indigo-50/50 dark:from-violet-900/20 dark:to-indigo-900/20"></div>
                    <span class="relative z-10 filter grayscale group-hover:grayscale-0 transition-all duration-300 transform group-hover:scale-110">
@@ -108,7 +108,7 @@ interface TeamMember {
                 <div class="text-center">
                   <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">{{ member.name }}</h3>
                   <p class="text-xs font-bold text-violet-600 dark:text-violet-400 uppercase tracking-wide mb-4">{{ member.role }}</p>
-                  
+
 
                   <div class="flex justify-center gap-3 pt-4 border-t border-slate-200 dark:border-slate-700/50">
                     @if (member.email) {
@@ -135,7 +135,7 @@ interface TeamMember {
           <p class="text-lg text-slate-600 dark:text-slate-400 mb-10 max-w-2xl mx-auto">
             We’re always looking for passionate minds - whether you’re a developer, designer, or healthcare innovator - to help us shape the future.
           </p>
-          
+
           <a href="mailto:contact@verbrix.com" class="inline-flex items-center justify-center h-14 px-10 rounded-xl bg-violet-600 text-white font-semibold text-lg hover:bg-violet-500 hover:shadow-xl hover:shadow-violet-600/20 transition-all transform hover:-translate-y-1 active:scale-95">
             Contact Us
           </a>
@@ -148,7 +148,7 @@ interface TeamMember {
   `
 })
 export class AboutUsComponent {
-  
+
   team: TeamMember[] = [
     {
       name: 'Raihan Alam',

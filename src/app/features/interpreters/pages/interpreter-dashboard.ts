@@ -1,10 +1,10 @@
 import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
-import { Navbar } from "../layout/navbar";
+import { Navbar } from "../../../layout/navbar/navbar";
 import { HttpClient } from '@angular/common/http';
-import { RealtimeService } from '../../core/realtime/realtime.service';
+import { RealtimeService } from '../../../core/services/realtime.service';
 import { Subscription, finalize } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { environment } from '../../../../environments/environment';
 import { RouterLink } from '@angular/router';
 
 export interface RelationshipResponse {
@@ -26,9 +26,9 @@ export interface RelationshipResponse {
     <app-navbar></app-navbar>
 
     <div class="min-h-screen bg-gray-50 dark:bg-[#0f1115] pt-24 md:pt-32 px-4 md:px-8 pb-20 transition-colors duration-300">
-      
+
       <div class="max-w-6xl mx-auto space-y-8">
-        
+
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <h1 class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight flex items-center gap-3">
@@ -37,7 +37,7 @@ export interface RelationshipResponse {
             </h1>
             <p class="text-gray-500 dark:text-gray-400 mt-1">Manage your patient consultations and incoming requests.</p>
           </div>
-          
+
           <div class="flex items-center gap-4">
              <div class="hidden md:flex gap-6 mr-4 border-r border-gray-200 dark:border-gray-800 pr-6">
                 <div class="text-right">
@@ -94,7 +94,7 @@ export interface RelationshipResponse {
         </div>
 
         <div class="min-h-[400px]">
-           
+
            @if (isLoading()) {
               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse">
                  @for(i of [1,2,3]; track i) {
@@ -156,7 +156,7 @@ export interface RelationshipResponse {
                                         class="flex-1 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 font-semibold text-sm hover:bg-red-50 hover:text-red-600 hover:border-red-100 dark:hover:bg-red-900/10 transition-colors">
                                    Decline
                                 </button>
-                                <button (click)="handleResponse(req.relationshipId, 'ACCEPT')" 
+                                <button (click)="handleResponse(req.relationshipId, 'ACCEPT')"
                                         [disabled]="isProcessing() === req.relationshipId"
                                         class="flex-[2] py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow-md shadow-blue-500/20 flex items-center justify-center gap-2 transition-all">
                                    @if(isProcessing() === req.relationshipId) {
@@ -188,7 +188,7 @@ export interface RelationshipResponse {
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                        @for (rel of activeRelationships(); track rel.relationshipId) {
                           <div class="bg-white dark:bg-[#181a1f] border border-gray-200 dark:border-gray-800 rounded-2xl p-5 hover:border-blue-300 dark:hover:border-blue-900 transition-all duration-200 flex flex-col justify-between h-full group">
-                             
+
                              <div class="flex items-start justify-between mb-4">
                                 <div class="flex items-center gap-3">
                                    <div class="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 font-bold text-lg flex items-center justify-center">
@@ -211,7 +211,7 @@ export interface RelationshipResponse {
                              </div>
 
                              <div class="mt-auto pt-4 border-t border-gray-100 dark:border-gray-800">
-                                <button routerLink="/messages" 
+                                <button routerLink="/messages"
                                         [queryParams]="{ relationshipId: rel.relationshipId, recipientId: rel.clientName }"
                                         class="w-full py-2.5 bg-gray-50 dark:bg-[#252830] hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 text-gray-700 dark:text-gray-300 font-semibold text-sm rounded-xl transition-colors flex items-center justify-center gap-2 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/10">
                                    <i class="ri-message-3-line"></i>
@@ -258,7 +258,7 @@ export class InterpreterDashboard implements OnInit, OnDestroy {
 
   private initialLoad() {
     this.isLoading.set(true);
-    
+
     // Load requests first
     this.http.get<RelationshipResponse[]>(`${this.apiUrl}/requests/incoming`)
       .subscribe({
@@ -297,10 +297,10 @@ export class InterpreterDashboard implements OnInit, OnDestroy {
         next: (res) => {
           const updated = this.incomingRequests().filter(r => r.relationshipId !== id);
           this.incomingRequests.set(updated);
-          
+
           if (actionStr === 'ACCEPT') {
              this.activeRelationships.update(prev => [res, ...prev]);
-             this.viewMode.set('active'); 
+             this.viewMode.set('active');
           }
         },
         error: (err) => console.error('Error responding to request', err)
@@ -311,7 +311,7 @@ export class InterpreterDashboard implements OnInit, OnDestroy {
     this.realtimeSub = this.realtime.events$.subscribe(event => {
       if (!event) return;
       if (event.type === 'RELATIONSHIP_REQUEST_RECEIVED') {
-         this.loadIncomingRequests(); 
+         this.loadIncomingRequests();
       }
     });
   }

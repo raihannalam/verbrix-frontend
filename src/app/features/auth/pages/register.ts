@@ -1,18 +1,18 @@
-import { Component, inject, signal, OnDestroy } from '@angular/core';
+import { Component, inject, signal, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { initializeApp, getApps } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { take } from 'rxjs/operators';
-import { environment } from '../../../environments/environment'; // Ensure this path is correct
-import { AuthService } from '../../core/auth/auth.service';
+import { environment } from '../../../../environments/environment'; // Ensure this path is correct
+import { AuthService } from '../../../core/auth/auth.service';
 import {
   RegistrationRequest,
   OtpVerificationResponse,
   UserRole,
   SocialLoginRequest
-} from '../../core/models/auth.models';
+} from '../../../core/models/auth.models';
 
 @Component({
   selector: 'app-register',
@@ -40,8 +40,8 @@ import {
 
       <div class="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-12 relative">
         <a routerLink="/" class="absolute top-6 left-6 flex items-center gap-2 text-text-muted hover:text-brand transition-colors lg:hidden">
-           <i class="ri-arrow-left-line"></i>
-           <span class="text-sm font-bold">Back to Home</span>
+          <i class="ri-arrow-left-line"></i>
+          <span class="text-sm font-bold">Back to Home</span>
         </a>
 
         <div class="w-full max-w-md animate-fade-in-up">
@@ -189,7 +189,7 @@ import {
 
           <p class="text-center mt-8 text-text-muted">
             Already have an account?
-            <a routerLink="/auth/login" class="font-semibold text-brand hover:text-brand-hover hover:underline">Sign in</a>
+            <a [routerLink]="['/auth/login']" [queryParams]="returnUrl() ? { returnUrl: returnUrl() } : null" class="font-semibold text-brand hover:text-brand-hover hover:underline">Sign in</a>
           </p>
         </div>
       </div>
@@ -200,10 +200,11 @@ import {
     @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
   `]
 })
-export class RegisterComponent implements OnDestroy {
+export class RegisterComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private auth = inject(AuthService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute); // Injected to read query params
 
   step = signal<'enterEmail' | 'enteredOtp' | 'setPassword'>('enterEmail');
   loading = signal(false);
@@ -211,6 +212,7 @@ export class RegisterComponent implements OnDestroy {
   showPassword = signal(false);
   canResend = signal(false);
   countdown = signal(60);
+  returnUrl = signal<string | null>(null); // State to hold the return path
   private timerRef: any;
   private preAuthToken: string | null = null;
 
@@ -226,6 +228,13 @@ export class RegisterComponent implements OnDestroy {
 
   constructor() {
     if (!getApps().length) initializeApp(environment.firebaseConfig);
+  }
+
+  ngOnInit() {
+    // Capture the returnUrl from the route query parameters
+    this.route.queryParams.subscribe(params => {
+      this.returnUrl.set(params['returnUrl'] || null);
+    });
   }
 
   // --- NEW: Handle Enter Key / Form Submission Native Routing ---
@@ -369,6 +378,14 @@ export class RegisterComponent implements OnDestroy {
   }
 
   private navigateBasedOnRole(roles: string[]) {
+    // 1. Prioritize the returnUrl if it exists
+    const redirectUrl = this.returnUrl();
+    if (redirectUrl) {
+      this.router.navigateByUrl(redirectUrl);
+      return;
+    }
+
+    // 2. Fallback to default role-based routing
     if (roles.includes(UserRole.ADMIN)) {
       this.router.navigate(['/dashboard/admin/home']);
     } else if (roles.includes(UserRole.INTERPRETER)) {
