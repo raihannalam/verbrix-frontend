@@ -72,15 +72,69 @@ export class AuthService {
   }
 
   private getDeviceDetails(): string {
-    const ua = navigator.userAgent;
-    let browser = 'Unknown Browser';
-    if (ua.includes('Firefox')) browser = 'Firefox';
-    else if (ua.includes('Chrome') || ua.includes('CriOS')) browser = 'Chrome';
-    else if (ua.includes('Safari')) browser = 'Safari';
-    else if (ua.includes('Edge') || ua.includes('Edg/')) browser = 'Edge';
+    const ua = navigator.userAgent || '';
+    let client = 'Unknown Browser';
+    let os = 'Unknown OS';
+    let version = '';
 
-    const os = navigator.platform || 'Unknown OS';
-    return `Angular Web App (${browser} on ${os})`;
+    // 1. Detect OS (Fixed iPhone vs iPad hierarchy)
+    if (ua.includes('Win')) {
+      os = 'Windows';
+    } else if (ua.includes('Android')) {
+      os = 'Android';
+    } else if (ua.includes('iPhone') || ua.includes('iPod')) {
+      os = 'iOS (iPhone)';
+    } else if (ua.includes('iPad') || (ua.includes('Mac') && navigator && navigator.maxTouchPoints > 1)) {
+      // Catches explicit iPads AND iPads pretending to be Macs
+      os = 'iOS (iPad)';
+    } else if (ua.includes('Mac')) {
+      os = 'macOS';
+    } else if (ua.includes('CrOS')) {
+      os = 'Chrome OS';
+    } else if (ua.includes('Linux')) {
+      os = 'Linux';
+    }
+
+    // 2. Detect Native Mobile Apps (APK / App Store / WebViews)
+    const isIOSWebView = /(iPhone|iPod|iPad).*AppleWebKit(?!.*Safari)/i.test(ua);
+    const isAndroidWebView = ua.includes('wv') || (ua.includes('Android') && ua.includes('Version/'));
+    const isCapacitor = ua.includes('Capacitor');
+    const isCordova = ua.includes('Cordova');
+
+    if (isIOSWebView || isAndroidWebView || isCapacitor || isCordova) {
+      return `Native App on ${os}`;
+    }
+
+    // 3. Detect Browsers & Versions
+    if (ua.includes('SamsungBrowser')) {
+      client = 'Samsung Internet';
+      version = (ua.match(/SamsungBrowser\/([\d.]+)/) || [])[1] || '';
+    } else if (ua.includes('UCBrowser')) {
+      client = 'UC Browser';
+      version = (ua.match(/UCBrowser\/([\d.]+)/) || [])[1] || '';
+    } else if (ua.includes('YaBrowser')) {
+      client = 'Yandex';
+      version = (ua.match(/YaBrowser\/([\d.]+)/) || [])[1] || '';
+    } else if (ua.includes('OPR') || ua.includes('Opera')) {
+      client = 'Opera';
+      version = (ua.match(/(?:OPR|Opera)\/([\d.]+)/) || [])[1] || '';
+    } else if (ua.includes('Edg')) {
+      client = 'Edge';
+      version = (ua.match(/Edg\/([\d.]+)/) || [])[1] || '';
+    } else if (ua.includes('Firefox') || ua.includes('FxiOS')) {
+      client = 'Firefox';
+      version = (ua.match(/(?:Firefox|FxiOS)\/([\d.]+)/) || [])[1] || '';
+    } else if (ua.includes('Chrome') || ua.includes('CriOS')) {
+      client = 'Chrome';
+      version = (ua.match(/(?:Chrome|CriOS)\/([\d.]+)/) || [])[1] || '';
+    } else if (ua.includes('Safari') && ua.includes('Version')) {
+      client = 'Safari';
+      version = (ua.match(/Version\/([\d.]+)/) || [])[1] || '';
+    }
+
+    // Format output (e.g., "Chrome 145 on Windows" or "Safari 17 on iOS (iPhone)")
+    const majorVersion = version ? ` ${version.split('.')[0]}` : '';
+    return `${client}${majorVersion} on ${os}`;
   }
 
   private generateFallbackUUID(): string {
@@ -151,6 +205,22 @@ export class AuthService {
     this.router.navigate(['/auth/login']);
   }
 
+  logoutAll(): Observable<any> {
+    // 🟢 Calls the specific logout-all endpoint and passes credentials (cookies)
+    return this.http.post(`${this.API_URL}/logout-all`, {}, { withCredentials: true })
+      .pipe(
+        tap(() => {
+          this.clearSession();
+          this.router.navigate(['/auth/login']);
+        }),
+        catchError((err) => {
+          // Even if the backend fails, we still want to clear local state
+          this.clearSession();
+          this.router.navigate(['/auth/login']);
+          return throwError(() => err);
+        })
+      );
+  }
   refreshToken(): Observable<RefreshTokenResponse> {
     // 🟢 No token in body. The backend reads the `verbrix_refresh` cookie automatically
     return this.http.post<RefreshTokenResponse>(`${this.API_URL}/refresh-token`, {}, { withCredentials: true })

@@ -13,7 +13,7 @@ import { CommonModule, DOCUMENT } from '@angular/common';
 import { fromEvent, throttleTime } from 'rxjs';
 
 import { AuthService } from '../../core/auth/auth.service';
-import { UserProfileService } from '../../core/profile/user-profile.service';
+import { UserProfileService } from '../../core/services/user-profile.service';
 import { UserRole } from '../../core/models/auth.models';
 
 interface NavLink {
@@ -26,7 +26,7 @@ interface NavLink {
 
 const NAV_CONFIG: Record<string, NavLink[]> = {
   [UserRole.ADMIN]: [
-    { label: 'Overview', route: '/dashboard/admin/home' }, 
+    { label: 'Overview', route: '/dashboard/admin/home' },
     { label: 'Approvals', route: '/dashboard/admin/approvals' },
     { label: 'Users', route: '/dashboard/admin/users' },
     { label: 'Financials', route: '/dashboard/admin/financials' },
@@ -40,6 +40,7 @@ const NAV_CONFIG: Record<string, NavLink[]> = {
   ],
   [UserRole.CLIENT]: [
     { label: 'Overview', route: '/dashboard/client/home' },
+    { label: 'Find Interpreter', route: '/interpreters/find' },
     { label: 'Bookings', isDisabled: true },
     { label: 'Documents', isDisabled: true },
     { label: 'Messages', route: '/messages' },
@@ -67,8 +68,8 @@ const NAV_CONFIG: Record<string, NavLink[]> = {
       [class.bg-[var(--bg-page)]]="isMenuOpen()"
     >
       <div class="container mx-auto h-full px-4 sm:px-6 flex items-center justify-between relative z-10">
-        
-        <a (click)="handleLogoClick()" 
+
+        <a (click)="handleLogoClick()"
            class="flex items-center select-none cursor-pointer group"
            aria-label="Verbrix Home">
           <img src="/assets/images/logo.png" alt="Verbrix" class="h-7 w-auto object-contain transition-transform group-hover:scale-105" />
@@ -103,37 +104,44 @@ const NAV_CONFIG: Record<string, NavLink[]> = {
         <div class="flex items-center gap-3">
           @if (isLoggedIn()) {
             <div class="hidden md:flex items-center gap-4 pl-4 border-l border-[var(--border)]">
-              <a [routerLink]="dashboardRoute()" 
-                 class="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
-                 aria-label="Go to Dashboard">
-                <div class="h-8 w-8 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-xs shadow-sm">
-                  {{ userInitials() }}
-                </div>
+              <a routerLink="/profile"
+                 class="flex items-center gap-3 cursor-pointer p-1.5 pr-3 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                 title="View Profile & Settings">
+
+                @if (profilePictureUrl()) {
+                  <img [src]="profilePictureUrl()" alt="Profile"
+                       class="h-8 w-8 rounded-full object-cover shadow-sm border border-[var(--border)] bg-gray-50 dark:bg-gray-800">
+                } @else {
+                  <div class="h-8 w-8 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-xs shadow-sm">
+                    {{ userInitials() }}
+                  </div>
+                }
+
                 <div class="flex flex-col leading-none">
                   <span class="text-sm font-bold text-[var(--text-main)]">{{ displayName() }}</span>
                   <span class="text-[10px] uppercase tracking-wide font-bold text-[var(--text-muted)]">{{ roleLabel() }}</span>
                 </div>
               </a>
-              <button (click)="logout()" 
-                      class="h-8 w-8 rounded-full flex items-center justify-center text-[var(--text-dim)] transition-colors hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 cursor-pointer" 
+              <button (click)="logout()"
+                      class="h-8 w-8 rounded-full flex items-center justify-center text-[var(--text-dim)] transition-colors hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 cursor-pointer"
                       title="Sign Out">
                 <i class="ri-logout-box-r-line"></i>
               </button>
             </div>
           } @else {
             <div class="hidden md:flex items-center gap-2 flex-nowrap">
-              <a routerLink="/auth/login" 
+              <a routerLink="/auth/login"
                  class="px-5 py-2 text-sm font-semibold text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors cursor-pointer rounded-full hover:bg-[var(--bg-surface)]">
-                 Sign In
+                Sign In
               </a>
-              <a routerLink="/auth/register" 
+              <a routerLink="/auth/register"
                  class="inline-flex items-center justify-center rounded-full bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 text-sm font-semibold shadow-lg shadow-blue-600/25 cursor-pointer whitespace-nowrap transition-transform hover:scale-105 active:scale-95">
-                 Get Started
+                Get Started
               </a>
             </div>
           }
 
-          <button (click)="toggleMenu()" 
+          <button (click)="toggleMenu()"
                   class="md:hidden flex h-10 w-10 items-center justify-center rounded-full text-[var(--text-main)] hover:bg-[var(--bg-surface)] cursor-pointer transition-colors"
                   [attr.aria-expanded]="isMenuOpen()"
                   aria-label="Toggle Menu">
@@ -154,14 +162,21 @@ const NAV_CONFIG: Record<string, NavLink[]> = {
     <aside
       class="md:hidden fixed top-0 right-0 z-[1000] h-[100dvh] w-[80%] max-w-[300px] bg-[var(--bg-page)] shadow-2xl pt-20 pb-6 px-6 transition-transform duration-300"
       [class.translate-x-full]="!isMenuOpen()"
-      [style.visibility]="isMenuOpen() ? 'visible' : 'hidden'" 
+      [style.visibility]="isMenuOpen() ? 'visible' : 'hidden'"
     >
       <nav class="flex-1 overflow-y-auto flex flex-col gap-2 no-scrollbar">
         @if (isLoggedIn()) {
           <div class="mb-6 p-4 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border)] flex items-center gap-4">
-            <div class="h-12 w-12 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm">
-              {{ userInitials() }}
-            </div>
+
+            @if (profilePictureUrl()) {
+              <img [src]="profilePictureUrl()" alt="Profile"
+                   class="h-12 w-12 rounded-full object-cover shadow-sm border border-[var(--border)] bg-gray-50 dark:bg-gray-800">
+            } @else {
+              <div class="h-12 w-12 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm">
+                {{ userInitials() }}
+              </div>
+            }
+
             <div class="overflow-hidden">
               <span class="block text-sm font-bold text-[var(--text-main)] truncate">{{ displayName() }}</span>
               <span class="block text-xs font-semibold text-blue-600 dark:text-blue-400">{{ roleLabel() }}</span>
@@ -175,7 +190,7 @@ const NAV_CONFIG: Record<string, NavLink[]> = {
               {{ link.label }}
             </span>
           } @else if (link.route) {
-            <a [routerLink]="link.route" 
+            <a [routerLink]="link.route"
                [queryParams]="link.queryParams"
                (click)="closeMenu()"
                routerLinkActive="bg-blue-50 dark:bg-blue-900/20 text-blue-600 font-bold"
@@ -193,6 +208,9 @@ const NAV_CONFIG: Record<string, NavLink[]> = {
 
         <div class="mt-auto pt-6 border-t border-[var(--border)]">
           @if (isLoggedIn()) {
+            <a routerLink="/profile" (click)="closeMenu()" class="w-full flex items-center justify-center gap-2 px-4 py-3 mb-2 rounded-xl font-semibold text-[var(--text-muted)] hover:bg-[var(--bg-surface)] cursor-pointer">
+              <i class="ri-user-settings-line"></i> Profile & Settings
+            </a>
             <button (click)="logout()" class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-red-600 font-semibold hover:bg-red-50 dark:hover:bg-red-900/10 cursor-pointer">
               <i class="ri-logout-box-line"></i> Log Out
             </button>
@@ -205,7 +223,7 @@ const NAV_CONFIG: Record<string, NavLink[]> = {
     </aside>
   `,
   styles: [`
-    :host { 
+    :host {
       display: block;
       position: fixed;
       top: 0;
@@ -229,7 +247,7 @@ export class Navbar {
   private ngZone = inject(NgZone);
 
   isLoggedIn = this.auth.isLoggedIn;
-  isMenuOpen = signal(false); 
+  isMenuOpen = signal(false);
   isScrolled = signal(false);
 
   currentNavLinks = computed(() => {
@@ -240,7 +258,7 @@ export class Navbar {
   displayName = computed(() => {
     const p = this.profile.profile();
     if (p && p.firstName) {
-        return `${p.firstName} ${p.lastName || ''}`.trim();
+      return `${p.firstName} ${p.lastName || ''}`.trim();
     }
     return this.auth.currentUser()?.email.split('@')[0] || 'Guest';
   });
@@ -249,6 +267,9 @@ export class Navbar {
     const name = this.displayName();
     return name.slice(0, 2).toUpperCase();
   });
+
+  // Added computed property to get the profile picture URL safely
+  profilePictureUrl = computed(() => this.profile.profile()?.profilePictureUrl);
 
   roleLabel = computed(() => {
     const role = this.auth.currentUser()?.role;
@@ -272,7 +293,7 @@ export class Navbar {
   constructor() {
     afterNextRender(() => {
       this.checkScroll();
-      
+
       this.ngZone.runOutsideAngular(() => {
         fromEvent(window, 'scroll', { passive: true })
           .pipe(
@@ -284,8 +305,9 @@ export class Navbar {
           });
       });
 
-      if (this.auth.isLoggedIn() && !this.profile.snapshot) {
-          this.profile.loadProfile();
+      // Fixed: check the signal value instead of the observable stream
+      if (this.auth.isLoggedIn() && !this.profile.profile()) {
+        this.profile.loadProfile();
       }
     });
   }
@@ -344,7 +366,7 @@ export class Navbar {
   private doScroll(id: string) {
     const el = this.document.getElementById(id);
     if (!el) return;
-    const headerHeight = 64; 
+    const headerHeight = 64;
     const offset = el.getBoundingClientRect().top + window.scrollY - headerHeight;
     window.scrollTo({ top: offset, behavior: 'smooth' });
   }

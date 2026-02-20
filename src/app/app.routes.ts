@@ -58,6 +58,13 @@ export const routes: Routes = [
     loadChildren: () => import('./features/auth/auth.routes').then(m => m.authRoutes)
   },
 
+  {
+    path: 'profile',
+    loadComponent: () => import('./features/profile/user-profile').then(m => m.UserProfileComponent),
+    canActivate: [authGuard],
+    title: 'Profile | Verbrix'
+  },
+
 
   // 3. INTERPRETER APPLICATION FLOW
   {
