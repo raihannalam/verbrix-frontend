@@ -1,4 +1,4 @@
-import { Injectable, OnDestroy, inject, effect } from '@angular/core';
+import { Injectable, OnDestroy, inject, effect, untracked } from '@angular/core';
 import { Client, StompSubscription, IMessage } from '@stomp/stompjs';
 import { Subject, BehaviorSubject, filter, take, scan, map } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
@@ -17,16 +17,16 @@ export class RealtimeService implements OnDestroy {
 
   private client: Client | null = null;
   private subscription: StompSubscription | null = null;
-  
+
   // Connection State
   public connected$ = new BehaviorSubject<boolean>(false);
-  
+
   // Global Notification Stream (Deduplicated)
   private eventsSubject = new Subject<RealtimeEvent | null>();
   public events$ = this.eventsSubject.asObservable().pipe(
     filter((e): e is RealtimeEvent => e !== null),
     scan((acc, curr) => {
-      const currentId = curr.data?.id || JSON.stringify(curr.data); 
+      const currentId = curr.data?.id || JSON.stringify(curr.data);
       return { lastId: currentId, payload: acc.lastId === currentId ? null : curr };
     }, { lastId: null, payload: null } as { lastId: any, payload: RealtimeEvent | null }),
     map(acc => acc.payload),
@@ -34,93 +34,112 @@ export class RealtimeService implements OnDestroy {
   );
 
   constructor() {
-    // Automatic Connection Management via Signals
+    // 🟢 REACTIVE CONNECTION MANAGEMENT
+    // This effect acts as a "listener" to your in-memory Access Token.
     effect((onCleanup) => {
       const user = this.authService.currentUser();
-      const token = this.authService.accessToken(); 
-      
+      const token = this.authService.accessToken();
+
+      // If we have a valid token in memory, connect!
       if (user && token && !this.authService.isTokenExpired(token)) {
-         this.connect(token);
+        // Untracked prevents the connect method itself from triggering infinite loops
+        untracked(() => this.connect(token));
       } else {
-         this.disconnect();
+        // If token is null (e.g., app just loaded or user logged out), cleanly disconnect
+        untracked(() => this.disconnect());
       }
 
+      // Cleanup when the service is destroyed
       onCleanup(() => {
-        this.disconnect();
+        untracked(() => this.disconnect());
       });
     });
   }
 
   private connect(token: string): void {
+    // Prevent duplicate connections
     if (this.client?.active) return;
 
     const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-    const host = environment.apiBaseUrl.replace(/^http(s)?:\/\//, ''); 
+    const host = environment.apiBaseUrl.replace(/^http(s)?:\/\//, '');
+
+    // 🟢 PASSING THE TOKEN:
+    // WebSockets don't easily send HTTP Headers during the initial handshake.
+    // Passing it in the query param OR via STOMP connectHeaders covers both Spring Boot security checks.
     const brokerURL = `${protocol}://${host}/ws?access_token=${token}`;
 
     this.client = new Client({
       brokerURL: brokerURL,
       connectHeaders: { Authorization: `Bearer ${token}` },
       reconnectDelay: 5000,
-      heartbeatIncoming: 20000, 
+      heartbeatIncoming: 20000,
       heartbeatOutgoing: 20000,
-      // Debug only critical issues
       debug: (str) => {
-        if(str.includes('Error') || str.includes('Connect')) console.debug('[STOMP]:', str);
+        if(str.includes('Error')) console.error('[STOMP Error]:', str);
       }
     });
 
     this.client.onConnect = () => {
-      console.log('RealtimeService: Connected');
+      console.log('✅ RealtimeService: Connected securely');
       this.connected$.next(true);
 
-      // Global User Notifications
+      // Subscribe to personal security alerts and notifications
       this.subscription = this.client!.subscribe('/user/queue/notifications', (message: IMessage) => {
-          this.safeParseAndEmit(message, (body) => this.eventsSubject.next(body));
+        this.safeParseAndEmit(message, (body) => this.eventsSubject.next(body));
       });
     };
 
     this.client.onStompError = (frame) => {
-      console.error('Broker error:', frame.headers['message']);
-      if (frame.headers['message']?.includes('Session closed')) this.disconnect(); 
+      console.error('❌ Broker error:', frame.headers['message']);
+      // If the backend drops the connection due to an expired token, disconnect.
+      // The AuthInterceptor will eventually refresh it, triggering the Signal to reconnect.
+      if (frame.headers['message']?.includes('Session closed') || frame.headers['message']?.includes('Access Denied')) {
+        this.disconnect();
+      }
     };
 
-    this.client.onDisconnect = () => this.connected$.next(false);
+    this.client.onDisconnect = () => {
+      if (this.connected$.value) {
+        console.log('⚠️ RealtimeService: Disconnected');
+        this.connected$.next(false);
+      }
+    };
+
     this.client.activate();
   }
 
   private disconnect(): void {
-    this.connected$.next(false);
     if (this.subscription) {
       this.subscription.unsubscribe();
       this.subscription = null;
     }
-    if (this.client) {
-      this.client.deactivate();
-      this.client = null;
+
+    if (this.client && this.client.active) {
+      // FIX: Explicitly mark the Promise as ignored
+      void this.client.deactivate();
     }
+
+    this.client = null;
+    this.connected$.next(false);
   }
 
   public sendMessage(destination: string, body: any): void {
     if (this.connected$.value && this.client?.connected) {
-        this.client.publish({ destination, body: JSON.stringify(body) });
+      this.client.publish({ destination, body: JSON.stringify(body) });
     }
   }
 
-  // Used by Chat Component
   public subscribeToTopic(topic: string, callback: (payload: any) => void): StompSubscription {
-    // 1. If connected, subscribe immediately
     if (this.connected$.value && this.client?.connected) {
-        return this.client.subscribe(topic, (msg) => this.safeParseAndEmit(msg, callback));
+      return this.client.subscribe(topic, (msg) => this.safeParseAndEmit(msg, callback));
     }
 
-    // 2. If not connected, wait for connection then subscribe
     const autoSub = this.connected$.pipe(
-        filter(c => c), take(1)
+      filter(c => c), take(1)
     ).subscribe(() => {
-        if(this.client?.connected) {
-           this.client.subscribe(topic, (msg) => this.safeParseAndEmit(msg, callback));
-        }
+      if(this.client?.connected) {
+        this.client.subscribe(topic, (msg) => this.safeParseAndEmit(msg, callback));
+      }
     });
 
     return { id: 'pending', unsubscribe: () => autoSub.unsubscribe() } as StompSubscription;
@@ -129,7 +148,9 @@ export class RealtimeService implements OnDestroy {
   private safeParseAndEmit(msg: IMessage, callback: (body: any) => void) {
     try {
       if (msg.body) callback(JSON.parse(msg.body));
-    } catch (e) { console.error('JSON Parse Error', e); }
+    } catch (e) {
+      console.error('WebSocket JSON Parse Error', e);
+    }
   }
 
   ngOnDestroy(): void {

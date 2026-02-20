@@ -15,11 +15,15 @@ export interface User {
 export interface LoginRequest {
   email?: string;
   password?: string;
+  deviceId: string; // 🟢 NEW: Required for backend device tracking
+  deviceDetails?: string;
 }
 
 export interface SocialLoginRequest {
   idToken: string; // From Firebase
   provider: 'google';
+  deviceId: string; // 🟢 NEW
+  deviceDetails?: string; //
 }
 
 export interface EmailRequest {
@@ -36,7 +40,9 @@ export interface RegistrationRequest {
   password?: string;
   firstName?: string;
   lastName?: string;
-  preAuthToken: string; // CRITICAL: Required for completeRegistration
+  preAuthToken: string;
+  deviceId: string; // 🟢 NEW
+  deviceDetails?: string;// CRITICAL: Required for completeRegistration
 }
 
 export interface PasswordResetRequest {
@@ -53,7 +59,7 @@ export interface RefreshTokenRequest {
 export interface LoginResponse {
   email: string;
   roles: string[]; // Backend returns list, we strictly extract ONE
-  accessToken: string;
+  jwtToken: string;
   refreshToken: string;
 }
 

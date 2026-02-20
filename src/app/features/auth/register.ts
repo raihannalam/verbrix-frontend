@@ -7,11 +7,11 @@ import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { take } from 'rxjs/operators';
 import { environment } from '../../../environments/environment'; // Ensure this path is correct
 import { AuthService } from '../../core/auth/auth.service';
-import { 
-  RegistrationRequest, 
-  OtpVerificationResponse, 
+import {
+  RegistrationRequest,
+  OtpVerificationResponse,
   UserRole,
-  SocialLoginRequest 
+  SocialLoginRequest
 } from '../../core/models/auth.models';
 
 @Component({
@@ -20,7 +20,7 @@ import {
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   template: `
     <div class="min-h-screen w-full flex bg-bg-page">
-      
+
       <div class="hidden lg:flex lg:w-1/2 relative bg-brand-surface overflow-hidden items-center justify-center p-12">
         <div class="absolute inset-0">
           <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-teal-400 blur-[150px] opacity-20 rounded-full mix-blend-multiply"></div>
@@ -55,9 +55,9 @@ import {
           </div>
 
           @if (step() === 'enterEmail') {
-            <button 
-              type="button" 
-              (click)="registerWithGoogle()" 
+            <button
+              type="button"
+              (click)="registerWithGoogle()"
               [disabled]="loading()"
               class="w-full h-12 rounded-xl border border-border bg-bg-surface hover:bg-bg-page hover:border-border-hover flex items-center justify-center gap-3 text-text-main font-semibold transition-all active:scale-[0.98] disabled:opacity-50 mb-8">
               <img src="assets/images/google-icon.svg" width="20" height="20" alt="Google" />
@@ -71,7 +71,7 @@ import {
           }
 
           <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-5">
-            
+
             @if (step() === 'enterEmail') {
               <div class="grid grid-cols-2 gap-4">
                 <div class="space-y-1">
@@ -123,7 +123,7 @@ import {
                 <button type="submit" [disabled]="loading() || form.controls['otp'].invalid" class="w-full h-12 rounded-xl bg-brand text-white font-bold text-base shadow-lg hover:bg-brand-hover active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center mt-2">
                   {{ loading() ? 'Verifying...' : 'Verify & Continue' }}
                 </button>
-                
+
                 <button type="button" (click)="step.set('enterEmail')" class="w-full text-sm text-text-muted hover:text-text-main mt-2">Change Email</button>
               </div>
             }
@@ -133,11 +133,11 @@ import {
                 <div class="space-y-1">
                   <label class="text-xs font-bold uppercase tracking-wider text-text-muted">Create Password</label>
                   <div class="relative">
-                    <input 
-                      [type]="showPassword() ? 'text' : 'password'" 
-                      formControlName="password" 
-                      class="w-full h-12 px-4 pl-10 pr-10 rounded-xl bg-bg-surface border border-transparent text-text-main focus:bg-bg-page focus:ring-2 focus:ring-brand/20 focus:border-brand outline-none transition-all placeholder:text-text-dim" 
-                      placeholder="Min. 6 characters" 
+                    <input
+                      [type]="showPassword() ? 'text' : 'password'"
+                      formControlName="password"
+                      class="w-full h-12 px-4 pl-10 pr-10 rounded-xl bg-bg-surface border border-transparent text-text-main focus:bg-bg-page focus:ring-2 focus:ring-brand/20 focus:border-brand outline-none transition-all placeholder:text-text-dim"
+                      placeholder="Min. 6 characters"
                     />
                     <i class="ri-lock-password-line absolute left-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none"></i>
                     <button type="button" (click)="togglePassword()" class="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-main">
@@ -166,8 +166,8 @@ import {
                       <span class="cursor-pointer group-hover:text-text-main select-none" (click)="form.get('acceptedPolicies')?.setValue(!form.get('acceptedPolicies')?.value)">
                         I agree to the
                       </span>
-                      <a href="https://verbrix.com/legal/terms" target="_blank" class="text-brand hover:underline mx-1">Terms of Service</a> 
-                      and 
+                      <a href="https://verbrix.com/legal/terms" target="_blank" class="text-brand hover:underline mx-1">Terms of Service</a>
+                      and
                       <a href="https://verbrix.com/legal/privacy" target="_blank" class="text-brand hover:underline ml-1">Privacy Policy</a>.
                     </div>
                   </div>
@@ -188,7 +188,7 @@ import {
           }
 
           <p class="text-center mt-8 text-text-muted">
-            Already have an account? 
+            Already have an account?
             <a routerLink="/auth/login" class="font-semibold text-brand hover:text-brand-hover hover:underline">Sign in</a>
           </p>
         </div>
@@ -256,7 +256,7 @@ export class RegisterComponent implements OnDestroy {
     if (!email) return;
 
     this.loading.set(true);
-    
+
     this.auth.requestRegistrationOtp({ email }).pipe(take(1)).subscribe({
       next: (res) => {
         this.loading.set(false);
@@ -318,7 +318,7 @@ export class RegisterComponent implements OnDestroy {
     this.errorMessage.set(null);
     this.loading.set(true);
 
-    const req: RegistrationRequest = {
+    const req: Omit<RegistrationRequest, 'deviceId' | 'deviceDetails'> = {
       email: this.form.controls.email.value,
       password: this.form.controls.password.value,
       firstName: this.form.controls.firstName.value,
@@ -347,7 +347,7 @@ export class RegisterComponent implements OnDestroy {
       const result = await signInWithPopup(authInstance, provider);
       const idToken = await result.user.getIdToken();
 
-      const req: SocialLoginRequest = {
+      const req: Omit<SocialLoginRequest, 'deviceId' | 'deviceDetails'> = {
         idToken: idToken,
         provider: 'google'
       };

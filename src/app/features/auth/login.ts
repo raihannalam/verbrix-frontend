@@ -46,9 +46,9 @@ import { environment } from '../../../environments/environment';
             <p class="text-text-muted">Enter your details to access your dashboard.</p>
           </div>
 
-          <button 
-            type="button" 
-            (click)="loginWithGoogle()" 
+          <button
+            type="button"
+            (click)="loginWithGoogle()"
             [disabled]="loading()"
             class="w-full h-12 rounded-xl border border-border bg-bg-surface hover:bg-bg-page hover:border-border-hover flex items-center justify-center gap-3 text-text-main font-semibold transition-all active:scale-[0.98] disabled:opacity-50 touch-manipulation">
             <img src="assets/images/google-icon.svg" width="20" height="20" alt="Google" />
@@ -64,11 +64,11 @@ import { environment } from '../../../environments/environment';
             <div class="space-y-1">
               <label for="email" class="text-sm font-semibold text-text-main">Email Address</label>
               <div class="relative">
-                <input 
+                <input
                   #emailInput
-                  id="email" 
-                  type="email" 
-                  formControlName="email" 
+                  id="email"
+                  type="email"
+                  formControlName="email"
                   placeholder="name@email.com"
                   class="w-full h-12 pl-10 pr-4 rounded-xl bg-bg-surface border border-transparent text-text-main focus:bg-bg-page focus:ring-2 focus:ring-brand/20 focus:border-brand outline-none transition-all placeholder:text-text-dim"
                   [class.ring-2]="emailControl.invalid && emailControl.touched"
@@ -88,11 +88,11 @@ import { environment } from '../../../environments/environment';
             <div class="space-y-1">
               <label for="password" class="text-sm font-semibold text-text-main">Password</label>
               <div class="relative">
-                <input 
+                <input
                   #passwordInput
-                  id="password" 
+                  id="password"
                   [type]="showPassword() ? 'text' : 'password'"
-                  formControlName="password" 
+                  formControlName="password"
                   placeholder="Min. 6 characters"
                   class="w-full h-12 pl-10 pr-10 rounded-xl bg-bg-surface border border-transparent text-text-main focus:bg-bg-page focus:ring-2 focus:ring-brand/20 focus:border-brand outline-none transition-all placeholder:text-text-dim"
                   [class.ring-2]="passwordControl.invalid && passwordControl.touched"
@@ -100,10 +100,10 @@ import { environment } from '../../../environments/environment';
                   [class.border-red-500]="passwordControl.invalid && passwordControl.touched"
                 />
                 <i class="ri-lock-password-line absolute left-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none"></i>
-                
-                <button 
-                  type="button" 
-                  (click)="togglePassword()" 
+
+                <button
+                  type="button"
+                  (click)="togglePassword()"
                   class="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-main focus:outline-none touch-manipulation"
                   tabindex="-1"
                 >
@@ -124,8 +124,8 @@ import { environment } from '../../../environments/environment';
               </a>
             </div>
 
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               [disabled]="loading() || form.invalid"
               class="w-full h-12 rounded-xl bg-brand text-white font-bold text-base shadow-lg hover:bg-brand-hover active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 touch-manipulation">
               @if (loading()) {
@@ -138,7 +138,7 @@ import { environment } from '../../../environments/environment';
           </form>
 
           <p class="text-center mt-8 text-text-muted">
-            Don't have an account? 
+            Don't have an account?
             <a routerLink="/auth/register" class="font-semibold text-brand hover:text-brand-hover hover:underline touch-manipulation">
               Create an account
             </a>
@@ -155,13 +155,13 @@ import { environment } from '../../../environments/environment';
     </div>
   `,
   styles: [`
-    .animate-fade-in-up { 
-      animation: fadeInUp 0.5s ease-out forwards; 
-      opacity: 0; 
-      transform: translateY(10px); 
+    .animate-fade-in-up {
+      animation: fadeInUp 0.5s ease-out forwards;
+      opacity: 0;
+      transform: translateY(10px);
     }
-    @keyframes fadeInUp { 
-      to { opacity: 1; transform: translateY(0); } 
+    @keyframes fadeInUp {
+      to { opacity: 1; transform: translateY(0); }
     }
     .animate-shake {
       animation: shake 0.4s ease-in-out;
@@ -183,13 +183,13 @@ export class LoginComponent implements OnInit {
   showPassword = signal(false);
 
   form = new FormGroup({
-    email: new FormControl('', { 
-      nonNullable: true, 
-      validators: [Validators.required, Validators.email] 
+    email: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.email]
     }),
-    password: new FormControl('', { 
-      nonNullable: true, 
-      validators: [Validators.required, Validators.minLength(6)] 
+    password: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.minLength(6)]
     }),
   });
 
@@ -238,13 +238,13 @@ export class LoginComponent implements OnInit {
 
     try {
       if (!getApps().length) initializeApp(environment.firebaseConfig);
-      
+
       const provider = new GoogleAuthProvider();
       const authInstance = getAuth();
       const result = await signInWithPopup(authInstance, provider);
       const idToken = await result.user.getIdToken();
 
-      const req: SocialLoginRequest = {
+      const req: Omit<SocialLoginRequest, 'deviceId' | 'deviceDetails'> = {
         idToken: idToken,
         provider: 'google'
       };
@@ -270,14 +270,28 @@ export class LoginComponent implements OnInit {
   }
 
   private navigateBasedOnRole(roles: string[]) {
+    console.log('🚀 Login API Succeeded! Roles received:', roles);
+
+    let targetRoute = '';
     if (roles.includes(UserRole.ADMIN)) {
-      this.router.navigate(['/dashboard/admin/home']);
+      targetRoute = '/dashboard/admin/home';
     } else if (roles.includes(UserRole.INTERPRETER)) {
-      this.router.navigate(['/dashboard/interpreter/home']);
+      targetRoute = '/dashboard/interpreter/home';
     } else if (roles.includes(UserRole.CLIENT)) {
-      this.router.navigate(['/dashboard/client/home']);
+      targetRoute = '/dashboard/client/home';
     } else {
-      this.router.navigate(['/dashboard']);
+      targetRoute = '/dashboard';
     }
+
+    console.log('🧭 Attempting to navigate to:', targetRoute);
+
+    // The .then() will tell us if the Router itself refused to move
+    this.router.navigate([targetRoute]).then(success => {
+      if (success) {
+        console.log('✅ Navigation successful!');
+      } else {
+        console.error('❌ Navigation FAILED. Does this route exist in app.routes.ts?');
+      }
+    });
   }
 }
