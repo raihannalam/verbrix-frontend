@@ -39,12 +39,12 @@ import { Navbar } from "../../layout/navbar/navbar";
                 </p>
 
                 <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-
-  <a routerLink="/interpreters/browse"
-     class="flex items-center justify-center h-12 px-8 rounded-lg bg-violet-600 text-white font-semibold">
-     Find an Interpreter
-  </a>
-</div>
+                  <a routerLink="/interpreters/browse"
+                     href="/interpreters/browse"
+                     class="flex items-center justify-center h-12 px-8 rounded-lg bg-violet-600 text-white font-semibold">
+                    Find an Interpreter
+                  </a>
+                </div>
 
               </div>
 
@@ -73,7 +73,7 @@ import { Navbar } from "../../layout/navbar/navbar";
                           src="assets/home/videocall.jpg"
                           alt="Medical Interpreter Video Call"
                           class="w-full h-auto object-cover"
-                          priority
+                          fetchpriority="high"
                         >
                       </div>
                     </div>
@@ -86,13 +86,13 @@ import { Navbar } from "../../layout/navbar/navbar";
 
         <section class="py-10 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950">
           <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <p class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-6">Connecting patients to top facilities</p>
+            <h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-6">Connecting patients to top facilities</h2>
             <div class="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-75 grayscale transition-all duration-500">
-              <img src="assets/hospitals-logo/apollo.svg" alt="Apollo Hospitals" class="h-10 md:h-14 w-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:invert dark:contrast-200" loading="lazy">
-              <img src="assets/hospitals-logo/fortis.png" alt="Fortis Healthcare" class="h-8 md:h-10 w-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:invert dark:contrast-200" loading="lazy">
-              <img src="assets/hospitals-logo/max.png" alt="Max Healthcare" class="h-8 md:h-10 w-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:invert dark:contrast-200" loading="lazy">
-              <img src="assets/hospitals-logo/manipal.png" alt="Manipal Hospitals" class="h-10 md:h-12 w-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:invert dark:contrast-200" loading="lazy">
-              <img src="assets/hospitals-logo/medanta.svg" alt="Medanta" class="h-8 md:h-10 w-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:invert dark:contrast-200" loading="lazy">
+              <img src="assets/hospitals-logo/apollo.svg" alt="Apollo Hospitals India" title="Apollo Hospitals" class="h-10 md:h-14 w-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:invert dark:contrast-200" loading="lazy">
+              <img src="assets/hospitals-logo/fortis.png" alt="Fortis Healthcare India" title="Fortis Healthcare" class="h-8 md:h-10 w-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:invert dark:contrast-200" loading="lazy">
+              <img src="assets/hospitals-logo/max.png" alt="Max Healthcare India" title="Max Healthcare" class="h-8 md:h-10 w-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:invert dark:contrast-200" loading="lazy">
+              <img src="assets/hospitals-logo/manipal.png" alt="Manipal Hospitals India" title="Manipal Hospitals" class="h-10 md:h-12 w-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:invert dark:contrast-200" loading="lazy">
+              <img src="assets/hospitals-logo/medanta.svg" alt="Medanta The Medicity" title="Medanta" class="h-8 md:h-10 w-auto object-contain mix-blend-multiply dark:mix-blend-screen dark:invert dark:contrast-200" loading="lazy">
             </div>
           </div>
         </section>
@@ -101,39 +101,39 @@ import { Navbar } from "../../layout/navbar/navbar";
           <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col md:flex-row gap-12 items-center">
               <div class="flex-1 space-y-8">
-                 <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-sm font-semibold">
-                    <i class="ri-map-pin-line"></i> Global Coverage
-                 </div>
-                 <h2 class="text-3xl md:text-5xl font-bold text-slate-900 dark:text-white leading-tight">From the World <br> to <span class="text-indigo-600">India's Medical Hubs</span></h2>
-                 <p class="text-lg text-slate-500 dark:text-slate-400 leading-relaxed">
-                   Whether you are coming from the Middle East, CIS countries, or Africa, our interpreters are stationed in every major medical city.
-                 </p>
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-sm font-semibold">
+                  <i class="ri-map-pin-line"></i> Global Coverage
+                </div>
+                <h2 class="text-3xl md:text-5xl font-bold text-slate-900 dark:text-white leading-tight">From the World <br> to <span class="text-indigo-600">India's Medical Hubs</span></h2>
+                <p class="text-lg text-slate-500 dark:text-slate-400 leading-relaxed">
+                  Whether you are coming from the Middle East, CIS countries, or Africa, our interpreters are stationed in every major medical city.
+                </p>
 
-                 <div class="grid grid-cols-2 gap-4 pt-4">
-                    <div class="flex items-center gap-3 p-3 rounded-lg border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
-                        <div class="w-2 h-2 rounded-full bg-red-500"></div>
-                        <span class="font-semibold text-slate-700 dark:text-slate-300">New Delhi (NCR)</span>
-                    </div>
-                    <div class="flex items-center gap-3 p-3 rounded-lg border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
-                        <div class="w-2 h-2 rounded-full bg-red-500"></div>
-                        <span class="font-semibold text-slate-700 dark:text-slate-300">Mumbai</span>
-                    </div>
-                    <div class="flex items-center gap-3 p-3 rounded-lg border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
-                        <div class="w-2 h-2 rounded-full bg-red-500"></div>
-                        <span class="font-semibold text-slate-700 dark:text-slate-300">Chennai</span>
-                    </div>
-                    <div class="flex items-center gap-3 p-3 rounded-lg border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
-                        <div class="w-2 h-2 rounded-full bg-red-500"></div>
-                        <span class="font-semibold text-slate-700 dark:text-slate-300">Bangalore</span>
-                    </div>
-                 </div>
+                <div class="grid grid-cols-2 gap-4 pt-4">
+                  <div class="flex items-center gap-3 p-3 rounded-lg border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
+                    <div class="w-2 h-2 rounded-full bg-red-500"></div>
+                    <span class="font-semibold text-slate-700 dark:text-slate-300">New Delhi (NCR)</span>
+                  </div>
+                  <div class="flex items-center gap-3 p-3 rounded-lg border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
+                    <div class="w-2 h-2 rounded-full bg-red-500"></div>
+                    <span class="font-semibold text-slate-700 dark:text-slate-300">Mumbai</span>
+                  </div>
+                  <div class="flex items-center gap-3 p-3 rounded-lg border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
+                    <div class="w-2 h-2 rounded-full bg-red-500"></div>
+                    <span class="font-semibold text-slate-700 dark:text-slate-300">Chennai</span>
+                  </div>
+                  <div class="flex items-center gap-3 p-3 rounded-lg border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
+                    <div class="w-2 h-2 rounded-full bg-red-500"></div>
+                    <span class="font-semibold text-slate-700 dark:text-slate-300">Bangalore</span>
+                  </div>
+                </div>
               </div>
 
               <div class="flex-1 relative p-2 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
                 <div class="rounded-lg overflow-hidden">
                   <img
                     src="assets/home/globalmap.jpg"
-                    alt="Global Connectivity Map"
+                    alt="Global Medical Patient Connectivity Map"
                     class="w-full h-auto object-cover opacity-90 hover:opacity-100 transition-opacity duration-500"
                     loading="lazy"
                   >
@@ -146,8 +146,8 @@ import { Navbar } from "../../layout/navbar/navbar";
         <section id="how-it-works" class="py-24 bg-white dark:bg-slate-950 scroll-mt-16">
           <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-3xl mx-auto mb-20">
-              <h2 class="text-base font-semibold leading-7 text-violet-600 dark:text-violet-400">How It Works</h2>
-              <p class="mt-2 text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl">Seamless care, step by step.</p>
+              <span class="text-base font-semibold leading-7 text-violet-600 dark:text-violet-400">How It Works</span>
+              <h2 class="mt-2 text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl">Seamless care, step by step.</h2>
               <p class="mt-6 text-lg leading-8 text-slate-600 dark:text-slate-400">
                 From your home country to the hospital and back. We bridge the gap so you can focus on healing.
               </p>
@@ -158,7 +158,7 @@ import { Navbar } from "../../layout/navbar/navbar";
               <div class="relative bg-slate-50 dark:bg-slate-900/50 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden grid grid-cols-1 lg:grid-cols-2">
                 <div class="p-8 lg:p-16 flex flex-col justify-center order-2 lg:order-1">
                   <div class="w-12 h-12 rounded-xl bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center text-violet-600 dark:text-violet-300 mb-6">
-                      <span class="font-bold text-xl">1</span>
+                    <span class="font-bold text-xl">1</span>
                   </div>
                   <h3 class="text-3xl font-bold text-slate-900 dark:text-white mb-4">Discovery & Pre-Travel</h3>
                   <p class="text-lg text-slate-500 dark:text-slate-400 mb-6">
@@ -215,7 +215,7 @@ import { Navbar } from "../../layout/navbar/navbar";
                 <div class="border-r border-slate-200 dark:border-slate-800 p-8 lg:p-12 flex items-center justify-center relative overflow-hidden order-1 lg:order-1">
                   <div class="absolute top-0 right-0 w-64 h-64 bg-violet-100 dark:bg-violet-900/20 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
                   <div class="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden transform transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl">
-                    <img src="assets/home/airport.jpg" alt="Airport Pickup" class="w-full h-auto object-cover" loading="lazy">
+                    <img src="assets/home/airport.jpg" alt="Interpreter Airport Pickup in India" class="w-full h-auto object-cover" loading="lazy">
                   </div>
                 </div>
                 <div class="p-8 lg:p-16 flex flex-col justify-center order-2 lg:order-2">
@@ -255,7 +255,7 @@ import { Navbar } from "../../layout/navbar/navbar";
                 </div>
 
                 <div class="bg-slate-50 dark:bg-slate-900/50 border-l border-slate-200 dark:border-slate-800 p-8 lg:p-12 flex items-center justify-center order-1 lg:order-2 relative overflow-hidden">
-                   <div class="absolute bottom-0 left-0 w-40 h-40 bg-violet-100 dark:bg-violet-900/30 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
+                  <div class="absolute bottom-0 left-0 w-40 h-40 bg-violet-100 dark:bg-violet-900/30 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
                   <div class="relative w-full max-w-xs bg-white dark:bg-slate-900 rounded-lg shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] border border-slate-200 dark:border-slate-800 p-6 overflow-hidden transform transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl">
                     <div class="absolute -top-2 left-0 w-full h-4 bg-white dark:bg-slate-900 [mask-image:linear-gradient(45deg,transparent_50%,#000_50%),linear-gradient(-45deg,transparent_50%,#000_50%)] [mask-size:16px_16px] [mask-repeat:repeat-x]"></div>
                     <div class="text-center mb-6">
@@ -282,145 +282,146 @@ import { Navbar } from "../../layout/navbar/navbar";
             </div>
           </div>
 
-<div class="mt-8 flex justify-center">
-  <a routerLink="/how-it-works"
-     class="inline-flex items-center justify-center h-10 px-6 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all cursor-pointer">
-    Learn More About The Process
-  </a>
-</div>
+          <div class="mt-8 flex justify-center">
+            <a routerLink="/how-it-works"
+               href="/how-it-works"
+               class="inline-flex items-center justify-center h-10 px-6 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all cursor-pointer">
+              Learn More About The Process
+            </a>
+          </div>
 
         </section>
 
         <section class="py-20 bg-slate-50 dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-              <h2 class="text-3xl font-bold mb-4 text-slate-900 dark:text-white">Speaking your language.</h2>
-              <p class="text-slate-500 dark:text-slate-400 max-w-2xl mx-auto mb-12">
-                  Our interpreters are native speakers who understand not just the words, but the culture and medical nuance.
-              </p>
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-3xl font-bold mb-4 text-slate-900 dark:text-white">Speaking your language.</h2>
+            <p class="text-slate-500 dark:text-slate-400 max-w-2xl mx-auto mb-12">
+              Our interpreters are native speakers who understand not just the words, but the culture and medical nuance.
+            </p>
 
-              <div class="flex flex-wrap justify-center gap-8 md:gap-12">
-                  <div class="group flex flex-col items-center gap-3">
-                    <img src="https://flagcdn.com/w160/sa.png" alt="Arabic" class="w-16 h-12 rounded-lg object-cover shadow-sm border border-slate-200 dark:border-slate-700 group-hover:scale-110 transition-transform" loading="lazy">
-                    <span class="text-sm font-medium text-slate-600 dark:text-slate-400 group-hover:text-violet-600">Arabic</span>
-                  </div>
-                  <div class="group flex flex-col items-center gap-3">
-                    <img src="https://flagcdn.com/w160/ru.png" alt="Russian" class="w-16 h-12 rounded-lg object-cover shadow-sm border border-slate-200 dark:border-slate-700 group-hover:scale-110 transition-transform" loading="lazy">
-                    <span class="text-sm font-medium text-slate-600 dark:text-slate-400 group-hover:text-violet-600">Russian</span>
-                  </div>
-                  <div class="group flex flex-col items-center gap-3">
-                    <img src="https://flagcdn.com/w160/bd.png" alt="Bengali" class="w-16 h-12 rounded-lg object-cover shadow-sm border border-slate-200 dark:border-slate-700 group-hover:scale-110 transition-transform" loading="lazy">
-                    <span class="text-sm font-medium text-slate-600 dark:text-slate-400 group-hover:text-violet-600">Bengali</span>
-                  </div>
-                  <div class="group flex flex-col items-center gap-3">
-                    <img src="https://flagcdn.com/w160/fr.png" alt="French" class="w-16 h-12 rounded-lg object-cover shadow-sm border border-slate-200 dark:border-slate-700 group-hover:scale-110 transition-transform" loading="lazy">
-                    <span class="text-sm font-medium text-slate-600 dark:text-slate-400 group-hover:text-violet-600">French</span>
-                  </div>
-                  <div class="group flex flex-col items-center gap-3">
-                    <img src="https://flagcdn.com/w160/uz.png" alt="Uzbek" class="w-16 h-12 rounded-lg object-cover shadow-sm border border-slate-200 dark:border-slate-700 group-hover:scale-110 transition-transform" loading="lazy">
-                    <span class="text-sm font-medium text-slate-600 dark:text-slate-400 group-hover:text-violet-600">Uzbek</span>
-                  </div>
-                  <div class="group flex flex-col items-center gap-3">
-                    <img src="https://flagcdn.com/w160/af.png" alt="Pashto" class="w-16 h-12 rounded-lg object-cover shadow-sm border border-slate-200 dark:border-slate-700 group-hover:scale-110 transition-transform" loading="lazy">
-                    <span class="text-sm font-medium text-slate-600 dark:text-slate-400 group-hover:text-violet-600">Pashto</span>
-                  </div>
-                  <div class="group flex flex-col items-center gap-3">
-                    <div class="w-16 h-12 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-500 font-bold group-hover:scale-110 transition-transform shadow-sm">+40</div>
-                    <span class="text-sm font-medium text-slate-600 dark:text-slate-400">More</span>
-                  </div>
+            <div class="flex flex-wrap justify-center gap-8 md:gap-12">
+              <div class="group flex flex-col items-center gap-3">
+                <img src="https://flagcdn.com/w160/sa.png" alt="Arabic Medical Interpreter" title="Arabic" class="w-16 h-12 rounded-lg object-cover shadow-sm border border-slate-200 dark:border-slate-700 group-hover:scale-110 transition-transform" loading="lazy">
+                <span class="text-sm font-medium text-slate-600 dark:text-slate-400 group-hover:text-violet-600">Arabic</span>
+              </div>
+              <div class="group flex flex-col items-center gap-3">
+                <img src="https://flagcdn.com/w160/ru.png" alt="Russian Medical Interpreter" title="Russian" class="w-16 h-12 rounded-lg object-cover shadow-sm border border-slate-200 dark:border-slate-700 group-hover:scale-110 transition-transform" loading="lazy">
+                <span class="text-sm font-medium text-slate-600 dark:text-slate-400 group-hover:text-violet-600">Russian</span>
+              </div>
+              <div class="group flex flex-col items-center gap-3">
+                <img src="https://flagcdn.com/w160/bd.png" alt="Bengali Medical Interpreter" title="Bengali" class="w-16 h-12 rounded-lg object-cover shadow-sm border border-slate-200 dark:border-slate-700 group-hover:scale-110 transition-transform" loading="lazy">
+                <span class="text-sm font-medium text-slate-600 dark:text-slate-400 group-hover:text-violet-600">Bengali</span>
+              </div>
+              <div class="group flex flex-col items-center gap-3">
+                <img src="https://flagcdn.com/w160/fr.png" alt="French Medical Interpreter" title="French" class="w-16 h-12 rounded-lg object-cover shadow-sm border border-slate-200 dark:border-slate-700 group-hover:scale-110 transition-transform" loading="lazy">
+                <span class="text-sm font-medium text-slate-600 dark:text-slate-400 group-hover:text-violet-600">French</span>
+              </div>
+              <div class="group flex flex-col items-center gap-3">
+                <img src="https://flagcdn.com/w160/uz.png" alt="Uzbek Medical Interpreter" title="Uzbek" class="w-16 h-12 rounded-lg object-cover shadow-sm border border-slate-200 dark:border-slate-700 group-hover:scale-110 transition-transform" loading="lazy">
+                <span class="text-sm font-medium text-slate-600 dark:text-slate-400 group-hover:text-violet-600">Uzbek</span>
+              </div>
+              <div class="group flex flex-col items-center gap-3">
+                <img src="https://flagcdn.com/w160/af.png" alt="Pashto Medical Interpreter" title="Pashto" class="w-16 h-12 rounded-lg object-cover shadow-sm border border-slate-200 dark:border-slate-700 group-hover:scale-110 transition-transform" loading="lazy">
+                <span class="text-sm font-medium text-slate-600 dark:text-slate-400 group-hover:text-violet-600">Pashto</span>
+              </div>
+              <div class="group flex flex-col items-center gap-3">
+                <div class="w-16 h-12 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-500 font-bold group-hover:scale-110 transition-transform shadow-sm">+40</div>
+                <span class="text-sm font-medium text-slate-600 dark:text-slate-400">More</span>
               </div>
             </div>
+          </div>
         </section>
 
         <section id="patients" class="py-24 bg-white dark:bg-slate-950 scroll-mt-16 border-t border-slate-100 dark:border-slate-800">
           <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 
-                <div class="order-1 lg:order-1">
-                  <div class="inline-flex items-center rounded-full bg-blue-50 dark:bg-blue-900/20 px-3 py-1 text-sm font-medium text-blue-700 dark:text-blue-300 mb-6">
-                    For Patients
+              <div class="order-1 lg:order-1">
+                <div class="inline-flex items-center rounded-full bg-blue-50 dark:bg-blue-900/20 px-3 py-1 text-sm font-medium text-blue-700 dark:text-blue-300 mb-6">
+                  For Patients
+                </div>
+                <h2 class="text-3xl md:text-5xl font-bold text-slate-900 dark:text-white mb-6 leading-tight">
+                  Medical travel <br>without the fear.
+                </h2>
+                <p class="text-lg text-slate-500 dark:text-slate-400 mb-8 leading-relaxed text-pretty">
+                  Traveling for treatment is stressful. Middlemen overcharge, language barriers isolate you, and uncertainty is high. Verbrix replaces that with trust.
+                </p>
+
+                <div class="space-y-6">
+                  <div class="flex gap-4 group">
+                    <div class="flex-shrink-0 w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                      <i class="ri-shield-check-line text-xl"></i>
+                    </div>
+                    <div>
+                      <h3 class="text-lg font-bold text-slate-900 dark:text-white">No Exploitation</h3>
+                      <p class="text-slate-500 dark:text-slate-400 mt-1">
+                        Connect directly with verified professionals. No random agents or hidden commissions.
+                      </p>
+                    </div>
                   </div>
-                  <h2 class="text-3xl md:text-5xl font-bold text-slate-900 dark:text-white mb-6 leading-tight">
-                    Medical travel <br>without the fear.
-                  </h2>
-                  <p class="text-lg text-slate-500 dark:text-slate-400 mb-8 leading-relaxed text-pretty">
-                    Traveling for treatment is stressful. Middlemen overcharge, language barriers isolate you, and uncertainty is high. Verbrix replaces that with trust.
-                  </p>
-
-                  <div class="space-y-6">
-                      <div class="flex gap-4 group">
-                        <div class="flex-shrink-0 w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
-                           <i class="ri-shield-check-line text-xl"></i>
-                        </div>
-                        <div>
-                           <h4 class="text-lg font-bold text-slate-900 dark:text-white">No Exploitation</h4>
-                           <p class="text-slate-500 dark:text-slate-400 mt-1">
-                             Connect directly with verified professionals. No random agents or hidden commissions.
-                           </p>
-                        </div>
-                      </div>
-                      <div class="flex gap-4 group">
-                        <div class="flex-shrink-0 w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
-                           <i class="ri-map-pin-user-line text-xl"></i>
-                        </div>
-                        <div>
-                           <h4 class="text-lg font-bold text-slate-900 dark:text-white">End-to-End Support</h4>
-                           <p class="text-slate-500 dark:text-slate-400 mt-1">
-                             Your interpreter guides you from your home country, meets you at the airport, and stays until you return.
-                           </p>
-                        </div>
-                      </div>
-                  </div>
-
-                  <div class="mt-10 flex flex-wrap gap-4">
-                      <button (click)="handleGetStarted()" class="h-12 px-8 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-500 transition-colors shadow-lg shadow-blue-600/20 active:scale-95">
-                        Start Your Journey
-                      </button>
+                  <div class="flex gap-4 group">
+                    <div class="flex-shrink-0 w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                      <i class="ri-map-pin-user-line text-xl"></i>
+                    </div>
+                    <div>
+                      <h3 class="text-lg font-bold text-slate-900 dark:text-white">End-to-End Support</h3>
+                      <p class="text-slate-500 dark:text-slate-400 mt-1">
+                        Your interpreter guides you from your home country, meets you at the airport, and stays until you return.
+                      </p>
+                    </div>
                   </div>
                 </div>
 
-                <div class="order-2 lg:order-2 relative p-8 lg:p-12 flex items-center justify-center overflow-hidden">
-                  <div class="absolute top-0 right-0 w-64 h-64 bg-violet-100 dark:bg-violet-900/20 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
-                  <div class="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden transform transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl">
-                    <img src="assets/home/consultation.jpg" alt="Patient Comfort" class="w-full h-auto object-cover" loading="lazy">
-                  </div>
+                <div class="mt-10 flex flex-wrap gap-4">
+                  <button (click)="handleGetStarted()" class="h-12 px-8 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-500 transition-colors shadow-lg shadow-blue-600/20 active:scale-95">
+                    Start Your Journey
+                  </button>
                 </div>
               </div>
+
+              <div class="order-2 lg:order-2 relative p-8 lg:p-12 flex items-center justify-center overflow-hidden">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-violet-100 dark:bg-violet-900/20 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
+                <div class="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden transform transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl">
+                  <img src="assets/home/consultation.jpg" alt="Patient Consultation with Interpreter" class="w-full h-auto object-cover" loading="lazy">
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
         <section id="interpreters" class="py-24 relative overflow-hidden bg-slate-50 dark:bg-slate-900/50">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
 
-                <div class="order-2 lg:order-1 rounded-xl overflow-hidden">
-                  <img src="assets/home/interpreter.jpg" alt="Interpreter Growth" class="w-full h-auto object-cover" loading="lazy">
+              <div class="order-2 lg:order-1 rounded-xl overflow-hidden">
+                <img src="assets/home/interpreter.jpg" alt="Medical Interpreter Growing Practice" class="w-full h-auto object-cover" loading="lazy">
+              </div>
+
+              <div class="order-1 lg:order-2 text-center md:text-left">
+                <div class="inline-flex items-center rounded-full bg-violet-100 dark:bg-violet-500/20 border border-violet-200 dark:border-violet-500/30 px-3 py-1 text-sm font-medium text-violet-700 dark:text-violet-300 mb-6">
+                  For Interpreters
+                </div>
+                <h2 class="text-3xl md:text-5xl font-bold mb-6 text-slate-900 dark:text-white leading-tight">Grow your practice globally.</h2>
+                <p class="text-lg text-slate-600 dark:text-slate-400 mb-8 leading-relaxed">
+                  Stop relying on random hospital calls. Build long-term relationships with international patients and get paid securely.
+                </p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8 text-left">
+                  <div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <i class="ri-global-line text-2xl text-violet-600 mb-2"></i>
+                    <h3 class="font-bold text-slate-900 dark:text-white">Global Visibility</h3>
+                    <p class="text-sm text-slate-500">Reach patients worldwide.</p>
+                  </div>
+                  <div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <i class="ri-wallet-3-line text-2xl text-green-600 mb-2"></i>
+                    <h3 class="font-bold text-slate-900 dark:text-white">Guaranteed Pay</h3>
+                    <p class="text-sm text-slate-500">Secure escrow settlement.</p>
+                  </div>
                 </div>
 
-                <div class="order-1 lg:order-2 text-center md:text-left">
-                  <div class="inline-flex items-center rounded-full bg-violet-100 dark:bg-violet-500/20 border border-violet-200 dark:border-violet-500/30 px-3 py-1 text-sm font-medium text-violet-700 dark:text-violet-300 mb-6">
-                    For Interpreters
-                  </div>
-                  <h2 class="text-3xl md:text-5xl font-bold mb-6 text-slate-900 dark:text-white leading-tight">Grow your practice globally.</h2>
-                  <p class="text-lg text-slate-600 dark:text-slate-400 mb-8 leading-relaxed">
-                    Stop relying on random hospital calls. Build long-term relationships with international patients and get paid securely.
-                  </p>
-
-                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8 text-left">
-                      <div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                          <i class="ri-global-line text-2xl text-violet-600 mb-2"></i>
-                          <h4 class="font-bold text-slate-900 dark:text-white">Global Visibility</h4>
-                          <p class="text-sm text-slate-500">Reach patients worldwide.</p>
-                      </div>
-                      <div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                          <i class="ri-wallet-3-line text-2xl text-green-600 mb-2"></i>
-                          <h4 class="font-bold text-slate-900 dark:text-white">Guaranteed Pay</h4>
-                          <p class="text-sm text-slate-500">Secure escrow settlement.</p>
-                      </div>
-                  </div>
-
-                </div>
               </div>
             </div>
+          </div>
         </section>
 
         <section class="py-20 px-4 sm:px-6 lg:px-8 bg-white dark:bg-slate-950">
@@ -434,7 +435,7 @@ import { Navbar } from "../../layout/navbar/navbar";
               </p>
 
               <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                <button (click)="handleGetStarted()" class="h-14 px-8 rounded-xl bg-violet-600 text-white font-semibold text-lg hover:bg-violet-500 transition-all shadow-lg shadow-violet-600/20 active:scale-95">
+                <button (click)="handleGetStarted()" aria-label="Get Started with Verbrix" class="h-14 px-8 rounded-xl bg-violet-600 text-white font-semibold text-lg hover:bg-violet-500 transition-all shadow-lg shadow-violet-600/20 active:scale-95">
                   Get Started Now
                 </button>
               </div>
