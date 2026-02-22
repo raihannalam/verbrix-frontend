@@ -35,45 +35,43 @@ export class RealtimeService implements OnDestroy {
 
   constructor() {
     // 🟢 REACTIVE CONNECTION MANAGEMENT
-    // This effect acts as a "listener" to your in-memory Access Token.
     effect((onCleanup) => {
       const user = this.authService.currentUser();
       const token = this.authService.accessToken();
 
       // If we have a valid token in memory, connect!
       if (user && token && !this.authService.isTokenExpired(token)) {
-        // Untracked prevents the connect method itself from triggering infinite loops
-        untracked(() => this.connect(token));
+        // 🟢 FIX: We no longer pass the token here. The client will fetch it dynamically.
+        untracked(() => this.connect());
       } else {
-        // If token is null (e.g., app just loaded or user logged out), cleanly disconnect
         untracked(() => this.disconnect());
       }
 
-      // Cleanup when the service is destroyed
       onCleanup(() => {
         untracked(() => this.disconnect());
       });
     });
   }
 
-  private connect(token: string): void {
-    // Prevent duplicate connections
+  private connect(): void {
     if (this.client?.active) return;
 
     const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
     const host = environment.apiBaseUrl.replace(/^http(s)?:\/\//, '');
 
-    // 🟢 PASSING THE TOKEN:
-    // WebSockets don't easily send HTTP Headers during the initial handshake.
-    // Passing it in the query param OR via STOMP connectHeaders covers both Spring Boot security checks.
-    const brokerURL = `${protocol}://${host}/ws?access_token=${token}`;
-
     this.client = new Client({
-      brokerURL: brokerURL,
-      connectHeaders: { Authorization: `Bearer ${token}` },
       reconnectDelay: 5000,
       heartbeatIncoming: 20000,
       heartbeatOutgoing: 20000,
+
+      // 🟢 THE FIX: This fires milliseconds before opening the socket.
+      // It guarantees STOMP always uses the freshest token, bypassing the 15-minute expiration issue.
+      beforeConnect: () => {
+        const freshToken = this.authService.accessToken() || '';
+        this.client!.brokerURL = `${protocol}://${host}/ws?access_token=${freshToken}`;
+        this.client!.connectHeaders = { Authorization: `Bearer ${freshToken}` };
+      },
+
       debug: (str) => {
         if(str.includes('Error')) console.error('[STOMP Error]:', str);
       }
@@ -92,7 +90,7 @@ export class RealtimeService implements OnDestroy {
     this.client.onStompError = (frame) => {
       console.error('❌ Broker error:', frame.headers['message']);
       // If the backend drops the connection due to an expired token, disconnect.
-      // The AuthInterceptor will eventually refresh it, triggering the Signal to reconnect.
+      // The auto-reconnect delay and beforeConnect hook will handle fetching the new one.
       if (frame.headers['message']?.includes('Session closed') || frame.headers['message']?.includes('Access Denied')) {
         this.disconnect();
       }
@@ -115,7 +113,6 @@ export class RealtimeService implements OnDestroy {
     }
 
     if (this.client && this.client.active) {
-      // FIX: Explicitly mark the Promise as ignored
       void this.client.deactivate();
     }
 
