@@ -19,7 +19,7 @@ export class AuthService {
   private readonly API_URL = `${environment.apiBaseUrl}/api/v1/auth`;
   private readonly ACCESS_TOKEN_KEY = 'vx_access_token';
   private readonly USER_KEY = 'vx_user';
-  private readonly DEVICE_ID_KEY = 'vx_device_id'; // 🟢 NEW: Store device ID
+  private readonly DEVICE_ID_KEY = 'vx_device_id';
 
   private accessTokenSignal = signal<string | null>(this.getAccessToken());
   public readonly accessToken = this.accessTokenSignal.asReadonly();
@@ -55,13 +55,11 @@ export class AuthService {
     }
   }
 
-  // --- DEVICE TRACKING HELPERS (🟢 NEW) ---
+  // --- DEVICE TRACKING HELPERS ---
 
   private getOrCreateDeviceId(): string {
     let deviceId = localStorage.getItem(this.DEVICE_ID_KEY);
     if (!deviceId) {
-      // FIX: Use 'typeof' to satisfy TypeScript's strict compiler checks
-      // while safely falling back if randomUUID is missing at runtime (e.g., on HTTP)
       deviceId = (window.crypto && typeof window.crypto.randomUUID === 'function')
         ? window.crypto.randomUUID()
         : this.generateFallbackUUID();
@@ -77,7 +75,7 @@ export class AuthService {
     let os = 'Unknown OS';
     let version = '';
 
-    // 1. Detect OS (Fixed iPhone vs iPad hierarchy)
+    // 1. Detect OS
     if (ua.includes('Win')) {
       os = 'Windows';
     } else if (ua.includes('Android')) {
@@ -85,7 +83,6 @@ export class AuthService {
     } else if (ua.includes('iPhone') || ua.includes('iPod')) {
       os = 'iOS (iPhone)';
     } else if (ua.includes('iPad') || (ua.includes('Mac') && navigator && navigator.maxTouchPoints > 1)) {
-      // Catches explicit iPads AND iPads pretending to be Macs
       os = 'iOS (iPad)';
     } else if (ua.includes('Mac')) {
       os = 'macOS';
@@ -95,7 +92,7 @@ export class AuthService {
       os = 'Linux';
     }
 
-    // 2. Detect Native Mobile Apps (APK / App Store / WebViews)
+    // 2. Detect Native Mobile Apps
     const isIOSWebView = /(iPhone|iPod|iPad).*AppleWebKit(?!.*Safari)/i.test(ua);
     const isAndroidWebView = ua.includes('wv') || (ua.includes('Android') && ua.includes('Version/'));
     const isCapacitor = ua.includes('Capacitor');
@@ -132,7 +129,6 @@ export class AuthService {
       version = (ua.match(/Version\/([\d.]+)/) || [])[1] || '';
     }
 
-    // Format output (e.g., "Chrome 145 on Windows" or "Safari 17 on iOS (iPhone)")
     const majorVersion = version ? ` ${version.split('.')[0]}` : '';
     return `${client}${majorVersion} on ${os}`;
   }
@@ -160,7 +156,6 @@ export class AuthService {
       deviceId: this.getOrCreateDeviceId(),
       deviceDetails: this.getDeviceDetails()
     };
-    // 🟢 CRITICAL: withCredentials tells browser to accept the Set-Cookie header
     return this.http.post<LoginResponse>(`${this.API_URL}/register/complete`, payload, { withCredentials: true })
       .pipe(tap(response => this.handleLoginSuccess(response)));
   }
@@ -171,7 +166,6 @@ export class AuthService {
       deviceId: this.getOrCreateDeviceId(),
       deviceDetails: this.getDeviceDetails()
     };
-    // 🟢 CRITICAL: withCredentials
     return this.http.post<LoginResponse>(`${this.API_URL}/login`, payload, { withCredentials: true })
       .pipe(tap(response => this.handleLoginSuccess(response)));
   }
@@ -182,7 +176,6 @@ export class AuthService {
       deviceId: this.getOrCreateDeviceId(),
       deviceDetails: this.getDeviceDetails()
     };
-    // 🟢 CRITICAL: withCredentials
     return this.http.post<LoginResponse>(`${this.API_URL}/social-login`, payload, { withCredentials: true })
       .pipe(tap(response => this.handleLoginSuccess(response)));
   }
@@ -196,8 +189,8 @@ export class AuthService {
   }
 
   logout(): void {
-    // 🟢 The browser automatically sends the HttpOnly cookie, so body is empty
-    this.http.post(`${this.API_URL}/logout`, {}, { withCredentials: true })
+    // 🟢 FIX: Send null instead of {} to prevent Spring Boot @Valid crash
+    this.http.post(`${this.API_URL}/logout`, null, { withCredentials: true })
       .pipe(catchError(() => of(null)))
       .subscribe();
 
@@ -206,24 +199,24 @@ export class AuthService {
   }
 
   logoutAll(): Observable<any> {
-    // 🟢 Calls the specific logout-all endpoint and passes credentials (cookies)
-    return this.http.post(`${this.API_URL}/logout-all`, {}, { withCredentials: true })
+    // 🟢 FIX: Send null instead of {}
+    return this.http.post(`${this.API_URL}/logout-all`, null, { withCredentials: true })
       .pipe(
         tap(() => {
           this.clearSession();
           this.router.navigate(['/auth/login']);
         }),
         catchError((err) => {
-          // Even if the backend fails, we still want to clear local state
           this.clearSession();
           this.router.navigate(['/auth/login']);
           return throwError(() => err);
         })
       );
   }
+
   refreshToken(): Observable<RefreshTokenResponse> {
-    // withCredentials is required for the browser to include the HttpOnly cookie
-    return this.http.post<RefreshTokenResponse>(`${this.API_URL}/refresh-token`, {}, { withCredentials: true })
+    // 🟢 FIX: Send null instead of {} to prevent Spring Boot @Valid crash
+    return this.http.post<RefreshTokenResponse>(`${this.API_URL}/refresh-token`, null, { withCredentials: true })
       .pipe(
         tap(response => {
           this.setAccessToken(response.accessToken);
@@ -234,6 +227,7 @@ export class AuthService {
         })
       );
   }
+
   // --- HELPERS ---
 
   getAccessToken(): string | null {
@@ -245,7 +239,6 @@ export class AuthService {
     const user: User = { email: response.email, role: role };
 
     this.setAccessToken(response.jwtToken);
-    // 🟢 Removed setRefreshToken()
 
     localStorage.setItem(this.USER_KEY, JSON.stringify(user));
     this.currentUserSignal.set(user);
@@ -265,7 +258,6 @@ export class AuthService {
 
   private clearSession(): void {
     localStorage.removeItem(this.ACCESS_TOKEN_KEY);
-    // 🟢 Removed REFRESH_TOKEN_KEY removal
     localStorage.removeItem(this.USER_KEY);
     this.currentUserSignal.set(null);
     this.accessTokenSignal.set(null);
