@@ -47,21 +47,22 @@ export class AuthInterceptor implements HttpInterceptor {
       this.refreshTokenSubject.next(null);
 
       return this.authService.refreshToken().pipe(
-        switchMap((tokenResponse) => {
-          this.isRefreshing = false;
-          this.refreshTokenSubject.next(tokenResponse.accessToken);
-          // Retry original request with the new fresh token
-          return next.handle(this.addToken(request, tokenResponse.accessToken));
-        }),
+        // 🟢 FIX: Catch errors for the refresh token call FIRST
         catchError((err) => {
           this.isRefreshing = false;
           this.refreshTokenSubject.next('FAILED');
-          this.authService.logout(); // Refresh failed (cookie gone/expired) -> Kick to Login
+          // (Note: authService.refreshToken() already calls this.logout() internally, so we don't need to do it twice)
           return throwError(() => err);
+        }),
+        // 🟢 FIX: Then, switch to the retried request.
+        // Any 404s or 500s here will NOT trigger the catchError above.
+        switchMap((tokenResponse) => {
+          this.isRefreshing = false;
+          this.refreshTokenSubject.next(tokenResponse.accessToken);
+          return next.handle(this.addToken(request, tokenResponse.accessToken));
         })
       );
     } else {
-      // If a refresh is already in progress, wait for it to finish and use the new token
       return this.refreshTokenSubject.pipe(
         filter(token => token !== null),
         take(1),
