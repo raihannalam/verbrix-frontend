@@ -41,17 +41,18 @@ export class AuthService {
     const token = this.getAccessToken();
 
     if (userJson && token) {
-      if (this.isTokenExpired(token)) {
-        this.refreshToken().subscribe({
-          error: () => this.logout()
-        });
-      } else {
-        try {
-          const user = JSON.parse(userJson);
-          this.currentUserSignal.set(user);
-          this.accessTokenSignal.set(token);
-        } catch { this.logout(); }
+      try {
+        // 🟢 FIX: Always load the user into memory instantly so the UI doesn't break
+        const user = JSON.parse(userJson);
+        this.currentUserSignal.set(user);
+        this.accessTokenSignal.set(token);
+      } catch {
+        this.logout();
       }
+
+      // 🟢 Notice we removed the `this.refreshToken().subscribe()` call from here!
+      // The AuthGuard and AuthInterceptor will now handle it automatically,
+      // preventing duplicate API calls.
     }
   }
 
