@@ -23,19 +23,27 @@ export class BreadcrumbService {
     private activatedRoute: ActivatedRoute,
     @Inject(DOCUMENT) private dom: Document
   ) {
+    // 1. Manually trigger for the Initial Page Load
+    setTimeout(() => {
+      this.generateBreadcrumbs();
+    }, 0);
+
+    // 2. Listen for future route changes
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe(() => {
-      // Start with the Home route explicitly
-      const rootBreadcrumb: Breadcrumb = { label: 'Home', url: '/' };
-      const breadcrumbs = this.createBreadcrumbs(this.activatedRoute.root, '', [rootBreadcrumb]);
-
-      // Remove duplicates if the root route triggered 'Home' twice
-      const uniqueBreadcrumbs = breadcrumbs.filter((v, i, a) => a.findIndex(t => (t.url === v.url)) === i);
-
-      this.breadcrumbsSubject.next(uniqueBreadcrumbs);
-      this.updateStructuredData(uniqueBreadcrumbs);
+      this.generateBreadcrumbs();
     });
+  }
+
+  private generateBreadcrumbs(): void {
+    const rootBreadcrumb: Breadcrumb = { label: 'Home', url: '/' };
+    const breadcrumbs = this.createBreadcrumbs(this.activatedRoute.root, '', [rootBreadcrumb]);
+
+    const uniqueBreadcrumbs = breadcrumbs.filter((v, i, a) => a.findIndex(t => (t.url === v.url)) === i);
+
+    this.breadcrumbsSubject.next(uniqueBreadcrumbs);
+    this.updateStructuredData(uniqueBreadcrumbs);
   }
 
   private createBreadcrumbs(route: ActivatedRoute, url: string = '', breadcrumbs: Breadcrumb[] = []): Breadcrumb[] {

@@ -18,32 +18,39 @@ export class App implements OnInit {
   private router = inject(Router);
   private activatedRoute = inject(ActivatedRoute);
   private seoService = inject(SeoService);
-
-  // By injecting this here, we force Angular to instantiate the service on app load.
-  // This ensures it immediately starts building the JSON-LD schema on every route change.
   private breadcrumbService = inject(BreadcrumbService);
 
   ngOnInit(): void {
+    // 1. Manually trigger for the Initial Page Load (Googlebot pass)
+    // We use a brief timeout to ensure the router tree has fully finished building
+    setTimeout(() => {
+      this.updateSeoData(this.router.url);
+    }, 0);
+
+    // 2. Listen for all future route changes (User navigation)
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: any) => {
-
-      // Update Canonical URL based on the final resolved URL
-      this.seoService.updateCanonicalUrl(event.urlAfterRedirects);
-
-      // Traverse the route tree to find the deepest active route
-      let route = this.activatedRoute;
-      while (route.firstChild) {
-        route = route.firstChild;
-      }
-
-      // Extract Route Data with production fallbacks
-      const title = route.snapshot.routeConfig?.title as string || 'Medical Interpreters in India | Verbrix';
-      const description = route.snapshot.data?.['description'] || 'Find verified medical interpreters for medical tourism in India. Verbrix provides secure real-time translation and healthcare communication.';
-
-      // Apply the updates
-      this.seoService.updateTitle(title);
-      this.seoService.updateDescription(description);
+      this.updateSeoData(event.urlAfterRedirects);
     });
+  }
+
+  private updateSeoData(url: string): void {
+    // Update Canonical URL
+    this.seoService.updateCanonicalUrl(url);
+
+    // Traverse the route tree to find the deepest active route
+    let route = this.activatedRoute;
+    while (route.firstChild) {
+      route = route.firstChild;
+    }
+
+    // Extract Route Data with fallbacks
+    const title = route.snapshot.routeConfig?.title as string || 'Medical Interpreters in India | Verbrix';
+    const description = route.snapshot.data?.['description'] || 'Find verified medical interpreters for medical tourism in India. Verbrix provides secure real-time translation and healthcare communication.';
+
+    // Apply the updates instantly
+    this.seoService.updateTitle(title);
+    this.seoService.updateDescription(description);
   }
 }
