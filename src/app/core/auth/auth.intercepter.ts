@@ -1,11 +1,5 @@
 import { Injectable } from '@angular/core';
-import {
-  HttpRequest,
-  HttpHandler,
-  HttpEvent,
-  HttpInterceptor,
-  HttpErrorResponse
-} from '@angular/common/http';
+import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError, BehaviorSubject } from 'rxjs';
 import { catchError, filter, switchMap, take } from 'rxjs/operators';
 import { AuthService } from './auth.service';
@@ -20,27 +14,18 @@ export class AuthInterceptor implements HttpInterceptor {
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     const token = this.authService.getAccessToken();
 
-    // OPTIONAL: Prevent attaching tokens to auth endpoints to avoid 401s completely
-    // const isAuthEndpoint = request.url.includes('/auth/');
-    // if (token && !isAuthEndpoint) { ... }
+    // 🟢 CRITICAL FOR PROD: Do NOT attach the token to auth endpoints.
+    // This allows the /refresh-token call to reach api.verbrix.com "clean"
+    // so the server can use the HttpOnly cookie instead of a dead Bearer header.
+    const isAuthRequest = request.url.includes('/api/v1/auth/');
 
-    // Current logic (Attaches token to everything if it exists)
-    if (token) {
+    if (token && !isAuthRequest) {
       request = this.addToken(request, token);
     }
 
     return next.handle(request).pipe(
       catchError(error => {
-        // 🟢 FIX 1: EXCLUDE ALL AUTH ENDPOINTS
-        // We must include 'social-login', 'register', etc. so the interceptor
-        // doesn't try to refresh a token when we are actually trying to log in.
-        const isAuthRequest =
-            request.url.includes('auth/login') ||
-            request.url.includes('auth/social-login') ||
-            request.url.includes('auth/register') ||
-            request.url.includes('auth/refresh-token');
-
-        // 🟢 FIX 2: Ignore the Status endpoint
+        // Ignore errors from the background status check to prevent logout loops
         const isStatusRequest = request.url.includes('/interpreters/me/status');
 
         if (error instanceof HttpErrorResponse && error.status === 401 && !isAuthRequest && !isStatusRequest) {
@@ -53,11 +38,7 @@ export class AuthInterceptor implements HttpInterceptor {
   }
 
   private addToken(request: HttpRequest<unknown>, token: string) {
-    return request.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+    return request.clone({ setHeaders: { Authorization: `Bearer ${token}` } });
   }
 
   private handle401Error(request: HttpRequest<unknown>, next: HttpHandler) {
@@ -69,23 +50,23 @@ export class AuthInterceptor implements HttpInterceptor {
         switchMap((tokenResponse) => {
           this.isRefreshing = false;
           this.refreshTokenSubject.next(tokenResponse.accessToken);
+          // Retry original request with the new fresh token
           return next.handle(this.addToken(request, tokenResponse.accessToken));
         }),
         catchError((err) => {
           this.isRefreshing = false;
-
-          // Debugging Log
-          console.error('Auto-Logout triggered by 401 from URL:', request.url);
-
-          this.authService.logout();
+          this.refreshTokenSubject.next('FAILED');
+          this.authService.logout(); // Refresh failed (cookie gone/expired) -> Kick to Login
           return throwError(() => err);
         })
       );
     } else {
+      // If a refresh is already in progress, wait for it to finish and use the new token
       return this.refreshTokenSubject.pipe(
-        filter(token => token != null),
+        filter(token => token !== null),
         take(1),
         switchMap(jwt => {
+          if (jwt === 'FAILED') return throwError(() => new Error('Refresh failed'));
           return next.handle(this.addToken(request, jwt!));
         })
       );

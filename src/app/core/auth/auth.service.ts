@@ -222,17 +222,11 @@ export class AuthService {
       );
   }
   refreshToken(): Observable<RefreshTokenResponse> {
-    // 🟢 No token in body. The backend reads the `verbrix_refresh` cookie automatically
+    // withCredentials is required for the browser to include the HttpOnly cookie
     return this.http.post<RefreshTokenResponse>(`${this.API_URL}/refresh-token`, {}, { withCredentials: true })
       .pipe(
         tap(response => {
           this.setAccessToken(response.accessToken);
-          // 🟢 Notice we NO LONGER save the refresh token to memory!
-
-          const userJson = localStorage.getItem(this.USER_KEY);
-          if (userJson && !this.currentUser()) {
-            this.currentUserSignal.set(JSON.parse(userJson));
-          }
         }),
         catchError(err => {
           this.logout();
@@ -240,7 +234,6 @@ export class AuthService {
         })
       );
   }
-
   // --- HELPERS ---
 
   getAccessToken(): string | null {
