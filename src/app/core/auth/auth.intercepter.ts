@@ -1,76 +1,97 @@
-import { Injectable } from '@angular/core';
-import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor, HttpErrorResponse } from '@angular/common/http';
+// src/app/core/auth/auth.interceptor.ts
+import { inject } from '@angular/core';
+import {
+  HttpRequest,
+  HttpHandlerFn,
+  HttpEvent,
+  HttpInterceptorFn,
+  HttpErrorResponse
+} from '@angular/common/http';
 import { Observable, throwError, BehaviorSubject } from 'rxjs';
 import { catchError, filter, switchMap, take } from 'rxjs/operators';
 import { AuthService } from './auth.service';
+import { environment } from '../../../environments/environment'; // Adjust path as needed
 
-@Injectable()
-export class AuthInterceptor implements HttpInterceptor {
-  private isRefreshing = false;
-  private refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
+// 🟢 Module-level variables maintain state across requests without needing a Class
+let isRefreshing = false;
+let refreshTokenSubject = new BehaviorSubject<string | null>(null);
 
-  constructor(private authService: AuthService) {}
+// Helper function to clone request and add token
+const addToken = (request: HttpRequest<unknown>, token: string): HttpRequest<unknown> => {
+  return request.clone({
+    setHeaders: { Authorization: `Bearer ${token}` }
+  });
+};
 
-  intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
-    const token = this.authService.getAccessToken();
+// Helper function to handle the 401 queueing logic
+const handle401Error = (
+  request: HttpRequest<unknown>,
+  next: HttpHandlerFn,
+  authService: AuthService
+): Observable<HttpEvent<unknown>> => {
+  if (!isRefreshing) {
+    isRefreshing = true;
+    refreshTokenSubject.next(null);
 
-    // 🟢 CRITICAL FOR PROD: Do NOT attach the token to auth endpoints.
-    // This allows the /refresh-token call to reach api.verbrix.com "clean"
-    // so the server can use the HttpOnly cookie instead of a dead Bearer header.
-    const isAuthRequest = request.url.includes('/api/v1/auth/');
-
-    if (token && !isAuthRequest) {
-      request = this.addToken(request, token);
-    }
-
-    return next.handle(request).pipe(
-      catchError(error => {
-        // Ignore errors from the background status check to prevent logout loops
-        const isStatusRequest = request.url.includes('/interpreters/me/status');
-
-        if (error instanceof HttpErrorResponse && error.status === 401 && !isAuthRequest && !isStatusRequest) {
-          return this.handle401Error(request, next);
-        }
-
-        return throwError(() => error);
+    return authService.refreshToken().pipe(
+      catchError((err) => {
+        isRefreshing = false;
+        refreshTokenSubject.next('FAILED');
+        // authService.refreshToken() already handles logout routing internally
+        return throwError(() => err);
+      }),
+      switchMap((tokenResponse: any) => { // Adjust type based on your token response model
+        isRefreshing = false;
+        refreshTokenSubject.next(tokenResponse.accessToken);
+        return next(addToken(request, tokenResponse.accessToken));
+      })
+    );
+  } else {
+    return refreshTokenSubject.pipe(
+      filter(token => token !== null),
+      take(1),
+      switchMap(jwt => {
+        if (jwt === 'FAILED') return throwError(() => new Error('Refresh token failed'));
+        return next(addToken(request, jwt!));
       })
     );
   }
+};
 
-  private addToken(request: HttpRequest<unknown>, token: string) {
-    return request.clone({ setHeaders: { Authorization: `Bearer ${token}` } });
+export const authInterceptor: HttpInterceptorFn = (
+  request: HttpRequest<unknown>,
+  next: HttpHandlerFn
+): Observable<HttpEvent<unknown>> => {
+
+  const authService = inject(AuthService);
+  const token = authService.getAccessToken();
+
+  // 🟢 CRITICAL SECURITY: Only attach tokens to YOUR backend, never to 3rd party APIs
+  const isApiUrl = request.url.startsWith(environment.apiUrl);
+  const isAuthRequest = request.url.includes('/api/v1/auth/');
+
+  let modifiedRequest = request;
+
+  // Attach token if it's our API, not an auth request, and we have a token
+  if (isApiUrl && token && !isAuthRequest) {
+    modifiedRequest = addToken(request, token);
   }
 
-  private handle401Error(request: HttpRequest<unknown>, next: HttpHandler) {
-    if (!this.isRefreshing) {
-      this.isRefreshing = true;
-      this.refreshTokenSubject.next(null);
+  // Note: Functional interceptors use next(req) instead of next.handle(req)
+  return next(modifiedRequest).pipe(
+    catchError((error: any) => {
+      const isStatusRequest = request.url.includes('/interpreters/me/status');
 
-      return this.authService.refreshToken().pipe(
-        // 🟢 FIX: Catch errors for the refresh token call FIRST
-        catchError((err) => {
-          this.isRefreshing = false;
-          this.refreshTokenSubject.next('FAILED');
-          // (Note: authService.refreshToken() already calls this.logout() internally, so we don't need to do it twice)
-          return throwError(() => err);
-        }),
-        // 🟢 FIX: Then, switch to the retried request.
-        // Any 404s or 500s here will NOT trigger the catchError above.
-        switchMap((tokenResponse) => {
-          this.isRefreshing = false;
-          this.refreshTokenSubject.next(tokenResponse.accessToken);
-          return next.handle(this.addToken(request, tokenResponse.accessToken));
-        })
-      );
-    } else {
-      return this.refreshTokenSubject.pipe(
-        filter(token => token !== null),
-        take(1),
-        switchMap(jwt => {
-          if (jwt === 'FAILED') return throwError(() => new Error('Refresh failed'));
-          return next.handle(this.addToken(request, jwt!));
-        })
-      );
-    }
-  }
-}
+      if (
+        error instanceof HttpErrorResponse &&
+        error.status === 401 &&
+        !isAuthRequest &&
+        !isStatusRequest
+      ) {
+        return handle401Error(modifiedRequest, next, authService);
+      }
+
+      return throwError(() => error);
+    })
+  );
+};

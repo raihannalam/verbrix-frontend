@@ -19,7 +19,6 @@ import { UserRole } from '../../core/models/auth.models';
 interface NavLink {
   label: string;
   route?: string;
-  fragment?: string;
   queryParams?: Record<string, any>;
   isDisabled?: boolean;
 }
@@ -40,16 +39,14 @@ const NAV_CONFIG: Record<string, NavLink[]> = {
   ],
   [UserRole.CLIENT]: [
     { label: 'Overview', route: '/dashboard/client/home' },
-    { label: 'Find Interpreter', route: '/interpreters/find' },
+    { label: 'Find Interpreter', route: '/interpreters/browse' },
     { label: 'Bookings', isDisabled: true },
-    { label: 'Documents', isDisabled: true },
     { label: 'Messages', route: '/messages' },
   ],
   'GUEST': [
-    { label: 'How It Works', fragment: 'how-it-works' },
-    { label: 'Patients', fragment: 'patients' },
-    { label: 'Interpreters', fragment: 'interpreters' },
-    { label: 'About', route: '/about' },
+    { label: 'How It Works', route: '/how-it-works' },
+    { label: 'Find Interpreter', route: '/interpreters/browse' },
+    { label: 'About Us', route: '/about' },
   ]
 };
 
@@ -59,13 +56,11 @@ const NAV_CONFIG: Record<string, NavLink[]> = {
   imports: [RouterLink, RouterLinkActive, CommonModule],
   template: `
     <header
-      class="w-full h-16 transition-all duration-300 border-b relative z-[1001]"
+      class="w-full h-16 transition-colors duration-300 border-b relative z-[1001]"
       [class.border-transparent]="!isScrolled() && !isMenuOpen()"
       [class.border-[var(--border)]]="isScrolled() || isMenuOpen()"
       [class.bg-transparent]="!isScrolled() && !isMenuOpen()"
-      [class.bg-[var(--bg-glass)]]="isScrolled() && !isMenuOpen()"
-      [class.backdrop-blur-xl]="isScrolled() && !isMenuOpen()"
-      [class.bg-[var(--bg-page)]]="isMenuOpen()"
+      [class.bg-[var(--bg-page)]]="isScrolled() || isMenuOpen()"
     >
       <div class="container mx-auto h-full px-4 sm:px-6 flex items-center justify-between relative z-10">
 
@@ -92,11 +87,6 @@ const NAV_CONFIG: Record<string, NavLink[]> = {
                  class="px-4 py-2 rounded-lg text-sm font-medium text-[var(--text-muted)] transition-all hover:text-blue-600 hover:bg-[var(--bg-surface)] cursor-pointer">
                 {{ link.label }}
               </a>
-            } @else {
-              <button (click)="scrollTo(link.fragment!)"
-                      class="px-4 py-2 rounded-lg text-sm font-medium text-[var(--text-muted)] transition-all hover:text-blue-600 hover:bg-[var(--bg-surface)] cursor-pointer">
-                {{ link.label }}
-              </button>
             }
           }
         </nav>
@@ -105,7 +95,7 @@ const NAV_CONFIG: Record<string, NavLink[]> = {
           @if (isLoggedIn()) {
             <div class="hidden md:flex items-center gap-4 pl-4 border-l border-[var(--border)]">
               <a routerLink="/profile"
-                 class="flex items-center gap-3 cursor-pointer p-1.5 pr-3 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                 class="flex items-center gap-3 cursor-pointer p-1.5 pr-3 rounded-full hover:bg-[var(--bg-surface)] transition-colors"
                  title="View Profile & Settings">
 
                 @if (profilePictureUrl()) {
@@ -160,8 +150,9 @@ const NAV_CONFIG: Record<string, NavLink[]> = {
     </div>
 
     <aside
-      class="md:hidden fixed top-0 right-0 z-[1000] h-[100dvh] w-[80%] max-w-[300px] bg-[var(--bg-page)] shadow-2xl pt-20 pb-6 px-6 transition-transform duration-300"
+      class="md:hidden fixed top-0 right-0 z-[1000] h-[100dvh] w-[80%] max-w-[300px] bg-[var(--bg-page)] shadow-2xl pt-20 pb-6 px-6 transition-transform duration-300 border-l border-[var(--border)] flex flex-col"
       [class.translate-x-full]="!isMenuOpen()"
+      [class.translate-x-0]="isMenuOpen()"
       [style.visibility]="isMenuOpen() ? 'visible' : 'hidden'"
     >
       <nav class="flex-1 overflow-y-auto flex flex-col gap-2 no-scrollbar">
@@ -198,24 +189,19 @@ const NAV_CONFIG: Record<string, NavLink[]> = {
                class="flex items-center px-4 py-3 rounded-xl text-base font-semibold text-[var(--text-muted)] hover:bg-[var(--bg-surface)] cursor-pointer">
               {{ link.label }}
             </a>
-          } @else {
-            <button (click)="scrollTo(link.fragment!); closeMenu()"
-                    class="flex items-center px-4 py-3 rounded-xl text-base font-semibold text-[var(--text-muted)] hover:bg-[var(--bg-surface)] text-left cursor-pointer">
-              {{ link.label }}
-            </button>
           }
         }
 
-        <div class="mt-auto pt-6 border-t border-[var(--border)]">
+        <div class="mt-auto pt-6 border-t border-[var(--border)] space-y-2">
           @if (isLoggedIn()) {
-            <a routerLink="/profile" (click)="closeMenu()" class="w-full flex items-center justify-center gap-2 px-4 py-3 mb-2 rounded-xl font-semibold text-[var(--text-muted)] hover:bg-[var(--bg-surface)] cursor-pointer">
+            <a routerLink="/profile" (click)="closeMenu()" class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-[var(--text-muted)] hover:bg-[var(--bg-surface)] cursor-pointer">
               <i class="ri-user-settings-line"></i> Profile & Settings
             </a>
             <button (click)="logout()" class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-red-600 font-semibold hover:bg-red-50 dark:hover:bg-red-900/10 cursor-pointer">
               <i class="ri-logout-box-line"></i> Log Out
             </button>
           } @else {
-            <a routerLink="/auth/login" (click)="closeMenu()" class="block w-full px-4 py-3 rounded-xl font-semibold text-[var(--text-muted)] hover:bg-[var(--bg-surface)] mb-2 cursor-pointer text-center">Sign In</a>
+            <a routerLink="/auth/login" (click)="closeMenu()" class="block w-full px-4 py-3 rounded-xl font-semibold text-[var(--text-muted)] hover:bg-[var(--bg-surface)] cursor-pointer text-center">Sign In</a>
             <a routerLink="/auth/register" (click)="closeMenu()" class="block w-full text-center rounded-xl bg-blue-600 text-white py-3 font-bold cursor-pointer shadow-lg shadow-blue-600/20">Get Started</a>
           }
         </div>
@@ -230,7 +216,7 @@ const NAV_CONFIG: Record<string, NavLink[]> = {
       left: 0;
       right: 0;
       width: 100%;
-      z-index: 2000; /* Highest priority */
+      z-index: 2000;
       transform: translateZ(0);
       backface-visibility: hidden;
     }
@@ -268,7 +254,6 @@ export class Navbar {
     return name.slice(0, 2).toUpperCase();
   });
 
-  // Added computed property to get the profile picture URL safely
   profilePictureUrl = computed(() => this.profile.profile()?.profilePictureUrl);
 
   roleLabel = computed(() => {
@@ -305,7 +290,6 @@ export class Navbar {
           });
       });
 
-      // Fixed: check the signal value instead of the observable stream
       if (this.auth.isLoggedIn() && !this.profile.profile()) {
         this.profile.loadProfile();
       }
@@ -313,8 +297,6 @@ export class Navbar {
   }
 
   private checkScroll() {
-    // Aggressive check: if scroll is 0 and menu is closed, stay transparent.
-    // If ANY scroll happens OR menu is open, show background.
     const scrolled = window.scrollY > 10;
     if (this.isScrolled() !== scrolled) {
       this.isScrolled.set(scrolled);
@@ -351,23 +333,5 @@ export class Navbar {
     this.closeMenu();
     this.auth.logout();
     this.profile.clear();
-  }
-
-  scrollTo(id: string) {
-    if (this.router.url !== '/') {
-      this.router.navigate(['/']).then(() =>
-        setTimeout(() => this.doScroll(id), 100)
-      );
-    } else {
-      this.doScroll(id);
-    }
-  }
-
-  private doScroll(id: string) {
-    const el = this.document.getElementById(id);
-    if (!el) return;
-    const headerHeight = 64;
-    const offset = el.getBoundingClientRect().top + window.scrollY - headerHeight;
-    window.scrollTo({ top: offset, behavior: 'smooth' });
   }
 }
