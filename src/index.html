@@ -10,33 +10,49 @@
 
   <title>Medical Interpreters for Medical Tourism in India | Verbrix</title>
 
+  <meta name="description"
+        content="Find verified medical interpreters in India for international patients and medical tourism. Verbrix connects hospitals, patients, and certified interpreters for secure healthcare communication."/>
+
   <meta name="keywords"
         content="medical interpreter India, healthcare interpreter India, medical tourism interpreter, Arabic interpreter India, hospital interpreter India"/>
 
   <meta name="robots" content="index, follow"/>
 
+  <!-- fallback canonical (Angular SEO service will override per route) -->
+  <link rel="canonical" href="https://verbrix.com/"/>
+
   <link rel="sitemap" type="application/xml" href="https://verbrix.com/sitemap.xml"/>
 
   <meta name="theme-color" content="#7c3aed"/>
 
+  <!-- Icons -->
   <link rel="icon" href="favicon.ico"/>
+  <link rel="shortcut icon" href="favicon.ico"/>
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png"/>
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png"/>
   <link rel="apple-touch-icon" href="apple-touch-icon.png"/>
   <link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png"/>
   <link rel="icon" type="image/png" sizes="512x512" href="android-chrome-512x512.png"/>
 
+  <!-- Open Graph -->
   <meta property="og:type" content="website"/>
   <meta property="og:site_name" content="Verbrix"/>
   <meta property="og:title" content="Verbrix Medical Interpreters"/>
+  <meta property="og:description"
+        content="Verbrix connects international patients with verified medical interpreters across India for safe healthcare communication."/>
+  <meta property="og:url" content="https://verbrix.com"/>
   <meta property="og:image"
         content="https://verbrix.com/assets/images/logo.png"/>
 
+  <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image"/>
   <meta name="twitter:title" content="Verbrix Medical Interpreters"/>
+  <meta name="twitter:description"
+        content="Find certified medical interpreters in India for hospitals and medical tourism through the Verbrix platform."/>
   <meta name="twitter:image"
         content="https://verbrix.com/assets/images/logo.png"/>
 
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 
@@ -49,66 +65,46 @@
   <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css"
         rel="stylesheet"/>
 
-
   <style>
-
     .seo-hidden {
-
       position:absolute;
       width:1px;
       height:1px;
-
       padding:0;
       margin:-1px;
-
       overflow:hidden;
-
       clip:rect(0,0,0,0);
       white-space:nowrap;
-
       border:0;
-
     }
-
   </style>
 
-
+  <!-- Structured Data -->
   <script type="application/ld+json">
     {
       "@context":"https://schema.org",
-
       "@graph":[
 
         {
           "@type":"Organization",
-
           "@id":"https://verbrix.com/#organization",
-
           "name":"Verbrix",
-
           "url":"https://verbrix.com",
-
           "logo":{
             "@type":"ImageObject",
             "url":"https://verbrix.com/assets/images/logo.png"
           },
-
           "sameAs":[
             "https://twitter.com/verbrixglobal",
             "https://linkedin.com/company/verbrixglobal",
             "https://instagram.com/verbrixglobal",
             "https://facebook.com/verbrixglobal"
           ],
-
           "contactPoint":{
             "@type":"ContactPoint",
-
             "email":"contact@verbrix.com",
-
             "contactType":"customer support",
-
             "areaServed":"Global",
-
             "availableLanguage":[
               "English",
               "Hindi",
@@ -120,32 +116,24 @@
               "French"
             ]
           }
-
         },
 
         {
           "@type":"WebSite",
-
           "@id":"https://verbrix.com/#website",
-
           "url":"https://verbrix.com",
-
           "name":"Verbrix",
           "alternateName":"Verbrix Medical Interpreters",
-
           "publisher":{
             "@id":"https://verbrix.com/#organization"
           },
-
           "potentialAction":{
             "@type":"SearchAction",
-
             "target":"https://verbrix.com/interpreters/browse?q={search_term_string}",
-
             "query-input":"required name=search_term_string"
           }
-
         },
+
         {
           "@type": "Service",
           "@id": "https://verbrix.com/#service",
@@ -157,53 +145,53 @@
             "@type": "Country",
             "name": "India"
           }
+        },
+
+        {
+          "@type":"SiteNavigationElement",
+          "name":[
+            "Find Medical Interpreters",
+            "How It Works",
+            "About Us",
+            "Privacy Policy",
+            "Terms of Service"
+          ],
+          "url":[
+            "https://verbrix.com/interpreters/browse",
+            "https://verbrix.com/how-it-works",
+            "https://verbrix.com/about",
+            "https://verbrix.com/legal/privacy",
+            "https://verbrix.com/legal/terms"
+          ]
         }
+
       ]
     }
   </script>
 
-
 </head>
-
-
 
 <body class="bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-50 font-sans antialiased overflow-x-hidden">
 
-
-
 <app-root></app-root>
-
-
 
 <div class="seo-hidden">
 
   <h1>Medical Interpreters in India</h1>
 
   <nav>
-
     <a href="/">Home</a>
-
     <a href="/interpreters/browse">Find Medical Interpreters</a>
-
     <a href="/auth/login">Sign In</a>
-
     <a href="/auth/register">Sign Up</a>
-
     <a href="/how-it-works">How It Works</a>
-
     <a href="/about">About Us</a>
-
     <a href="/legal/privacy">Privacy Policy</a>
-
     <a href="/legal/terms">Terms of Service</a>
-
     <a href="/legal/deletion">Account Deletion</a>
-
   </nav>
 
 </div>
-
-
 
 </body>
 </html>
