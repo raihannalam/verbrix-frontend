@@ -1,286 +1,265 @@
+# 📘 Verbrix Frontend
 
-# 📘 Verbrix - Frontend
+Frontend application for **Verbrix**, a platform that connects international patients with verified interpreters to facilitate secure healthcare communication.
 
-Frontend application for **Verbrix: Intermediary Platform for Global Healthcare Communication**, built using **Angular 21** and **Tailwind CSS v4**.
-
-This application provides the user interface for a secure platform that connects international patients with verified interpreters, enabling structured communication, consultation, and payments.
-
----
-
-## 🧭 Overview
-
-Verbrix is a full-stack platform designed to eliminate communication barriers in global healthcare by connecting:
-
-- Clients (international patients)
-- Verified interpreters
-- Admin (verification authority)
-
-The frontend is responsible for rendering the UI, managing user interactions, and integrating with backend services via REST APIs and WebSockets.
+Built with **Angular 21** and **Tailwind CSS v4**, the application delivers a responsive user experience for authentication, onboarding, communication, consultations, and payment workflows.
 
 ---
 
-## 🚀 Features
+## Overview
 
-### Authentication & Security
-- OTP-based email verification  
-- JWT-based authentication  
-- Google social login  
-- Device/session management  
+Verbrix is a healthcare communication platform designed to bridge language barriers between patients and professional interpreters.
 
-### Role-Based System
-- Client  
-- Interpreter  
-- Admin  
+The frontend provides:
+
+* Secure authentication and account management
+* Interpreter onboarding workflows
+* Relationship management
+* Real-time messaging
+* Video consultations
+* Payment processing
+* Administrative dashboards
+
+---
+
+## Features
+
+### Authentication & Authorization
+
+* Email OTP verification
+* JWT authentication
+* Google OAuth login
+* Session and device management
+
+### Role Management
+
+* Client
+* Interpreter
+* Admin
 
 ### Interpreter Onboarding
-- Application submission with document upload  
-- Admin verification workflow  
-- Role transition from client to interpreter  
 
-### Relationship Lifecycle
-- REQUESTED → ACCEPTED → ACTIVE → TERMINATED  
-- Controls access to chat and video services  
+* Application submission
+* Document uploads
+* Verification workflow
+* Role transition management
 
-### Real-Time Communication
-- WebSocket-based chat  
-- Persistent message storage  
-- Access control based on relationship state  
+### Relationship Management
+
+Relationship lifecycle:
+
+```text
+REQUESTED → ACCEPTED → ACTIVE → TERMINATED
+```
+
+Features:
+
+* Controlled access to platform services
+* Relationship validation
+* Secure workflow management
+
+### Real-Time Messaging
+
+* WebSocket-based communication
+* Real-time chat updates
+* Relationship-based access control
 
 ### Video Consultation
-- Secure video calls using LiveKit  
-- Token-based access control  
 
-### Payment System
-- Razorpay integration  
-- Idempotent order creation  
-- Payment verification  
-- Automatic refund mechanism  
+* LiveKit integration
+* Secure token-based session access
+* Real-time video communication
 
-### Admin Module
-- Interpreter verification  
-- Application review and approval  
-- Platform monitoring  
+### Payment Processing
+
+* Razorpay integration
+* Payment verification
+* Transaction tracking
+* Refund workflow support
+
+### Administration
+
+* Interpreter verification
+* Application review
+* Platform monitoring
 
 ---
 
-## 🏗️ Architecture
-
-The system follows a layered architecture:
+## Technology Stack
 
 ### Frontend
-- Angular 21  
-- Tailwind CSS v4  
-- REST + WebSocket communication  
 
-### Backend
-- Spring Boot (Java 21)  
-- JWT-based security  
-- REST APIs  
+* Angular 21
+* TypeScript
+* Tailwind CSS v4
+* RxJS
+* Angular Router
+* Angular Signals
 
-### Data Layer
-- PostgreSQL (relational data)  
-- MongoDB (chat and logs)  
+### Backend Integration
 
----
-
-## 🔗 External Services
-
-- Razorpay — payment processing  
-- LiveKit — video communication  
-- Cloudinary — file storage  
-- Firebase — social authentication  
-- Resend — email OTP delivery  
+* Spring Boot REST APIs
+* JWT Authentication
+* WebSocket (STOMP)
 
 ---
 
-## 📂 Project Structure
+## External Services
 
-```
+* Razorpay
+* LiveKit
+* Cloudinary
+* Firebase Authentication
+* Resend
 
-verbrix-frontend/
+---
+
+## Project Structure
+
+```text
+src/
+├── app/
+│   ├── components/
+│   ├── pages/
+│   ├── services/
+│   ├── models/
+│   ├── guards/
+│   ├── interceptors/
+│   └── shared/
 │
-├── src/
-│   ├── app/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── services/
-│   │   ├── models/
-│   │   ├── guards/
-│   │   ├── interceptors/
-│   │   └── app.module.ts
-│   │
-│   ├── assets/
-│   ├── environments/
-│   └── main.ts
-│
-├── angular.json
-├── tailwind.config.js
-├── package.json
-└── README.md
-
+├── assets/
+├── environments/
+└── main.ts
 ```
 
 ---
 
-## ⚙️ Prerequisites
+## Prerequisites
 
-- Node.js (v18 or higher)  
-- npm  
-- Angular CLI  
+* Node.js 18+
+* npm
+* Angular CLI
 
 Install Angular CLI:
 
-```
-
+```bash
 npm install -g @angular/cli
-
-````
+```
 
 ---
 
-## ⚙️ Installation & Running
+## Installation
 
 ```bash
 git clone <repository-url>
 cd verbrix-frontend
 npm install
-ng serve
-````
-
-Application runs at:
-
 ```
+
+---
+
+## Running Locally
+
+```bash
+ng serve
+```
+
+Application URL:
+
+```text
 http://localhost:4200
 ```
 
 ---
 
-## 🔗 Backend Configuration
+## Environment Configuration
 
-Update API base URL in:
+Configure API endpoints inside:
 
-```
+```text
 src/environments/environment.ts
 ```
 
 Example:
 
-```ts
+```typescript
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:8080/api'
+  apiUrl: "http://localhost:8080/api"
 };
 ```
 
-Ensure backend is running before starting frontend.
+---
+
+## API Modules
+
+| Module         | Endpoint         |
+| -------------- | ---------------- |
+| Authentication | `/auth`          |
+| Interpreter    | `/interpreters`  |
+| Client         | `/clients`       |
+| Relationship   | `/relationships` |
+| Chat           | `/chat`          |
+| Payment        | `/payments`      |
+| Video          | `/video`         |
 
 ---
 
-## 📡 API Modules
+## Real-Time Communication
 
-* `/auth` — authentication
-* `/interpreters` — interpreter management
-* `/clients` — client operations
-* `/relationships` — connection lifecycle
-* `/chat` — messaging
-* `/payments` — transactions
-* `/video` — video calls
+### WebSocket Endpoint
 
----
+```text
+/ws
+```
 
-## ⚡ Real-Time Communication
+### Chat Topic
 
-* WebSocket endpoint: `/ws`
-* Protocol: STOMP
-* Topic: `/topic/chat/{id}`
+```text
+/topic/chat/{relationshipId}
+```
 
-Flow:
+### Workflow
 
-1. Send message
-2. Validate relationship
-3. Store message
-4. Broadcast in real-time
+1. Establish WebSocket connection
+2. Subscribe to relationship topic
+3. Send and receive messages in real time
+4. Synchronize chat history
 
 ---
 
-## 🔒 Security
+## Security
 
 * JWT-based authentication
-* BCrypt password hashing
-* Role-based authorization
-* Secure API endpoints
-* Session/device tracking
+* Route guards
+* HTTP interceptors
+* Secure token handling
+* Role-based UI access control
 
 ---
 
-## 📦 Build
+## Build
 
 ```bash
 ng build --configuration production
 ```
 
-Output directory:
+Build output:
 
-```
+```text
 dist/
 ```
 
 ---
 
-## 🚀 Deployment
+## Deployment
 
-* Docker containerization
-* CI/CD via GitHub Actions
-* Backend deployed on Render
-* Frontend deployed on Netlify
-
----
-
-## 🧪 Testing Summary
-
-* API testing using Postman
-* Backend unit testing
-* Manual UI testing
-
-Performance:
-
-* API response: ~200–500 ms
-* Low-latency real-time communication
+* Docker
+* GitHub Actions
+* Netlify
 
 ---
 
-## ⚠️ Limitations
+## Author
 
-* No load testing performed
-* Payments tested in sandbox mode
-* Mobile app partially implemented
-
----
-
-## 🔮 Future Scope
-
-* Full mobile application
-* Subscription-based services
-* Booking and scheduling system
-* Rating and feedback system
-* AI-based recommendations
-* Multi-language support
-* Hospital integration
-
----
-
-## 👨‍💻 Authors
-
-* Raihan Alam
-* Sameer Saifi
-* Nancy Goyal
-* Stuti
-
-B.Tech Computer Science & Engineering
-Sanskar College of Engineering & Technology
-
----
-
-## 📄 License
-
-Academic project.
+**Raihan Alam**
