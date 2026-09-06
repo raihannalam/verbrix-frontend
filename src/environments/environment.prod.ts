@@ -1,7 +1,7 @@
 export const environment = {
   production: true,
-  apiBaseUrl: 'https://api.verbrix.com',
-  apiUrl: 'https://api.verbrix.com/api/v1',
+  apiBaseUrl: 'https://api.verbrix.raihanalam.dev',
+  apiUrl: 'https://api.verbrix.raihanalam.dev/api/v1',
   liveKitUrl: 'wss://verbrix-is1gv2zd.livekit.cloud',
   firebaseConfig: {
     apiKey: "AIzaSyCEH7-hbaiRc_KxW1xE8_z2r0jEY72UTX8",
