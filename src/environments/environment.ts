@@ -1,15 +1,18 @@
 export const environment = {
-production: false,
-apiBaseUrl: '<API_BASE_URL>',
-apiUrl: '<API_URL>',
-liveKitUrl: '<LIVEKIT_URL>',
-firebaseConfig: {
-apiKey: '<FIREBASE_API_KEY>',
-authDomain: '<FIREBASE_AUTH_DOMAIN>',
-projectId: '<FIREBASE_PROJECT_ID>',
-storageBucket: '<FIREBASE_STORAGE_BUCKET>',
-messagingSenderId: '<FIREBASE_MESSAGING_SENDER_ID>',
-appId: '<FIREBASE_APP_ID>',
-measurementId: '<FIREBASE_MEASUREMENT_ID>',
-},
+  production: false,
+
+  apiBaseUrl: 'http://localhost:8080',
+  apiUrl: 'http://localhost:8080/api/v1',
+
+  liveKitUrl: 'wss://verbrix-is1gv2zd.livekit.cloud',
+
+  firebaseConfig: {
+    apiKey: "AIzaSyCEH7-hbaiRc_KxW1xE8_z2r0jEY72UTX8",
+    authDomain: "verbrix-prod.firebaseapp.com",
+    projectId: "verbrix-prod",
+    storageBucket: "verbrix-prod.firebasestorage.app",
+    messagingSenderId: "1060576789167",
+    appId: "1:1060576789167:web:6bc691f281a0d4b4f44a5a",
+    measurementId: "G-49JQVM5HJF"
+  }
 };

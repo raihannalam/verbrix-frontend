@@ -12,12 +12,15 @@
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
+
       "architect": {
         "build": {
           "builder": "@angular/build:application",
+
           "options": {
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
+
             "assets": [
               {
                 "glob": "**/*",
@@ -32,10 +35,12 @@
               "src/favicon-32x32.png",
               "src/robots.txt"
             ],
+
             "styles": [
               "src/styles.css"
             ]
           },
+
           "configurations": {
             "production": {
               "fileReplacements": [
@@ -44,6 +49,7 @@
                   "with": "src/environments/environment.prod.ts"
                 }
               ],
+
               "budgets": [
                 {
                   "type": "initial",
@@ -56,34 +62,43 @@
                   "maximumError": "8kB"
                 }
               ],
+
               "outputHashing": "all",
               "optimization": true,
               "sourceMap": false,
               "extractLicenses": true
             },
+
             "development": {
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
             }
           },
+
           "defaultConfiguration": "production"
         },
+
         "serve": {
           "builder": "@angular/build:dev-server",
+
           "options": {
             "proxyConfig": "proxy.conf.json"
           },
+
           "configurations": {
             "production": {
               "buildTarget": "verbrix-frontend:build:production"
             },
+
             "development": {
               "buildTarget": "verbrix-frontend:build:development"
             }
           },
+
           "defaultConfiguration": "development"
         },
+
         "test": {
           "builder": "@angular/build:unit-test"
         }
